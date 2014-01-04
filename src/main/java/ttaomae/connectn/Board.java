@@ -2,21 +2,17 @@ package ttaomae.connectn;
 
 import java.util.Arrays;
 
-public class Board
+public class Board implements Cloneable
 {
-    private final int height;
-    private final int width;
     private final int winCondition;
     private Piece[][] board;
     private int currentTurn;
 
     public Board()
     {
-        this.height = 6;
-        this.width = 7;
         this.winCondition = 4;
 
-        this.board = new Piece[this.height][this.width];
+        this.board = new Piece[6][7];
         for (Piece[] row : this.board) {
             Arrays.fill(row, Piece.NONE);
         }
@@ -48,6 +44,11 @@ public class Board
 
     public Piece getWinner()
     {
+        // if the board is full it is a draw
+        if (this.currentTurn == this.getHeight() * this.getWidth()) {
+            return Piece.DRAW;
+        }
+
         for (int row = 0; row < this.getHeight(); row++) {
             for (int col = 0; col < this.getWidth(); col++) {
                 // check horizontal win
@@ -64,6 +65,7 @@ public class Board
                                 horizontalRed++;
                                 break;
                             case NONE:
+                            case DRAW:
                                 break;
                         }
                     }
@@ -90,6 +92,7 @@ public class Board
                                 verticalRed++;
                                 break;
                             case NONE:
+                            case DRAW:
                                 break;
                         }
                     }
@@ -117,6 +120,7 @@ public class Board
                                 diagonalRed++;
                                 break;
                             case NONE:
+                            case DRAW:
                                 break;
                         }
                     }
@@ -144,6 +148,7 @@ public class Board
                                 diagonalRed++;
                                 break;
                             case NONE:
+                            case DRAW:
                                 break;
                         }
                     }
@@ -161,21 +166,15 @@ public class Board
         return Piece.NONE;
     }
 
-    public int getHeight()
+    public boolean isValidMove(int col)
     {
-        return this.height;
-    }
+        // invalid index
+        if (col < 0 || col >= this.getWidth()) {
+            return false;
+        }
 
-    public int getWidth()
-    {
-        return this.width;
+        return this.getPieceAt(col, this.getHeight() - 1) == Piece.NONE;
     }
-
-    public int getWinCondition()
-    {
-        return this.winCondition;
-    }
-
     public Piece getPieceAt(int col, int row) throws IndexOutOfBoundsException
     {
         if (col < 0 || col >= this.getWidth()) {
@@ -195,4 +194,32 @@ public class Board
     {
         return (this.currentTurn % 2 == 0) ? Piece.BLACK : Piece.RED;
     }
+
+    public Board copy()
+    {
+        Board copy = new Board();
+
+        for (int i = 0; i < this.board.length; i++) {
+                System.arraycopy(this.board[i], 0, copy.board[i], 0, this.board[i].length);
+        }
+        copy.currentTurn = this.currentTurn;
+
+        return copy;
+    }
+
+    public int getHeight()
+    {
+        return this.board.length;
+    }
+
+    public int getWidth()
+    {
+        return this.board[0].length;
+    }
+
+    public int getWinCondition()
+    {
+        return this.winCondition;
+    }
+
 }

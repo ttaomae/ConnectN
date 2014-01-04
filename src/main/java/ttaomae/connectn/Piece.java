@@ -2,7 +2,7 @@ package ttaomae.connectn;
 
 public enum Piece
 {
-    BLACK, RED, NONE;
+    BLACK, RED, NONE, DRAW;
 
     public Piece opposite()
     {
@@ -12,6 +12,7 @@ public enum Piece
             case RED:
                 return BLACK;
             case NONE:
+            case DRAW:
             default:
                 return NONE;
         }

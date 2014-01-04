@@ -1,10 +1,11 @@
 package ttaomae.connectn;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
-
 public class BoardTest
 {
     private Board board;
@@ -100,6 +101,25 @@ public class BoardTest
             board.getPieceAt(0, board.getHeight());
         } catch (IndexOutOfBoundsException e) {
             assertEquals("failure - get piece at (0, 6)", "Row: 6, Height: 6", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testIsValidMove()
+    {
+        assertFalse("failure - isValidMove: -1", board.isValidMove(-1));
+        assertFalse("failure - isValidMove: 7", board.isValidMove(7));
+        for (int i = 0; i < board.getWidth(); i++) {
+            assertTrue("failure - isValidMove for empty board", board.isValidMove(i));
+        }
+
+        for (int i = 0; i < board.getWidth(); i++) {
+            board = new Board();
+            // fill a single column
+            for (int j = 0; j < board.getHeight(); j++) {
+                board.play(i);
+            }
+            assertFalse("failure - isValidMove for full column", board.isValidMove(i));
         }
     }
 
@@ -502,5 +522,26 @@ public class BoardTest
         board.play(3);
         board.play(3); // red
         assertEquals("failure - red diagonal winner, top right", Piece.RED, board.getWinner());
+    }
+
+    @Test
+    public void testDraw()
+    {
+        // play pattern twice
+        for (int i = 0; i < 2; i++) {
+            // play three rows
+            for (int j = 0; j < 3; j++) {
+                // play first six columns
+                for (int k = 0; k < 6; k++) {
+                    board.play(k);
+                }
+            }
+            // play last column
+            board.play(6);
+            board.play(6);
+            board.play(6);
+        }
+
+        assertEquals("failure - board full draw", Piece.DRAW, board.getWinner());
     }
 }
