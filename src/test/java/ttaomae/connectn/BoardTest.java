@@ -35,6 +35,32 @@ public class BoardTest
     }
 
     @Test
+    public void testBoardConstructor()
+    {
+        board = new Board(5, 5, 5);
+        assertEquals("failure - new Board(5, 5, 5) height", 5, board.getHeight());
+        assertEquals("failure - new Board(5, 5, 5) width", 5, board.getWidth());
+        assertEquals("failure - new Board(5, 5, 5) win condition", 5, board.getWinCondition());
+
+        try {
+            new Board(1, 5, 5);
+        } catch (IllegalArgumentException e) {
+            assertEquals("failure - illegal height", "height must be at least 2", e.getMessage());
+        }
+        try {
+            new Board(5, 1, 5);
+        } catch (IllegalArgumentException e) {
+            assertEquals("failure - illegal height", "width must be at least 2", e.getMessage());
+        }
+        try {
+            new Board(5, 5, 6);
+        } catch (IllegalArgumentException e) {
+            assertEquals("failure - illegal height",
+                    "winCondition must not be greater than min(height, width)", e.getMessage());
+        }
+    }
+
+    @Test
     public void testOnePlay()
     {
         for (int col = 0; col < board.getWidth(); col++) {
