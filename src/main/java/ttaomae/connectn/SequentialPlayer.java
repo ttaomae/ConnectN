@@ -11,6 +11,7 @@ public class SequentialPlayer implements Player
                 return move;
             }
         }
+
         // there are no valid moves
         return -1;
     }
