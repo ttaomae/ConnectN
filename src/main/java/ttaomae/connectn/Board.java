@@ -53,6 +53,10 @@ public class Board implements Cloneable
                 this.board[row][col] = this.getNextPiece();
                 currentTurn++;
                 columnFull = false;
+                synchronized (this) {
+                    // notify when a play has been made
+                    this.notifyAll();
+                }
                 break;
             }
         }
