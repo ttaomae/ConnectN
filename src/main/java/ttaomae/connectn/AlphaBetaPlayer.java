@@ -38,7 +38,6 @@ public class AlphaBetaPlayer implements Player
                 double heuristic = alphaBeta(copy, depth - 1, Double.NEGATIVE_INFINITY,
                         Double.POSITIVE_INFINITY, myPiece);
                 possibleMoves.put(move, heuristic);
-                // possibleMoves.put(move, minimax(copy, this.depth - 1, myPiece));
             }
         }
 
@@ -59,8 +58,6 @@ public class AlphaBetaPlayer implements Player
         // pick a random best move
         if (bestMoves.size() != 0) {
             int move = bestMoves.get(this.rand.nextInt(bestMoves.size()));
-            System.out.println(myPiece + ": best moves: " + maxHeuristic + ": " + bestMoves
-                               + " --> " + move);
             return move;
         }
 
@@ -119,6 +116,75 @@ public class AlphaBetaPlayer implements Player
             return -1.0f;
         }
 
-        return 0.0f;
+        // check for n-in-a-row
+        int nInARow = board.getWinCondition() - 1;
+        int maxPlayerNInARow = 0;
+        int minPlayerNInARow = 0;
+        // check each board position
+        for (int row = 0; row < board.getHeight(); row++) {
+            for (int col = 0; col < board.getWidth(); col++) {
+                int maxPlayerHorizontal = 0;
+                int minPlayerHorizontal = 0;
+                int maxPlayerVertical = 0;
+                int minPlayerVertical = 0;
+                int maxPlayerDiagonalA = 0;
+                int minPlayerDiagonalA = 0;
+                int maxPlayerDiagonalB = 0;
+                int minPlayerDiagonalB = 0;
+
+                for (int i = 0; i < nInARow; i++) {
+                    // check horizontal
+                    if (col <= board.getWidth() - nInARow) {
+                        if (board.getPieceAt(col + i, row) == maxPlayer) {
+                            maxPlayerHorizontal++;
+                        }
+                        else if (board.getPieceAt(col + i, row) == maxPlayer.opposite()) {
+                            minPlayerHorizontal++;
+                        }
+                    }
+
+                    // check vertical
+                    if (row <= board.getHeight() - nInARow) {
+                        if (board.getPieceAt(col, row + i) == maxPlayer) {
+                            maxPlayerVertical++;
+                        }
+                        else if (board.getPieceAt(col, row + i) == maxPlayer.opposite()) {
+                            minPlayerVertical++;
+                        }
+                    }
+
+                    // check up-right diagonal
+                    if (col <= board.getWidth() - nInARow && row <= board.getHeight() - nInARow) {
+                        if (board.getPieceAt(col + i, row + i) == maxPlayer) {
+                            maxPlayerDiagonalA++;
+                        }
+                        else if (board.getPieceAt(col + i, row + i) == maxPlayer.opposite()) {
+                            minPlayerDiagonalA++;
+                        }
+                    }
+
+                    // check up-left diagonal
+                    if (col >= board.getWinCondition() - 1 && row <= board.getHeight() - nInARow) {
+                        if (board.getPieceAt(col - i, row + i) == maxPlayer) {
+                            maxPlayerDiagonalB++;
+                        }
+                        else if (board.getPieceAt(col - i, row + i) == maxPlayer.opposite()) {
+                            minPlayerDiagonalB++;
+                        }
+                    }
+                }
+
+                if (maxPlayerHorizontal == nInARow || maxPlayerVertical == nInARow
+                    || maxPlayerDiagonalA == nInARow || maxPlayerDiagonalB == nInARow) {
+                        maxPlayerNInARow++;
+                }
+                if (minPlayerHorizontal == nInARow || minPlayerVertical == nInARow
+                    || minPlayerDiagonalA == nInARow || minPlayerDiagonalB == nInARow) {
+                        maxPlayerNInARow++;
+                }
+            }
+        }
+
+        return (maxPlayerNInARow - minPlayerNInARow) * 10;
     }
 }

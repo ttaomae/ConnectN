@@ -2,7 +2,7 @@ package ttaomae.connectn;
 
 import java.util.Arrays;
 
-public class Board implements Cloneable
+public class Board
 {
     private static final int DEFAULT_HEIGHT = 6;
     private static final int DEFAULT_WIDTH = 7;
@@ -223,5 +223,4 @@ public class Board implements Cloneable
     {
         return this.winCondition;
     }
-
 }
