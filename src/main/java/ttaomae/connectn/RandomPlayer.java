@@ -24,14 +24,13 @@ public class RandomPlayer implements Player
             }
         }
 
-        // there are no valid moves
-        if (validMoves.size() == 0) {
-            return -1;
-        }
         // pick a random valid move
-        else {
+        if (validMoves.size() != 0) {
             return validMoves.get(this.rand.nextInt(validMoves.size()));
         }
+
+        // there are no valid moves
+        return -1;
     }
 
 }
