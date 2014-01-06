@@ -73,14 +73,21 @@ public class Board implements Cloneable
             return Piece.DRAW;
         }
 
+        // check each board position
         for (int row = 0; row < this.getHeight(); row++) {
             for (int col = 0; col < this.getWidth(); col++) {
-                // check horizontal win
-                if (col <= this.getWidth() - this.getWinCondition()) {
-                    int horizontalBlack = 0;
-                    int horizontalRed = 0;
+                int horizontalBlack = 0;
+                int horizontalRed = 0;
+                int verticalBlack = 0;
+                int verticalRed = 0;
+                int diagonalBlack1 = 0;
+                int diagonalRed1 = 0;
+                int diagonalBlack2 = 0;
+                int diagonalRed2 = 0;
 
-                    for (int i = 0; i < this.getWinCondition(); i++) {
+                for (int i = 0; i < this.getWinCondition(); i++) {
+                    // check horizontal win
+                    if (col <= this.getWidth() - this.getWinCondition()) {
                         switch (this.getPieceAt(col + i, row)) {
                             case BLACK:
                                 horizontalBlack++;
@@ -94,20 +101,8 @@ public class Board implements Cloneable
                         }
                     }
 
-                    if (horizontalBlack == this.getWinCondition()) {
-                        return Piece.BLACK;
-                    }
-                    else if (horizontalRed == this.getWinCondition()) {
-                        return Piece.RED;
-                    }
-                }
-
-                // check vertical win
-                if (row <= this.getHeight() - this.getWinCondition()) {
-                    int verticalBlack = 0;
-                    int verticalRed = 0;
-
-                    for (int i = 0; i < this.getWinCondition(); i++) {
+                    // check vertical win
+                    if (row <= this.getHeight() - this.getWinCondition()) {
                         switch (this.getPieceAt(col, row + i)) {
                             case BLACK:
                                 verticalBlack++;
@@ -121,27 +116,15 @@ public class Board implements Cloneable
                         }
                     }
 
-                    if (verticalBlack == this.getWinCondition()) {
-                        return Piece.BLACK;
-                    }
-                    if (verticalRed == this.getWinCondition()) {
-                        return Piece.RED;
-                    }
-                }
-
-                // check up-right diagonal win
-                if (col <= this.getWidth() - this.getWinCondition()
-                    && row <= this.getHeight() - this.getWinCondition()) {
-                    int diagonalBlack = 0;
-                    int diagonalRed = 0;
-
-                    for (int i = 0; i < this.getWinCondition(); i++) {
+                    // check up-right diagonal win
+                    if (col <= this.getWidth() - this.getWinCondition()
+                        && row <= this.getHeight() - this.getWinCondition()) {
                         switch (this.getPieceAt(col + i, row + i)) {
                             case BLACK:
-                                diagonalBlack++;
+                                diagonalBlack1++;
                                 break;
                             case RED:
-                                diagonalRed++;
+                                diagonalRed1++;
                                 break;
                             case NONE:
                             case DRAW:
@@ -149,40 +132,34 @@ public class Board implements Cloneable
                         }
                     }
 
-                    if (diagonalBlack == this.getWinCondition()) {
-                        return Piece.BLACK;
-                    }
-                    if (diagonalRed == this.getWinCondition()) {
-                        return Piece.RED;
+                    // check up-left diagonal win
+                    if (col >= this.getWinCondition() - 1
+                        && row <= this.getHeight() - this.getWinCondition()) {
+                        switch (this.getPieceAt(col - i, row + i)) {
+                            case BLACK:
+                                diagonalBlack2++;
+                                break;
+                            case RED:
+                                diagonalRed2++;
+                                break;
+                            case NONE:
+                            case DRAW:
+                                break;
+                        }
                     }
                 }
 
-                // check up-left diagonal win
-                if (col >= this.getWinCondition() - 1
-                    && row <= this.getHeight() - this.getWinCondition()) {
-                    int diagonalBlack = 0;
-                    int diagonalRed = 0;
-
-                    for (int i = 0; i < this.getWinCondition(); i++) {
-                        switch (this.getPieceAt(col - i, row + i)) {
-                            case BLACK:
-                                diagonalBlack++;
-                                break;
-                            case RED:
-                                diagonalRed++;
-                                break;
-                            case NONE:
-                            case DRAW:
-                                break;
-                        }
-                    }
-
-                    if (diagonalBlack == this.getWinCondition()) {
-                        return Piece.BLACK;
-                    }
-                    if (diagonalRed == this.getWinCondition()) {
-                        return Piece.RED;
-                    }
+                if (horizontalBlack == this.getWinCondition()
+                    || verticalBlack == this.getWinCondition()
+                    || diagonalBlack1 == this.getWinCondition()
+                    || diagonalBlack2 == this.getWinCondition()) {
+                    return Piece.BLACK;
+                }
+                if (horizontalRed == this.getWinCondition()
+                    || verticalRed == this.getWinCondition()
+                    || diagonalRed1 == this.getWinCondition()
+                    || diagonalRed2 == this.getWinCondition()) {
+                    return Piece.RED;
                 }
             }
         }
@@ -199,6 +176,7 @@ public class Board implements Cloneable
 
         return this.getPieceAt(col, this.getHeight() - 1) == Piece.NONE;
     }
+
     public Piece getPieceAt(int col, int row) throws IndexOutOfBoundsException
     {
         if (col < 0 || col >= this.getWidth()) {
@@ -224,7 +202,7 @@ public class Board implements Cloneable
         Board copy = new Board(this.getHeight(), this.getWidth(), this.getWinCondition());
 
         for (int i = 0; i < this.board.length; i++) {
-                System.arraycopy(this.board[i], 0, copy.board[i], 0, this.board[i].length);
+            System.arraycopy(this.board[i], 0, copy.board[i], 0, this.board[i].length);
         }
         copy.currentTurn = this.currentTurn;
 
