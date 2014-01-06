@@ -20,9 +20,9 @@ public class Board
         if (width < 2) {
             throw new IllegalArgumentException("width must be at least 2");
         }
-        if (winCondition > Math.min(height, width)) {
+        if (winCondition > Math.max(height, width)) {
             throw new IllegalArgumentException(
-                    "winCondition must not be greater than min(height, width)");
+                    "winCondition must not be greater than max(height, width)");
         }
 
         // create new empty board

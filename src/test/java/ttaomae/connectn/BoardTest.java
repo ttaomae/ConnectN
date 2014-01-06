@@ -56,7 +56,7 @@ public class BoardTest
             new Board(5, 5, 6);
         } catch (IllegalArgumentException e) {
             assertEquals("failure - illegal height",
-                    "winCondition must not be greater than min(height, width)", e.getMessage());
+                    "winCondition must not be greater than max(height, width)", e.getMessage());
         }
     }
 
