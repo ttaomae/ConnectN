@@ -49,6 +49,7 @@ public class ConnectNPanel extends GridPane implements Runnable
     private boolean running;
 
     private Label displayMessage;
+    private Thread myThread;
 
     public ConnectNPanel()
     {
@@ -172,9 +173,8 @@ public class ConnectNPanel extends GridPane implements Runnable
         bottomRow.add(this.startButton, 0, 0);
         bottomRow.add(this.displayMessage, 1, 0);
         this.add(bottomRow, 1, 5);
-        // this.add(this.startButton, 1, 5);
-        // this.add(this.displayMessage, 1, 6);
-        new Thread(this).start();
+        this.myThread = new Thread(this);
+        myThread.start();
     }
 
     private void startGame()
@@ -204,12 +204,14 @@ public class ConnectNPanel extends GridPane implements Runnable
     private void resetGame()
     {
         this.gameManager.stop();
-        synchronized (this.gameManagerThread) {
-            this.gameManagerThread.interrupt();
-        }
+        this.gameManagerThread.interrupt();
         this.gameManager.stop();
-        this.displayMessage.setText(START_MESSAGE);
+        synchronized (this.board) {
+            this.myThread.interrupt();
+            this.resetBoard();
+        }
         this.resetBoard();
+        this.displayMessage.setText(START_MESSAGE);
     }
 
     private void resetBoard()
@@ -240,7 +242,7 @@ public class ConnectNPanel extends GridPane implements Runnable
                 try {
                     this.board.wait();
                 } catch (InterruptedException e) {
-                    // do nothing
+                    continue;
                 }
             }
             switch (this.board.getWinner()) {
