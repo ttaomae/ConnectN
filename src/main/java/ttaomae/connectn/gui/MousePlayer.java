@@ -16,7 +16,8 @@ public class MousePlayer implements Player
         this.move = INVALID_MOVE;
         this.boardPanel = boardPanel;
 
-        boardPanel.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+        this.boardPanel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent me)
             {
@@ -32,18 +33,17 @@ public class MousePlayer implements Player
     public int getMove(Board board)
     {
         this.move = INVALID_MOVE;
-        while (this.move == INVALID_MOVE) {
-            try {
-                synchronized (this) {
+        synchronized (this) {
+            while (this.move == INVALID_MOVE) {
+                try {
                     this.wait();
-                }
-            } catch (InterruptedException e) {
-                // do nothing
+                } catch (InterruptedException e) {
+                    // do nothing
                 }
             }
+        }
         int result = this.move;
         this.move = INVALID_MOVE;
         return result;
     }
-
-        }
+}
