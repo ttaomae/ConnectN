@@ -8,6 +8,10 @@ public class GameManager implements Runnable
     private Player playerTwo;
     private int attemptsAllowed;
 
+    private int move;
+    private volatile boolean running;
+
+
     public GameManager(Player playerOne, Player playerTwo)
     {
         this(new Board(), playerOne, playerTwo, MAX_ATTEMPTS);
@@ -42,32 +46,66 @@ public class GameManager implements Runnable
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
         this.attemptsAllowed = attemptsAllowed;
+        this.running = false;
     }
 
     @Override
     public void run()
     {
+        this.running = true;
         int attempts = 0;
-        while (this.board.getWinner() == Piece.NONE) {
+        while (this.running && this.board.getWinner() == Piece.NONE) {
             attempts++;
-            int move;
+            this.move = -1;
+            final Player player;
             switch (this.board.getNextPiece()) {
                 case BLACK:
-                    move = this.playerOne.getMove(this.board.copy());
+                    player = this.playerOne;
                     break;
                 case RED:
-                    move = this.playerTwo.getMove(this.board.copy());
+                    player = this.playerTwo;
                     break;
                 case NONE:
                 case DRAW:
                 default:
-                    move = -1;
+                    player = null;
+                    this.move = -1;
                     break;
             }
 
+            // use a new thread to get move
+            Thread myThread = new Thread() {
+                @Override
+                public void run()
+                {
+                    if (player != null) {
+                        GameManager.this.move = player.getMove(GameManager.this.board.copy());
+
+                        synchronized (this) {
+                            this.notify();
+                        }
+                    }
+                }
+            };
+            myThread.start();
+
+            try {
+                synchronized (myThread) {
+                    // wait for thread to get move
+                    myThread.wait();
+                }
+            }
+            // if the game manager is interrupted while waiting for a move
+            catch (InterruptedException e) {
+                // interrupt thread that is getting move
+                myThread.interrupt();
+                // end game
+                this.running = false;
+            }
+
             // only play valid moves
-            if (this.board.isValidMove(move)) {
-                this.board.play(move);
+            if (this.board.isValidMove(this.move)) {
+                this.board.play(this.move);
                 attempts = 0;
             }
             else {
@@ -77,5 +115,11 @@ public class GameManager implements Runnable
                 }
             }
         }
+        this.running = false;
+    }
+
+    public void stop()
+    {
+        this.running = false;
     }
 }
