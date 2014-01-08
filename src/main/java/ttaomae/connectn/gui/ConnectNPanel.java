@@ -9,34 +9,53 @@ import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.BorderPaneBuilder;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.GridPaneBuilder;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ttaomae.connectn.AlphaBetaPlayer;
 import ttaomae.connectn.Board;
 import ttaomae.connectn.GameManager;
+import ttaomae.connectn.Piece;
+import ttaomae.connectn.Player;
 
-public class ConnectNPanel extends GridPane
+public class ConnectNPanel extends GridPane implements Runnable
 {
+    private static final String START_MESSAGE = "Click \"Start\" to start a new game.";
+    private static final String BLACK_TURN = "BLACK's turn.";
+    private static final String RED_TURN = "RED's turn.";
+    private static final String BLACK_WIN = "BLACK Wins!";
+    private static final String RED_WIN = "RED Wins!";
+    private static final String DRAW = "Draw!";
+    private static final int BOARD_WIDTH = 440;
+    private static final int BOARD_HEIGHT = 380;
+
+    private Label title;
+
     private Board board;
     private BoardPanel boardPanel;
+    private GameManager gameManager;
+    private Thread gameManagerThread;
 
     private Slider heightSlider;
     private Slider widthSlider;
     private Slider winConditionSlider;
 
-    private Label title;
+    private PlayerSelectPanel playerOne;
+    private PlayerSelectPanel playerTwo;
+
     private Button startButton;
     private boolean running;
+
+    private Label displayMessage;
 
     public ConnectNPanel()
     {
         this.running = false;
 
-        // set up start button
-        this.startButton = new Button("Start");
         this.title = new Label();
-        this.title.setFont(new Font("Arial", 30));
+
 
         // set up height slider
         this.heightSlider = new Slider(2, 12, 6);
@@ -46,6 +65,7 @@ public class ConnectNPanel extends GridPane
         this.heightSlider.setShowTickMarks(true);
         this.heightSlider.setShowTickLabels(true);
         this.heightSlider.setSnapToTicks(true);
+        this.heightSlider.setMaxHeight(BOARD_HEIGHT);
 
         // set up width slider
         this.widthSlider = new Slider(2, 14, 7);
@@ -54,6 +74,7 @@ public class ConnectNPanel extends GridPane
         this.widthSlider.setShowTickMarks(true);
         this.widthSlider.setShowTickLabels(true);
         this.widthSlider.setSnapToTicks(true);
+        this.widthSlider.setMaxWidth(BOARD_WIDTH);
 
         // set up win condition slider
         this.winConditionSlider = new Slider(2, 14, 4);
@@ -62,6 +83,19 @@ public class ConnectNPanel extends GridPane
         this.winConditionSlider.setShowTickMarks(true);
         this.winConditionSlider.setShowTickLabels(true);
         this.winConditionSlider.setSnapToTicks(true);
+        this.winConditionSlider.setMaxWidth(BOARD_WIDTH);
+
+        // set up start button
+        this.startButton = new Button("Start");
+        this.startButton.setFont(Font.font("Sans Serif", 12));
+        this.title = new Label();
+        this.title.setFont(Font.font("Serif", FontWeight.BOLD, 30));
+        this.displayMessage = new Label(START_MESSAGE);
+
+        this.playerOne = new PlayerSelectPanel(2, 10, 1, true);
+        this.playerOne.setMaxWidth(BOARD_WIDTH / 2);
+        this.playerTwo = new PlayerSelectPanel(2, 10, 2, false);
+        this.playerTwo.setMaxWidth(BOARD_WIDTH / 2);
 
         // set up handlers and listeners
         this.startButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -69,13 +103,13 @@ public class ConnectNPanel extends GridPane
             public void handle(ActionEvent e)
             {
                 if (ConnectNPanel.this.running) {
-                    ConnectNPanel.this.startButton.setText("Start");
                     ConnectNPanel.this.resetGame();
+                    ConnectNPanel.this.startButton.setText("Start");
                     ConnectNPanel.this.running = false;
                 }
                 else {
-                    ConnectNPanel.this.startButton.setText("Reset");
                     ConnectNPanel.this.startGame();
+                    ConnectNPanel.this.startButton.setText("Reset");
                     ConnectNPanel.this.running = true;
                 }
             }
@@ -117,7 +151,7 @@ public class ConnectNPanel extends GridPane
         this.board = new Board((int) this.heightSlider.getValue(),
                                (int) this.widthSlider.getValue(),
                                (int) this.winConditionSlider.getValue());
-        this.boardPanel = new BoardPanel(440, 380, this.board);
+        this.boardPanel = new BoardPanel(BOARD_WIDTH, BOARD_WIDTH, this.board);
         this.resetBoard();
 
         // this.setGridLinesVisible(true);
@@ -130,25 +164,57 @@ public class ConnectNPanel extends GridPane
         this.add(this.heightSlider, 0, 2);
         this.add(this.boardPanel, 1, 2);
         this.add(this.widthSlider, 1, 3);
-        this.add(this.startButton, 1, 4);
+        this.add(BorderPaneBuilder.create().left(this.playerOne)
+                                           .right(this.playerTwo)
+                                           .build(),
+                 1, 4);
+        GridPane bottomRow = GridPaneBuilder.create().hgap(20.0).build();
+        bottomRow.add(this.startButton, 0, 0);
+        bottomRow.add(this.displayMessage, 1, 0);
+        this.add(bottomRow, 1, 5);
+        // this.add(this.startButton, 1, 5);
+        // this.add(this.displayMessage, 1, 6);
+        new Thread(this).start();
     }
 
     private void startGame()
     {
-        new Thread(new GameManager(this.board, new MousePlayer(this.boardPanel),
-                new AlphaBetaPlayer()))
-                .start();
+        Player p1;
+        Player p2;
+        if (this.playerOne.isHuman()) {
+            p1 = new MousePlayer(this.boardPanel);
+        }
+        else {
+            p1 = new AlphaBetaPlayer(this.playerOne.getCpuDifficulty());
+        }
+
+        if (this.playerTwo.isHuman()) {
+            p2 = new MousePlayer(this.boardPanel);
+        }
+        else {
+            p2 = new AlphaBetaPlayer(this.playerTwo.getCpuDifficulty());
+        }
+
+        this.gameManager = new GameManager(this.board, p1, p2);
+        this.displayMessage.setText(BLACK_TURN);
+        this.gameManagerThread = new Thread(this.gameManager);
+        this.gameManagerThread.start();
     }
 
     private void resetGame()
     {
+        this.gameManager.stop();
+        synchronized (this.gameManagerThread) {
+            this.gameManagerThread.interrupt();
+        }
+        this.gameManager.stop();
+        this.displayMessage.setText(START_MESSAGE);
         this.resetBoard();
     }
 
     private void resetBoard()
     {
         this.title.setText("Connect " + ((int) this.winConditionSlider.getValue()));
-        this.title.setFont(Font.font("Serif", FontWeight.BOLD, 30));
         this.board = new Board((int) this.heightSlider.getValue(),
                                (int) this.widthSlider.getValue(),
                                (int) this.winConditionSlider.getValue());
@@ -163,5 +229,52 @@ public class ConnectNPanel extends GridPane
         if (winCondition > Math.max(height, width)) {
             this.winConditionSlider.setValue(Math.max(height, width));
         }
+    }
+
+    @Override
+    public void run()
+    {
+        while (true) {
+            // wait for next play
+            synchronized (this.board) {
+                try {
+                    this.board.wait();
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
+            }
+            switch (this.board.getWinner()) {
+                case NONE:
+                    if (this.board.getNextPiece() == Piece.BLACK) {
+                        this.updateMessage(BLACK_TURN);
+                    }
+                    else if (this.board.getNextPiece() == Piece.RED) {
+                        this.updateMessage(RED_TURN);
+                    }
+                    break;
+                case BLACK:
+                    this.updateMessage(BLACK_WIN);
+                    break;
+                case RED:
+                    this.updateMessage(RED_WIN);
+                    break;
+                case DRAW:
+                    this.updateMessage(DRAW);
+                    break;
+            }
+
+        }
+    }
+
+    public void updateMessage(final String message)
+    {
+
+        javafx.application.Platform.runLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                ConnectNPanel.this.displayMessage.setText(message);
+            }
+        });
     }
 }

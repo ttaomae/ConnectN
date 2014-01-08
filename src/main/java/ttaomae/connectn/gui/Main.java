@@ -15,7 +15,7 @@ public class Main extends Application
         BorderPane root = new BorderPane();
         root.setCenter(new ConnectNPanel());
 
-        stage.setScene(new Scene(root, 510, 580));
+        stage.setScene(new Scene(root, 510, 730));
         stage.setResizable(false);
         stage.show();
     }

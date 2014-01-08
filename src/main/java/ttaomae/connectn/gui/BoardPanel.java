@@ -13,15 +13,20 @@ public class BoardPanel extends GridPane implements Runnable
     private Board board;
     private int pieceRadius;
 
+    private Thread myThread;
+
     public BoardPanel(int width, int height, Board board)
     {
         this.setStyle("-fx-background-color: #336699;");
         this.width = width;
         this.height = height;
         this.board = board;
+        this.setMaxWidth(this.width);
+        this.setMaxHeight(this.height);
         this.setGapsAndPadding();
 
-        new Thread(this).start();
+        this.myThread = new Thread(this);
+        myThread.start();
     }
 
     private void setGapsAndPadding()
@@ -61,7 +66,6 @@ public class BoardPanel extends GridPane implements Runnable
     public void run()
     {
         while (true) {
-            // run on JavaFX Application thread
             BoardPanel.this.update();
 
             try {
@@ -70,8 +74,7 @@ public class BoardPanel extends GridPane implements Runnable
                     this.board.wait();
                 }
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                // do nothing
             }
         }
     }
@@ -102,7 +105,6 @@ public class BoardPanel extends GridPane implements Runnable
                 }
             }
         });
-
     }
 
     public int getBoardColumn(double x)
@@ -127,9 +129,10 @@ public class BoardPanel extends GridPane implements Runnable
 
     public void setBoard(Board board)
     {
-        // thread is waiting for the current board to notify
+        // thread is waiting for the current board to play a move
+        // however, since we are changing the board, that won't happen, so we interrupt
         synchronized (this.board) {
-            this.board.notifyAll();
+            this.myThread.interrupt();
             this.board = board;
         }
         this.setGapsAndPadding();

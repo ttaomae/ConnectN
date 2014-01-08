@@ -7,7 +7,7 @@ import ttaomae.connectn.Player;
 
 public class MousePlayer implements Player
 {
-    private static final int INVALID_MOVE = -1;
+    private static final int INVALID_MOVE = -2;
     private int move;
 
     private BoardPanel boardPanel;
@@ -20,7 +20,6 @@ public class MousePlayer implements Player
             @Override
             public void handle(MouseEvent me)
             {
-                System.out.println("mouse clicked");
                 synchronized (MousePlayer.this) {
                     MousePlayer.this.move = MousePlayer.this.boardPanel.getBoardColumn(me.getX());
                     MousePlayer.this.notifyAll();
@@ -32,18 +31,19 @@ public class MousePlayer implements Player
     @Override
     public int getMove(Board board)
     {
-        synchronized (this) {
-            this.move = INVALID_MOVE;
-            while (this.move == INVALID_MOVE) {
-                try {
+        this.move = INVALID_MOVE;
+        while (this.move == INVALID_MOVE) {
+            try {
+                synchronized (this) {
                     this.wait();
-                } catch (InterruptedException e) {
-                    // do nothing
+                }
+            } catch (InterruptedException e) {
+                // do nothing
                 }
             }
-            int result = this.move;
-            this.move = INVALID_MOVE;
-            return result;
-        }
+        int result = this.move;
+        this.move = INVALID_MOVE;
+        return result;
     }
-}
+
+        }
