@@ -87,6 +87,7 @@ public class GameManager implements Runnable
                     }
                 }
             };
+            myThread.setDaemon(true);
             myThread.start();
 
             try {

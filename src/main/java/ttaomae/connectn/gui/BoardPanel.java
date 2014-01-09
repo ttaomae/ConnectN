@@ -26,6 +26,7 @@ public class BoardPanel extends GridPane implements Runnable
         this.setGapsAndPadding();
 
         this.myThread = new Thread(this);
+        this.myThread.setDaemon(true);
         myThread.start();
     }
 

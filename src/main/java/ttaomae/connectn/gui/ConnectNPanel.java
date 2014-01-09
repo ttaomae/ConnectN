@@ -149,11 +149,13 @@ public class ConnectNPanel extends GridPane implements Runnable
             }
         });
 
-        this.board = new Board((int) this.heightSlider.getValue(),
-                               (int) this.widthSlider.getValue(),
-                               (int) this.winConditionSlider.getValue());
-        this.boardPanel = new BoardPanel(BOARD_WIDTH, BOARD_WIDTH, this.board);
-        this.resetBoard();
+            this.board = new Board((int) this.heightSlider.getValue(),
+                                   (int) this.widthSlider.getValue(),
+                                   (int) this.winConditionSlider.getValue());
+            this.boardPanel = new BoardPanel(BOARD_WIDTH, BOARD_WIDTH, this.board);
+        synchronized (this.board) {
+            this.resetBoard();
+        }
 
         // this.setGridLinesVisible(true);
         this.setHgap(10);
@@ -173,8 +175,10 @@ public class ConnectNPanel extends GridPane implements Runnable
         bottomRow.add(this.startButton, 0, 0);
         bottomRow.add(this.displayMessage, 1, 0);
         this.add(bottomRow, 1, 5);
+
         this.myThread = new Thread(this);
-        myThread.start();
+        this.myThread.setDaemon(true);
+        this.myThread.start();
     }
 
     private void startGame()
@@ -205,13 +209,11 @@ public class ConnectNPanel extends GridPane implements Runnable
     {
         this.gameManager.stop();
         this.gameManagerThread.interrupt();
-        this.gameManager.stop();
+
         synchronized (this.board) {
             this.myThread.interrupt();
             this.resetBoard();
         }
-        this.resetBoard();
-        this.displayMessage.setText(START_MESSAGE);
     }
 
     private void resetBoard()
@@ -221,6 +223,7 @@ public class ConnectNPanel extends GridPane implements Runnable
                                (int) this.widthSlider.getValue(),
                                (int) this.winConditionSlider.getValue());
         this.boardPanel.setBoard(this.board);
+        this.displayMessage.setText(START_MESSAGE);
     }
 
     private void checkWinConditionSlider()
@@ -264,7 +267,6 @@ public class ConnectNPanel extends GridPane implements Runnable
                     this.updateMessage(DRAW);
                     break;
             }
-
         }
     }
 
