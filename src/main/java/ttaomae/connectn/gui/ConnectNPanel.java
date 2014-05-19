@@ -176,7 +176,7 @@ public class ConnectNPanel extends GridPane implements Runnable
         bottomRow.add(this.displayMessage, 1, 0);
         this.add(bottomRow, 1, 5);
 
-        this.myThread = new Thread(this);
+        this.myThread = new Thread(this, "ConnectN Panel");
         this.myThread.setDaemon(true);
         this.myThread.start();
     }
@@ -201,7 +201,7 @@ public class ConnectNPanel extends GridPane implements Runnable
 
         this.gameManager = new GameManager(this.board, p1, p2);
         this.displayMessage.setText(BLACK_TURN);
-        this.gameManagerThread = new Thread(this.gameManager);
+        this.gameManagerThread = new Thread(this.gameManager, "Game Manager");
         this.gameManagerThread.start();
     }
 

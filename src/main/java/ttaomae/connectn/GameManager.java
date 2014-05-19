@@ -74,7 +74,7 @@ public class GameManager implements Runnable
             }
 
             // use a new thread to get move
-            Thread myThread = new Thread() {
+            Thread myThread = new Thread("Get Move") {
                 @Override
                 public void run()
                 {

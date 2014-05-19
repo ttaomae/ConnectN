@@ -25,7 +25,7 @@ public class BoardPanel extends GridPane implements Runnable
         this.setMaxHeight(this.height);
         this.setGapsAndPadding();
 
-        this.myThread = new Thread(this);
+        this.myThread = new Thread(this, "Board Panel");
         this.myThread.setDaemon(true);
         myThread.start();
     }
