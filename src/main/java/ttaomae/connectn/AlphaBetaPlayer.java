@@ -33,10 +33,11 @@ public class AlphaBetaPlayer implements Player
         // get minimax value for all valid moves
         for (int move = 0; move < board.getWidth(); move++) {
             if (board.isValidMove(move)) {
-                Board copy = board.copy();
-                copy.play(move);
-                double heuristic = alphaBeta(copy, depth - 1, Double.NEGATIVE_INFINITY,
+                board.play(move);
+                double heuristic = alphaBeta(board, depth - 1, Double.NEGATIVE_INFINITY,
                         Double.POSITIVE_INFINITY, myPiece);
+                board.undoPlay();
+
                 possibleMoves.put(move, heuristic);
             }
         }
@@ -74,9 +75,10 @@ public class AlphaBetaPlayer implements Player
         if (board.getNextPiece() == maxPlayer) {
             for (int move = 0; move < board.getWidth(); move++) {
                 if (board.isValidMove(move)) {
-                    Board copy = board.copy();
-                    copy.play(move);
-                    alpha = Math.max(alpha, alphaBeta(copy, depth - 1, alpha, beta, maxPlayer));
+                    board.play(move);
+                    alpha = Math.max(alpha, alphaBeta(board, depth - 1, alpha, beta, maxPlayer));
+                    board.undoPlay();
+
                     // beta cut off
                     if (beta <= alpha) {
                         break;
@@ -90,9 +92,10 @@ public class AlphaBetaPlayer implements Player
         else {
             for (int move = 0; move < board.getWidth(); move++) {
                 if (board.isValidMove(move)) {
-                    Board copy = board.copy();
-                    copy.play(move);
-                    beta = Math.min(beta, alphaBeta(copy, depth - 1, alpha, beta, maxPlayer));
+                    board.play(move);
+                    beta = Math.min(beta, alphaBeta(board, depth - 1, alpha, beta, maxPlayer));
+                    board.undoPlay();
+
                     // beta cut off
                     if (beta <= alpha) {
                         break;
