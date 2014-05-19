@@ -1,6 +1,8 @@
 package ttaomae.connectn;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 
 public class Board
 {
@@ -11,6 +13,8 @@ public class Board
     private final int winCondition;
     private Piece[][] board;
     private int currentTurn;
+
+    private Deque<Integer> playHistory;
 
     public Board(int height, int width, int winCondition)
     {
@@ -33,6 +37,8 @@ public class Board
 
         this.winCondition = winCondition;
         this.currentTurn = 0;
+
+        this.playHistory = new ArrayDeque<>();
     }
 
     public Board()
@@ -51,6 +57,7 @@ public class Board
         for (int row = 0; row < this.getHeight(); row++) {
             if (this.board[row][col] == Piece.NONE) {
                 this.board[row][col] = this.getNextPiece();
+                this.playHistory.addLast(col);
                 currentTurn++;
                 columnFull = false;
                 synchronized (this) {
@@ -63,6 +70,30 @@ public class Board
 
         if (columnFull) {
             throw new IllegalMoveException("column " + col + " full");
+        }
+    }
+
+    public void undoPlay() {
+        if (this.playHistory.isEmpty()) {
+            throw new IllegalStateException("No plays to undo.");
+        }
+
+        int lastPlayCol = this.playHistory.removeLast();
+        boolean moveUndone = false;
+
+        // find highest non-empty row for last play column
+        for (int row = this.getHeight() - 1; row >= 0; row--) {
+            // make empty
+            if (this.board[row][lastPlayCol] != Piece.NONE) {
+                this.board[row][lastPlayCol] = Piece.NONE;
+                moveUndone = true;
+                this.currentTurn--;
+                break;
+            }
+        }
+
+        if (!moveUndone) {
+            throw new IllegalStateException("Board is in illegal state. Could not undo play.");
         }
     }
 
