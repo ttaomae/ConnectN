@@ -17,7 +17,7 @@ public class RandomPlayer implements Player
     public int getMove(Board board)
     {
         // find all valid moves
-        List<Integer> validMoves = new ArrayList<Integer>();
+        List<Integer> validMoves = new ArrayList<>();
         for (int col = 0; col < board.getWidth(); col++) {
             if (board.isValidMove(col)) {
                 validMoves.add(col);

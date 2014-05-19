@@ -27,7 +27,7 @@ public class AlphaBetaPlayer implements Player
     @Override
     public int getMove(Board board)
     {
-        Map<Integer, Double> possibleMoves = new HashMap<Integer, Double>();
+        Map<Integer, Double> possibleMoves = new HashMap<>();
         Piece myPiece = board.getNextPiece();
 
         // get minimax value for all valid moves
@@ -48,7 +48,7 @@ public class AlphaBetaPlayer implements Player
         }
 
         // find all moves with max heuristic
-        List<Integer> bestMoves = new ArrayList<Integer>();
+        List<Integer> bestMoves = new ArrayList<>();
         for (Integer key : possibleMoves.keySet()) {
             if (possibleMoves.get(key) == maxHeuristic) {
                 bestMoves.add(key);
