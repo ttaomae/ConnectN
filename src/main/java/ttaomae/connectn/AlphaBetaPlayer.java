@@ -1,6 +1,7 @@
 package ttaomae.connectn;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +31,15 @@ public class AlphaBetaPlayer implements Player
         Map<Integer, Double> possibleMoves = new HashMap<>();
         Piece myPiece = board.getNextPiece();
 
-        // get minimax value for all valid moves
+        // create randomly ordered list of possible moves
+        List<Integer> moves = new ArrayList<>();
         for (int move = 0; move < board.getWidth(); move++) {
+            moves.add(move);
+        }
+        Collections.shuffle(moves);
+
+        // get minimax value for all valid moves
+        for (int move : moves) {
             if (board.isValidMove(move)) {
                 board.play(move);
                 double heuristic = alphaBeta(board, depth - 1, Double.NEGATIVE_INFINITY,
@@ -73,7 +81,15 @@ public class AlphaBetaPlayer implements Player
 
         // max player
         if (board.getNextPiece() == maxPlayer) {
+            // create randomly ordered list of possible moves
+            List<Integer> moves = new ArrayList<>();
             for (int move = 0; move < board.getWidth(); move++) {
+                moves.add(move);
+            }
+            Collections.shuffle(moves);
+
+            // get minimax value for all valid moves
+            for (int move : moves) {
                 if (board.isValidMove(move)) {
                     board.play(move);
                     alpha = Math.max(alpha, alphaBeta(board, depth - 1, alpha, beta, maxPlayer));
@@ -90,7 +106,15 @@ public class AlphaBetaPlayer implements Player
 
         // min player
         else {
+            // create randomly ordered list of possible moves
+            List<Integer> moves = new ArrayList<>();
             for (int move = 0; move < board.getWidth(); move++) {
+                moves.add(move);
+            }
+            Collections.shuffle(moves);
+
+            // get minimax value for all valid moves
+            for (int move : moves) {
                 if (board.isValidMove(move)) {
                     board.play(move);
                     beta = Math.min(beta, alphaBeta(board, depth - 1, alpha, beta, maxPlayer));
