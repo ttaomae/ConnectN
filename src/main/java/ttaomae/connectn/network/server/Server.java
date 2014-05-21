@@ -20,13 +20,18 @@ public class Server implements Runnable
     public void run()
     {
         try (ServerSocket serverSocket = new ServerSocket(this.portNumber);) {
+            printMessage("Waiting for connections...");
+
             // get two connections from players
             playerOne = new NetworkPlayer(this, serverSocket.accept());
+            printMessage("Player 1 connected.");
             playerTwo = new NetworkPlayer(this, serverSocket.accept());
+            printMessage("Player 1 connected.");
 
             // start new game
             GameManager gm = new GameManager(playerOne, playerTwo);
 
+            printMessage("Starting game.");
             Thread t = new Thread(gm);
             t.start();
             t.join();
@@ -48,5 +53,10 @@ public class Server implements Runnable
         else if (player == this.playerTwo) {
             this.playerOne.sendOpponentMove(move);
         }
+    }
+
+    public void printMessage(String message)
+    {
+        System.out.println("SERVER: " + message);
     }
 }

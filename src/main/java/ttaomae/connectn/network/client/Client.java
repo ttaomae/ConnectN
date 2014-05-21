@@ -7,8 +7,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import ttaomae.connectn.AlphaBetaPlayer;
 import ttaomae.connectn.Board;
+import ttaomae.connectn.Piece;
 import ttaomae.connectn.Player;
 import ttaomae.connectn.network.ConnectNProtocol;
 
@@ -21,19 +21,12 @@ public class Client implements Runnable
     /** This client's copy of the board */
     private Board board;
 
-    public Client(String hostname, int portNumber)
-            throws UnknownHostException, IOException
-    {
-        this(hostname, portNumber, new AlphaBetaPlayer());
-    }
-
-    public Client(String hostname, int portNumber, Player player)
+    public Client(String hostname, int portNumber, Player player, Board board)
             throws UnknownHostException, IOException
     {
         this.socket = new Socket(hostname, portNumber);
-        this.board = new Board();
-
         this.player = player;
+        this.board = board;
     }
 
     @Override
@@ -44,8 +37,7 @@ public class Client implements Runnable
             BufferedReader socketIn =
                 new BufferedReader(new InputStreamReader(socket.getInputStream()))
         ) {
-            // TODO: change condition
-            while (true) {
+            while (this.board.getWinner() == Piece.NONE) {
                 try {
                     // get message from server
                     String message = socketIn.readLine();
@@ -65,6 +57,8 @@ public class Client implements Runnable
                     System.err.println("Error reading from socket.");
                 }
             }
+
+            System.out.println(this.board.getWinner() + " wins!");
         } catch (IOException e) {
             System.err.println("Couldn't connect to server");
         }
