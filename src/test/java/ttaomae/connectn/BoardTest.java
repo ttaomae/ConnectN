@@ -51,13 +51,25 @@ public class BoardTest
         try {
             new Board(5, 1, 5);
         } catch (IllegalArgumentException e) {
-            assertEquals("failure - illegal height", "width must be at least 2", e.getMessage());
+            assertEquals("failure - illegal width", "width must be at least 2", e.getMessage());
         }
         try {
             new Board(5, 5, 6);
         } catch (IllegalArgumentException e) {
-            assertEquals("failure - illegal height",
-                    "winCondition must not be greater than max(height, width)", e.getMessage());
+            assertEquals("failure - illegal win condition",
+                    "winCondition must be between 2 and max(height, width)", e.getMessage());
+        }
+        try {
+            new Board(5, 5, 1);
+        } catch (IllegalArgumentException e) {
+            assertEquals("failure - illegal win condition",
+                    "winCondition must be between 2 and max(height, width)", e.getMessage());
+        }
+        try {
+            new Board(5, 5, -1);
+        } catch (IllegalArgumentException e) {
+            assertEquals("failure - illegal win condition",
+                    "winCondition must be between 2 and max(height, width)", e.getMessage());
         }
     }
 
