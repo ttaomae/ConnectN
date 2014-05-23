@@ -4,10 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * A random Player. Selects a new valid, random move.
+ * 
+ * @author Todd Taomae
+ */
 public class RandomPlayer implements Player
 {
     private Random rand;
 
+    /**
+     * Constructs a new RandomPlayer.
+     */
     public RandomPlayer()
     {
         this.rand = new Random();

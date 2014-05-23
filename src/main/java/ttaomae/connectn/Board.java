@@ -80,6 +80,8 @@ public class Board
      * far left and end with (width - 1) on the far right. The next piece is
      * determined by the current turn. The piece will be placed in the lowest
      * empty row in the specified column.
+     * 
+     * <p> Notifies any threads waiting on this Board when the move is played.
      *
      * @param col the column to play the next piece
      * @throws IllegalMoveException if the column is not a valid column or if
@@ -95,7 +97,6 @@ public class Board
                 throw new IllegalMoveException("column " + col + " full");
             }
         }
-        boolean columnFull = true;
 
         // check each row starting from the bottom
         for (int row = 0; row < this.getHeight(); row++) {
@@ -103,7 +104,6 @@ public class Board
                 this.board[row][col] = this.getNextPiece();
                 this.playHistory.addLast(col);
                 currentTurn++;
-                columnFull = false;
                 synchronized (this) {
                     // notify when a play has been made
                     this.notifyAll();

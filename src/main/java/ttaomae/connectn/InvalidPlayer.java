@@ -1,5 +1,11 @@
 package ttaomae.connectn;
 
+/**
+ * A Player which always selects an invalid move.
+ * 
+ * @author Todd
+ * 
+ */
 public class InvalidPlayer implements Player
 {
     @Override
