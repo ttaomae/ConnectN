@@ -35,7 +35,7 @@ public class Client implements Runnable
         try (
             PrintWriter socketOut = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader socketIn =
-                new BufferedReader(new InputStreamReader(socket.getInputStream()))
+                new BufferedReader(new InputStreamReader(socket.getInputStream()));
         ) {
             while (this.board.getWinner() == Piece.NONE) {
                 try {
@@ -44,13 +44,15 @@ public class Client implements Runnable
 
                     // server is waiting for move
                     if (message.equals(ConnectNProtocol.READY)) {
-                        // get a move and
+                        // get a move and play it
                         int move = player.getMove(this.board.copy());
                         this.board.play(move);
 
-                        socketOut.println(ConnectNProtocol.constructMessage(move));
+                        socketOut.println(ConnectNProtocol.constructMove(move));
                     }
-                    else if (message.startsWith(ConnectNProtocol.MOVE)) {
+                    // server sent opponent move
+                    else if (ConnectNProtocol.verifyMove(message)) {
+                        // play opponent's move
                         this.board.play(ConnectNProtocol.parseMove(message));
                     }
                 } catch (IOException e) {

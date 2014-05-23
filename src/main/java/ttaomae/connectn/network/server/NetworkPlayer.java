@@ -33,7 +33,7 @@ public class NetworkPlayer implements Player
         try {
             // get reply from client
             String reply = this.socketIn.readLine();
-            if (reply.startsWith(ConnectNProtocol.MOVE)) {
+            if (ConnectNProtocol.verifyMove(reply)) {
                 int move = ConnectNProtocol.parseMove(reply);
                 this.server.notifyOpponent(this, move);
 
@@ -50,6 +50,6 @@ public class NetworkPlayer implements Player
 
     public void sendOpponentMove(int move)
     {
-        this.socketOut.println(ConnectNProtocol.constructMessage(move));
+        this.socketOut.println(ConnectNProtocol.constructMove(move));
     }
 }
