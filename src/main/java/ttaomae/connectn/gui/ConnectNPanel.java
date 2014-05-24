@@ -20,6 +20,14 @@ import ttaomae.connectn.GameManager;
 import ttaomae.connectn.Piece;
 import ttaomae.connectn.Player;
 
+/**
+ * A panel for a Connect-N game. Provides an interface for selecting the height,
+ * width, and win condition; whether the players are human or computer; and for
+ * starting and reseting games. Also contains a display for messages to the
+ * user.
+ *
+ * @author Todd Taomae
+ */
 public class ConnectNPanel extends GridPane implements Runnable
 {
     private static final String START_MESSAGE = "Click \"Start\" to start a new game.";
@@ -51,6 +59,10 @@ public class ConnectNPanel extends GridPane implements Runnable
     private Label displayMessage;
     private Thread myThread;
 
+    /**
+     * Constructs a new ConnectNPanel. The range of heights is 2 to 12, the
+     * range of widths is 2 to 14, and the range of win conditions is 2 to 14.
+     */
     public ConnectNPanel()
     {
         this.running = false;
@@ -181,6 +193,9 @@ public class ConnectNPanel extends GridPane implements Runnable
         this.myThread.start();
     }
 
+    /**
+     * Starts a game based on this ConnectNPanel's current settings.
+     */
     private void startGame()
     {
         Player p1;
@@ -205,6 +220,9 @@ public class ConnectNPanel extends GridPane implements Runnable
         this.gameManagerThread.start();
     }
 
+    /**
+     * Ends the current game and resets the board.
+     */
     private void resetGame()
     {
         this.gameManager.stop();
@@ -216,6 +234,9 @@ public class ConnectNPanel extends GridPane implements Runnable
         }
     }
 
+    /**
+     * Resets the board to match the current settings.
+     */
     private void resetBoard()
     {
         this.title.setText("Connect " + ((int) this.winConditionSlider.getValue()));
@@ -226,6 +247,10 @@ public class ConnectNPanel extends GridPane implements Runnable
         this.displayMessage.setText(START_MESSAGE);
     }
 
+    /**
+     * Checks that the win condition slider is valid and sets it to a valid
+     * range if it is not.
+     */
     private void checkWinConditionSlider()
     {
         int height = (int) this.heightSlider.getValue();
@@ -236,6 +261,9 @@ public class ConnectNPanel extends GridPane implements Runnable
         }
     }
 
+    /**
+     * Updates the display message whenever necessary.
+     */
     @Override
     public void run()
     {
@@ -270,6 +298,11 @@ public class ConnectNPanel extends GridPane implements Runnable
         }
     }
 
+    /**
+     * Sets the display to the specified message.
+     *
+     * @param message the message to update to
+     */
     public void updateMessage(final String message)
     {
 

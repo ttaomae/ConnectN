@@ -8,13 +8,32 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBoxBuilder;
 import javafx.scene.layout.VBoxBuilder;
- class PlayerSelectPanel extends BorderPane
+
+/**
+ * A panel providing an interface for selecting between a human or computer
+ * player and the computer difficulty. Provides two radio buttons to select
+ * between 'human' or 'computer' and a slider to select the computer difficulty.
+ * 
+ * @author Todd Taomae
+ */
+public class PlayerSelectPanel extends BorderPane
 {
     private Slider cpuDifficultySlider;
     private ToggleGroup playerSelect;
     private RadioButton playerHuman;
     private RadioButton playerComputer;
 
+    /**
+     * Constructs a new PlayerSelectPanel with the specified min and max
+     * computer difficulty, the specified player number, and the specified
+     * initial state of the human/computer radio buttons.
+     *
+     * @param min the minimum computer difficulty
+     * @param max the maximum computer difficulty
+     * @param playerNum the player number
+     * @param human whether or not the human radio button should be initially
+     *            selected
+     */
     public PlayerSelectPanel(int min, int max, int playerNum, boolean human)
     {
 
@@ -49,11 +68,21 @@ import javafx.scene.layout.VBoxBuilder;
         // this.playerComputer);
     }
 
+    /**
+     * Returns whether or not the human player is currently selected.
+     *
+     * @return true if the human radio button is selected, false otherwise
+     */
     public boolean isHuman()
     {
         return this.playerHuman.isSelected();
     }
 
+    /**
+     * Returns the currently selected computer difficulty.
+     *
+     * @return the computer difficulty
+     */
     public int getCpuDifficulty()
     {
         return (int) this.cpuDifficultySlider.getValue();

@@ -6,6 +6,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import ttaomae.connectn.Board;
 
+/**
+ * A panel for displaying a Connect-N board. The Board being displayed can be
+ * changed and the spacing of the pieces will be adjusted to fit evenly in the
+ * panel.
+ * 
+ * @author Todd Taomae
+ */
 public class BoardPanel extends GridPane implements Runnable
 {
     private final int width;
@@ -15,6 +22,14 @@ public class BoardPanel extends GridPane implements Runnable
 
     private Thread myThread;
 
+    /**
+     * Constructs a new BoardPanel with the specified width, height, and
+     * underlying Board.
+     *
+     * @param width the width of this panel
+     * @param height the height of this panel
+     * @param board the underlying Board for this panel
+     */
     public BoardPanel(int width, int height, Board board)
     {
         this.setStyle("-fx-background-color: #336699;");
@@ -30,6 +45,10 @@ public class BoardPanel extends GridPane implements Runnable
         myThread.start();
     }
 
+    /**
+     * Sets the gaps between spaces and padding on all edges of the board based
+     * on the size of this panel and the size of the board.
+     */
     private void setGapsAndPadding()
     {
         // the width and height measured in radii
@@ -63,6 +82,9 @@ public class BoardPanel extends GridPane implements Runnable
         this.setPadding(new Insets(topPadding, rightPadding, bottomPadding, leftPadding));
     }
 
+    /**
+     * Continually updates this BoardPanel each time a move is played.
+     */
     @Override
     public void run()
     {
@@ -80,6 +102,9 @@ public class BoardPanel extends GridPane implements Runnable
         }
     }
 
+    /**
+     * Updates this panel to reflect the current state of the underlying Board.
+     */
     public void update()
     {
         javafx.application.Platform.runLater(new Runnable() {
@@ -108,6 +133,15 @@ public class BoardPanel extends GridPane implements Runnable
         });
     }
 
+    /**
+     * Returns the column of the underlying Board corresponding to a horizontal
+     * position on this panel.
+     *
+     * @param x horizontal position on this panel
+     * @return the column of the underlying Board corresponding to the
+     *         horizontal position
+     *
+     */
     public int getBoardColumn(double x)
     {
         double halfGap = this.getHgap() / 2;
@@ -128,6 +162,11 @@ public class BoardPanel extends GridPane implements Runnable
         return column;
     }
 
+    /**
+     * Sets the underlying Board to a new Board.
+     *
+     * @param board the new Board
+     */
     public void setBoard(Board board)
     {
         // thread is waiting for the current board to play a move

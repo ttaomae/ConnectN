@@ -7,18 +7,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-
+/**
+ * An Player which uses a minimax algorithm with alpha-beta pruning.
+ *
+ * @author Todd Taomae
+ */
 public class AlphaBetaPlayer implements Player
 {
     private static final int DEFAULT_DEPTH = 5;
     private final int depth;
     private Random rand;
 
+    /**
+     * Constructs a new AlphaBetaPlayer which uses the default search depth.
+     */
     public AlphaBetaPlayer()
     {
         this(DEFAULT_DEPTH);
     }
 
+    /**
+     * Constructs a new AlphaBetaPlayer which uses the specified search depth.
+     *
+     * @param depth the search depth
+     */
     public AlphaBetaPlayer(int depth)
     {
         this.depth = depth;
@@ -73,6 +85,17 @@ public class AlphaBetaPlayer implements Player
         return -1;
     }
 
+    /**
+     * Returns the heuristic value given by searching the specified board with
+     * the specified depth.
+     * 
+     * @param board board to analyze
+     * @param depth remaining search depth
+     * @param alpha maximum score that maximizing player is assured of
+     * @param beta minimum score that minimizing player is assured of
+     * @param maxPlayer maximizing player
+     * @return the heuristic value for the specified board
+     */
     private double alphaBeta(Board board, int depth, double alpha, double beta, Piece maxPlayer)
     {
         if (depth == 0 || board.getWinner() != Piece.NONE) {
@@ -130,6 +153,13 @@ public class AlphaBetaPlayer implements Player
         }
     }
 
+    /**
+     * Returns the heuristic value of the specified board.
+     *
+     * @param board board to evaluate
+     * @param maxPlayer maximizing player
+     * @return the heuristic value of the specified board
+     */
     private double getHeuristic(Board board, Piece maxPlayer)
     {
         if (board.getWinner() == maxPlayer) {

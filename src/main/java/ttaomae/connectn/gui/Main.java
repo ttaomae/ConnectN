@@ -5,6 +5,11 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+/**
+ * Launches the ConnectN application.
+ * 
+ * @author Todd Taomae
+ */
 public class Main extends Application
 {
     @Override
@@ -20,6 +25,11 @@ public class Main extends Application
         stage.show();
     }
 
+    /**
+     * Starts the application.
+     *
+     * @param args command line arguments; passed to the application.
+     */
     public static void main(String[] args)
     {
         launch(args);

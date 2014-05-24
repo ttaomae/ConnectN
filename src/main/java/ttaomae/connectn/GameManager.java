@@ -1,7 +1,14 @@
 package ttaomae.connectn;
 
+/**
+ * A Connect-N game manager. Manages a single game between two Players. Can be
+ * run in a separate thread.
+ * 
+ * @author Todd Taomae
+ */
 public class GameManager implements Runnable
 {
+    /** The maxmimum number of attempts that a GameManager might allow */
     private static final int MAX_ATTEMPTS = Integer.MAX_VALUE;
     private Board board;
     private Player playerOne;
@@ -12,21 +19,56 @@ public class GameManager implements Runnable
     private volatile boolean running;
 
 
+    /**
+     * Constructs a new GameManager with the specified Players. Uses a new board
+     * and allows the maximum number of attempts.
+     *
+     * @param playerOne the first player
+     * @param playerTwo the second player
+     */
     public GameManager(Player playerOne, Player playerTwo)
     {
         this(new Board(), playerOne, playerTwo, MAX_ATTEMPTS);
     }
 
+    /**
+     * Constructs a new GameManager with the specified Players and attempts
+     * allowed. Uses a new Board.
+     *
+     * @param playerOne the first player
+     * @param playerTwo the second player
+     * @param attemptsAllowed the number of attempts allowed by a single player
+     *            on a single turn
+     */
     public GameManager(Player playerOne, Player playerTwo, int attemptsAllowed)
     {
         this(new Board(), playerOne, playerTwo, attemptsAllowed);
     }
 
+    /**
+     * Constructs a new GameManager with the specified Board and Player. Allows
+     * the maximum number of attempts.
+     *
+     * @param board the board to play on
+     * @param playerOne the first player
+     * @param playerTwo the second player
+     */
     public GameManager(Board board, Player playerOne, Player playerTwo)
     {
         this(board, playerOne, playerTwo, MAX_ATTEMPTS);
     }
 
+    /**
+     * Constructs a new GameManager with the specified Board, Players, and
+     * number of attempts allowed by a single player before terminating the game
+     * and throwing an exception.
+     *
+     * @param board the board to play on
+     * @param playerOne the first player
+     * @param playerTwo the second player
+     * @param attemptsAllowed the number of attempts allowed by a single player
+     *            on a single turn
+     */
     public GameManager(Board board, Player playerOne, Player playerTwo, int attemptsAllowed)
     {
         if (board == null) {
@@ -49,6 +91,9 @@ public class GameManager implements Runnable
         this.running = false;
     }
 
+    /**
+     * Runs a single game with this GameManager's Players.
+     */
     @Override
     public void run()
     {
@@ -119,6 +164,9 @@ public class GameManager implements Runnable
         this.running = false;
     }
 
+    /**
+     * Tells this GameManager to stop.
+     */
     public void stop()
     {
         this.running = false;
