@@ -44,13 +44,7 @@ public class Client implements Runnable
 
                 // make sure the board is empty by undoing everything
                 // TODO: kind of hack-y. must ensure that the panel and client have the same board
-                try {
-                    while (true) {
-                        this.board.undoPlay();
-                    }
-                } catch (IllegalStateException e) {
-                    // do nothing
-                }
+                while (this.board.undoPlay());
 
                 // play a full game
                 while (this.board.getWinner() == Piece.NONE) {
