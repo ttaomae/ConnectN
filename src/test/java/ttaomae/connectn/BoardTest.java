@@ -3,7 +3,6 @@ package ttaomae.connectn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -588,7 +587,7 @@ public class BoardTest
     public void testUndoSinglePlay() {
         for (int col = 0; col < board.getWidth(); col++) {
             board.play(col);
-            board.undoPlay();
+            assertTrue(board.undoPlay());
 
             assertEquals("failure - undo single play " + col, Piece.NONE, board.getPieceAt(col, 0));
             // should be first player's turn now
@@ -603,13 +602,13 @@ public class BoardTest
             board.play(col);
             board.play(col);
 
-            board.undoPlay();
+            assertTrue(board.undoPlay());
             // should be second player's turn now
             assertEquals("failure - undo second play " + col, Piece.NONE, board.getPieceAt(col, 1));
             assertEquals("failure - next piece after undo single play",
                     Piece.RED, board.getNextPiece());
 
-            board.undoPlay();
+            assertTrue(board.undoPlay());
             // should be first player's turn now
 
             assertEquals("failure - undo first play " + col, Piece.NONE, board.getPieceAt(col, 0));
@@ -627,7 +626,7 @@ public class BoardTest
             }
 
             for (int row = board.getHeight() - 1; row >= 0; row--) {
-                board.undoPlay();
+                assertTrue(board.undoPlay());
                 assertEquals(String.format("failure - undo col: %d, row: %d%n", col, row),
                         Piece.NONE, board.getPieceAt(col, row));
             }
@@ -636,12 +635,7 @@ public class BoardTest
 
     @Test
     public void testUndoWithNoPlays() {
-        try {
-            board.undoPlay();
-            fail("undo did not throw exception");
-        } catch (IllegalStateException e) {
-            assertTrue(e.getMessage().contains("No plays to undo."));
-        }
+        assertFalse(board.undoPlay());
     }
 
     @Test
@@ -664,11 +658,6 @@ public class BoardTest
         board.undoPlay();
 
         // undo extra play
-        try {
-            board.undoPlay();
-            fail("undo did not throw exception");
-        } catch (IllegalStateException e) {
-            assertTrue(e.getMessage().contains("No plays to undo."));
-        }
+        assertFalse(board.undoPlay());
     }
 }

@@ -80,7 +80,7 @@ public class Board
      * far left and end with (width - 1) on the far right. The next piece is
      * determined by the current turn. The piece will be placed in the lowest
      * empty row in the specified column.
-     * 
+     *
      * <p> Notifies any threads waiting on this Board when the move is played.
      *
      * @param col the column to play the next piece
@@ -119,12 +119,13 @@ public class Board
      * @throws IllegalStateException if the board is empty (i.e. no plays have
      *             been made)
      */
-    public void undoPlay() {
+    public boolean undoPlay()
+    {
         if (this.playHistory.isEmpty()) {
-            throw new IllegalStateException("No plays to undo.");
+            return false;
         }
 
-        int lastPlayCol = this.playHistory.removeLast();
+        int lastPlayCol = this.playHistory.getLast();
         boolean moveUndone = false;
 
         // find highest non-empty row for last play column
@@ -132,8 +133,15 @@ public class Board
             // make empty
             if (this.board[row][lastPlayCol] != Piece.NONE) {
                 this.board[row][lastPlayCol] = Piece.NONE;
-                moveUndone = true;
+                this.playHistory.removeLast();
                 this.currentTurn--;
+
+                moveUndone = true;
+
+                synchronized (this) {
+                    // notify when a play has been undone
+                    this.notifyAll();
+                }
                 break;
             }
         }
@@ -142,6 +150,8 @@ public class Board
         if (!moveUndone) {
             throw new IllegalStateException("Board is in illegal state. Could not undo play.");
         }
+
+        return true;
     }
 
     /**
