@@ -12,11 +12,11 @@ import ttaomae.connectn.network.ConnectNProtocol;
 
 public class NetworkPlayer implements Player
 {
-    Server server;
+    private NetworkGameManager server;
     private PrintWriter socketOut;
     private BufferedReader socketIn;
 
-    public NetworkPlayer(Server server, Socket socket) throws IOException
+    public NetworkPlayer(NetworkGameManager server, Socket socket) throws IOException
     {
         this.server = server;
 
@@ -48,8 +48,13 @@ public class NetworkPlayer implements Player
         return -1;
     }
 
-    public void sendOpponentMove(int move)
+    public void sendMessage(String message)
     {
-        this.socketOut.println(ConnectNProtocol.constructMove(move));
+        this.socketOut.println(message);
+    }
+
+    public String receiveMessage() throws IOException
+    {
+        return this.socketIn.readLine();
     }
 }

@@ -6,6 +6,9 @@ public class ConnectNProtocol
 {
     public static final String READY = "READY";
     public static final String MOVE = "MOVE";
+    public static final String REMATCH = "REMATCH";
+    public static final String YES = "YES";
+    public static final String NO = "NO";
 
     public static String constructMove(int move)
     {

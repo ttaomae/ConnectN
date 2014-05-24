@@ -2,8 +2,7 @@ package ttaomae.connectn.network.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-
-import ttaomae.connectn.GameManager;
+import java.net.Socket;
 
 public class Server implements Runnable
 {
@@ -22,17 +21,10 @@ public class Server implements Runnable
         try (ServerSocket serverSocket = new ServerSocket(this.portNumber);) {
             printMessage("Waiting for connections...");
 
-            // get two connections from players
-            playerOne = new NetworkPlayer(this, serverSocket.accept());
-            printMessage("Player 1 connected.");
-            playerTwo = new NetworkPlayer(this, serverSocket.accept());
-            printMessage("Player 1 connected.");
-
+            Socket one = serverSocket.accept();
+            Socket two = serverSocket.accept();
             // start new game
-            GameManager gm = new GameManager(playerOne, playerTwo);
-
-            printMessage("Starting game.");
-            Thread t = new Thread(gm);
+            Thread t = new Thread(new NetworkGameManager(this, one, two));
             t.start();
             t.join();
 
@@ -42,16 +34,6 @@ public class Server implements Runnable
             System.err.println(e.getMessage());
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void notifyOpponent(NetworkPlayer player, int move)
-    {
-        if (player == this.playerOne) {
-            this.playerTwo.sendOpponentMove(move);
-        }
-        else if (player == this.playerTwo) {
-            this.playerOne.sendOpponentMove(move);
         }
     }
 
