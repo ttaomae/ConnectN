@@ -110,11 +110,7 @@ public class Board
                 this.board[row][col] = this.getNextPiece();
                 this.playHistory.addLast(col);
                 currentTurn++;
-                synchronized (this) {
-                    // notify when a play has been made
-                    this.notifyAll();
-                    this.notifyListeners();
-                }
+                this.notifyListeners();
                 break;
             }
         }
@@ -145,11 +141,7 @@ public class Board
 
                 moveUndone = true;
 
-                synchronized (this) {
-                    // notify when a play has been undone
-                    this.notifyAll();
-                    this.notifyListeners();
-                }
+                this.notifyListeners();
                 break;
             }
         }
