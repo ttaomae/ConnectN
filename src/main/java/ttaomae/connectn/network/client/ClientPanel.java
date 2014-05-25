@@ -19,5 +19,6 @@ public class ClientPanel extends GridPane
         Thread myThread = new Thread(new Client(hostname, portNumber, mp, b));
         myThread.setDaemon(true);
         myThread.start();
+        System.out.println("CLIENT: connected to server");
     }
 }

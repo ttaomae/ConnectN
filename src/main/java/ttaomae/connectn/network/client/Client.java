@@ -70,7 +70,7 @@ public class Client implements Runnable
                 break;
             }
         }
-        System.out.println("Done!");
+        System.out.println("CLIENT: Done!");
     }
 
     private void playGame() throws IOException
