@@ -1,8 +1,10 @@
 package ttaomae.connectn;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.List;
 
 /**
  * A Connect-N board. A board has a rectangular grid of, possibly empty, spaces.
@@ -31,6 +33,9 @@ public class Board
 
     /** List of past plays on this board */
     private Deque<Integer> playHistory;
+
+    /** List of objects listening to this Board */
+    private List<BoardListener> listeners;
 
     /**
      * Constructs a new empty Board with the specified height, width, and win
@@ -65,6 +70,7 @@ public class Board
         this.currentTurn = 0;
 
         this.playHistory = new ArrayDeque<>();
+        this.listeners = new ArrayList<>();
     }
 
     /**
@@ -104,10 +110,7 @@ public class Board
                 this.board[row][col] = this.getNextPiece();
                 this.playHistory.addLast(col);
                 currentTurn++;
-                synchronized (this) {
-                    // notify when a play has been made
-                    this.notifyAll();
-                }
+                this.notifyListeners();
                 break;
             }
         }
@@ -138,10 +141,7 @@ public class Board
 
                 moveUndone = true;
 
-                synchronized (this) {
-                    // notify when a play has been undone
-                    this.notifyAll();
-                }
+                this.notifyListeners();
                 break;
             }
         }
@@ -360,5 +360,27 @@ public class Board
     public int getWinCondition()
     {
         return this.winCondition;
+    }
+
+    /**
+     * Adds a BoardListener to this Board.
+     *
+     * @param bl the BoardListener being added
+     */
+    public void addBoardListener(BoardListener bl)
+    {
+        this.listeners.add(bl);
+    }
+
+    /**
+     * Notifies all listeners that this Board has been changed.
+     */
+    private void notifyListeners()
+    {
+        for (BoardListener bl : this.listeners) {
+            if (bl != null) {
+                bl.boardChanged();
+            }
+        }
     }
 }

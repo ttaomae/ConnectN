@@ -5,22 +5,21 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import ttaomae.connectn.Board;
+import ttaomae.connectn.BoardListener;
 
 /**
  * A panel for displaying a Connect-N board. The Board being displayed can be
  * changed and the spacing of the pieces will be adjusted to fit evenly in the
  * panel.
- * 
+ *
  * @author Todd Taomae
  */
-public class BoardPanel extends GridPane implements Runnable
+public class BoardPanel extends GridPane implements BoardListener
 {
     private final int width;
     private final int height;
     private Board board;
     private int pieceRadius;
-
-    private Thread myThread;
 
     /**
      * Constructs a new BoardPanel with the specified width, height, and
@@ -35,14 +34,9 @@ public class BoardPanel extends GridPane implements Runnable
         this.setStyle("-fx-background-color: #336699;");
         this.width = width;
         this.height = height;
-        this.board = board;
         this.setMaxWidth(this.width);
         this.setMaxHeight(this.height);
-        this.setGapsAndPadding();
-
-        this.myThread = new Thread(this, "Board Panel");
-        this.myThread.setDaemon(true);
-        myThread.start();
+        this.setBoard(board);
     }
 
     /**
@@ -86,20 +80,9 @@ public class BoardPanel extends GridPane implements Runnable
      * Continually updates this BoardPanel each time a move is played.
      */
     @Override
-    public void run()
+    public void boardChanged()
     {
-        while (true) {
-            BoardPanel.this.update();
-
-            try {
-                // wait for next play
-                synchronized (this.board) {
-                    this.board.wait();
-                }
-            } catch (InterruptedException e) {
-                // do nothing
-            }
-        }
+        this.update();
     }
 
     /**
@@ -169,14 +152,9 @@ public class BoardPanel extends GridPane implements Runnable
      */
     public void setBoard(Board board)
     {
-        // thread is waiting for the current board to play a move
-        // however, since we are changing the board, that won't happen, so we interrupt
-        synchronized (this.board) {
-            this.myThread.interrupt();
-            this.board = board;
-        }
+        this.board = board;
+        this.board.addBoardListener(this);
         this.setGapsAndPadding();
         this.update();
     }
-
 }

@@ -16,6 +16,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ttaomae.connectn.AlphaBetaPlayer;
 import ttaomae.connectn.Board;
+import ttaomae.connectn.BoardListener;
 import ttaomae.connectn.GameManager;
 import ttaomae.connectn.Piece;
 import ttaomae.connectn.Player;
@@ -28,7 +29,7 @@ import ttaomae.connectn.Player;
  *
  * @author Todd Taomae
  */
-public class ConnectNPanel extends GridPane implements Runnable
+public class ConnectNPanel extends GridPane implements BoardListener
 {
     private static final String START_MESSAGE = "Click \"Start\" to start a new game.";
     private static final String BLACK_TURN = "BLACK's turn.";
@@ -57,7 +58,6 @@ public class ConnectNPanel extends GridPane implements Runnable
     private boolean running;
 
     private Label displayMessage;
-    private Thread myThread;
 
     /**
      * Constructs a new ConnectNPanel. The range of heights is 2 to 12, the
@@ -68,7 +68,6 @@ public class ConnectNPanel extends GridPane implements Runnable
         this.running = false;
 
         this.title = new Label();
-
 
         // set up height slider
         this.heightSlider = new Slider(2, 12, 6);
@@ -161,13 +160,8 @@ public class ConnectNPanel extends GridPane implements Runnable
             }
         });
 
-            this.board = new Board((int) this.heightSlider.getValue(),
-                                   (int) this.widthSlider.getValue(),
-                                   (int) this.winConditionSlider.getValue());
-            this.boardPanel = new BoardPanel(BOARD_WIDTH, BOARD_WIDTH, this.board);
-        synchronized (this.board) {
-            this.resetBoard();
-        }
+        this.boardPanel = new BoardPanel(BOARD_WIDTH, BOARD_WIDTH, new Board());
+        this.resetBoard();
 
         // this.setGridLinesVisible(true);
         this.setHgap(10);
@@ -187,10 +181,6 @@ public class ConnectNPanel extends GridPane implements Runnable
         bottomRow.add(this.startButton, 0, 0);
         bottomRow.add(this.displayMessage, 1, 0);
         this.add(bottomRow, 1, 5);
-
-        this.myThread = new Thread(this, "ConnectN Panel");
-        this.myThread.setDaemon(true);
-        this.myThread.start();
     }
 
     /**
@@ -228,10 +218,7 @@ public class ConnectNPanel extends GridPane implements Runnable
         this.gameManager.stop();
         this.gameManagerThread.interrupt();
 
-        synchronized (this.board) {
-            this.myThread.interrupt();
-            this.resetBoard();
-        }
+        this.resetBoard();
     }
 
     /**
@@ -243,6 +230,7 @@ public class ConnectNPanel extends GridPane implements Runnable
         this.board = new Board((int) this.heightSlider.getValue(),
                                (int) this.widthSlider.getValue(),
                                (int) this.winConditionSlider.getValue());
+        this.board.addBoardListener(this);
         this.boardPanel.setBoard(this.board);
         this.displayMessage.setText(START_MESSAGE);
     }
@@ -265,36 +253,26 @@ public class ConnectNPanel extends GridPane implements Runnable
      * Updates the display message whenever necessary.
      */
     @Override
-    public void run()
+    public void boardChanged()
     {
-        while (true) {
-            // wait for next play
-            synchronized (this.board) {
-                try {
-                    this.board.wait();
-                } catch (InterruptedException e) {
-                    continue;
+        switch (this.board.getWinner()) {
+            case NONE:
+                if (this.board.getNextPiece() == Piece.BLACK) {
+                    this.updateMessage(BLACK_TURN);
                 }
-            }
-            switch (this.board.getWinner()) {
-                case NONE:
-                    if (this.board.getNextPiece() == Piece.BLACK) {
-                        this.updateMessage(BLACK_TURN);
-                    }
-                    else if (this.board.getNextPiece() == Piece.RED) {
-                        this.updateMessage(RED_TURN);
-                    }
-                    break;
-                case BLACK:
-                    this.updateMessage(BLACK_WIN);
-                    break;
-                case RED:
-                    this.updateMessage(RED_WIN);
-                    break;
-                case DRAW:
-                    this.updateMessage(DRAW);
-                    break;
-            }
+                else if (this.board.getNextPiece() == Piece.RED) {
+                    this.updateMessage(RED_TURN);
+                }
+                break;
+            case BLACK:
+                this.updateMessage(BLACK_WIN);
+                break;
+            case RED:
+                this.updateMessage(RED_WIN);
+                break;
+            case DRAW:
+                this.updateMessage(DRAW);
+                break;
         }
     }
 
@@ -305,7 +283,6 @@ public class ConnectNPanel extends GridPane implements Runnable
      */
     public void updateMessage(final String message)
     {
-
         javafx.application.Platform.runLater(new Runnable() {
             @Override
             public void run()
