@@ -9,15 +9,20 @@ import ttaomae.connectn.network.ConnectNProtocol;
 public class NetworkGameManager implements Runnable
 {
     private Server server;
+    private Socket playerOneSocket;
+    private Socket playerTwoSocket;
     private NetworkPlayer playerOne;
     private NetworkPlayer playerTwo;
 
-    public NetworkGameManager(Server server, Socket playerOne, Socket playerTwo)
+    public NetworkGameManager(Server server, Socket playerOneSocket,
+            Socket playerTwoSocket)
             throws IOException
     {
         this.server = server;
-        this.playerOne = new NetworkPlayer(this, playerOne);
-        this.playerTwo = new NetworkPlayer(this, playerTwo);
+        this.playerOneSocket = playerOneSocket;
+        this.playerTwoSocket = playerTwoSocket;
+        this.playerOne = new NetworkPlayer(this, playerOneSocket);
+        this.playerTwo = new NetworkPlayer(this, playerTwoSocket);
     }
 
     public void notifyOpponent(NetworkPlayer player, int move)
@@ -49,6 +54,9 @@ public class NetworkGameManager implements Runnable
             // switch player order
             playerOneFirst = !playerOneFirst;
         }
+
+        this.server.addToPlayerPool(this.playerOneSocket);
+        this.server.addToPlayerPool(this.playerTwoSocket);
     }
 
     public void runGame(boolean playerOneFirst) {
