@@ -370,6 +370,19 @@ public class Board
         return this.winCondition;
     }
 
+    /**
+     * Adds a BoardListener to this Board.
+     *
+     * @param bl the BoardListener being added
+     */
+    public void addBoardListener(BoardListener bl)
+    {
+        this.listeners.add(bl);
+    }
+
+    /**
+     * Notifies all listeners that this Board has been changed.
+     */
     private void notifyListeners()
     {
         for (BoardListener bl : this.listeners) {
