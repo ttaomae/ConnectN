@@ -16,6 +16,8 @@ public class ClientPanel extends GridPane
         BoardPanel bp = new BoardPanel(450, 400, b);
         this.add(bp, 0, 0);
         Player mp = new MousePlayer(bp);
-        new Thread(new Client(hostname, portNumber, mp, b)).start();
+        Thread myThread = new Thread(new Client(hostname, portNumber, mp, b));
+        myThread.setDaemon(true);
+        myThread.start();
     }
 }
