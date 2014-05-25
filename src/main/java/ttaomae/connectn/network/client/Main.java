@@ -21,7 +21,7 @@ public class Main extends Application
         if (args.size() == 2) {
             hostname = args.get(0);
             try {
-                portNumber = Integer.parseInt(args.get(0));
+                portNumber = Integer.parseInt(args.get(1));
             } catch (NumberFormatException e) {
                 System.err.println("Using default port number.");
             }
