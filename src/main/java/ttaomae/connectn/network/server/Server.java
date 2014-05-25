@@ -62,5 +62,4 @@ public class Server implements Runnable
     {
         System.out.println("SERVER: " + message);
     }
-
 }

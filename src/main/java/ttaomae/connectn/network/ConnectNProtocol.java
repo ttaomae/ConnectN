@@ -4,6 +4,7 @@ import ttaomae.connectn.IllegalMoveException;
 
 public class ConnectNProtocol
 {
+    public static final String START = "START";
     public static final String READY = "READY";
     public static final String MOVE = "MOVE";
     public static final String REMATCH = "REMATCH";

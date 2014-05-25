@@ -68,6 +68,8 @@ public class NetworkGameManager implements Runnable
         }
 
         this.server.printMessage("Starting game.");
+        this.playerOne.sendMessage(ConnectNProtocol.START);
+        this.playerTwo.sendMessage(ConnectNProtocol.START);
         myThread.start();
         try {
             myThread.join();

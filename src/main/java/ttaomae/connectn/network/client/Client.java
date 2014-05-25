@@ -40,26 +40,34 @@ public class Client implements Runnable
     {
         boolean rematch = true;
         while (rematch) {
-            System.out.println("CLIENT: Starting game");
-
-            // make sure the board is empty by undoing everything
-            // TODO: kind of hack-y. must ensure that the panel and client have the same board
-            while (this.board.undoPlay());
-
             try {
+                // expecting start message from server
+                // if not, something went wrong so quit
+                if (!socketIn.readLine().equals(ConnectNProtocol.START)) {
+                    break;
+                }
+
+                // make sure the board is empty by undoing everything
+                // TODO: kind of hack-y. must ensure that the panel and client have the same board
+                while (this.board.undoPlay());
+
+
+                System.out.println("CLIENT: Starting game");
                 playGame();
 
                 String message = socketIn.readLine();
                 if (message.equals(ConnectNProtocol.REMATCH)) {
                     rematch = getRematch();
                 }
-                // did not get a rematch message from the server, so quit
+
+                // expecting rematch message from server
+                // if not, something went wrong so quit
                 else {
-                    rematch = false;
+                    break;
                 }
             } catch (IOException e) {
                 System.err.println("Error reading from socket.");
-                rematch = false;
+                break;
             }
         }
         System.out.println("Done!");
