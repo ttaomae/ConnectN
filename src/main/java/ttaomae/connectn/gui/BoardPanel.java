@@ -75,7 +75,7 @@ public class BoardPanel extends GridPane implements BoardListener
     }
 
     /**
-     * Continually updates this BoardPanel each time a move is played.
+     * Updates this BoardPanel each time the underlying board is changed.
      */
     @Override
     public void boardChanged()
