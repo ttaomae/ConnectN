@@ -20,22 +20,6 @@ public class BoardPanel extends GridPane implements BoardListener
     private int pieceRadius;
 
     /**
-     * Constructs a new BoardPanel with the specified width, height, and
-     * underlying Board.
-     *
-     * @param width the width of this panel
-     * @param height the height of this panel
-     * @param board the underlying Board for this panel
-     */
-    public BoardPanel(int width, int height, Board board)
-    {
-        this.setStyle("-fx-background-color: #336699;");
-        this.setPrefWidth(width);
-        this.setPrefHeight(height);
-        this.setBoard(board);
-    }
-
-    /**
      * Sets the gaps between spaces and padding on all edges of the board based
      * on the size of this panel and the size of the board.
      */

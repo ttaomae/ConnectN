@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 
 /**
  * Launches the ConnectN application.
- * 
+ *
  * @author Todd Taomae
  */
 public class Main extends Application
@@ -18,9 +18,9 @@ public class Main extends Application
         stage.setTitle("ConnectN");
 
         BorderPane root = new BorderPane();
-        root.setCenter(new ConnectNPanel());
+        root.setCenter(new ConnectNControl());
 
-        stage.setScene(new Scene(root, 510, 730));
+        stage.setScene(new Scene(root, 500, 660));
         stage.setResizable(false);
         stage.show();
     }
