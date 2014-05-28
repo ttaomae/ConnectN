@@ -16,28 +16,8 @@ import ttaomae.connectn.BoardListener;
  */
 public class BoardPanel extends GridPane implements BoardListener
 {
-    private final int width;
-    private final int height;
     private Board board;
     private int pieceRadius;
-
-    /**
-     * Constructs a new BoardPanel with the specified width, height, and
-     * underlying Board.
-     *
-     * @param width the width of this panel
-     * @param height the height of this panel
-     * @param board the underlying Board for this panel
-     */
-    public BoardPanel(int width, int height, Board board)
-    {
-        this.setStyle("-fx-background-color: #336699;");
-        this.width = width;
-        this.height = height;
-        this.setMaxWidth(this.width);
-        this.setMaxHeight(this.height);
-        this.setBoard(board);
-    }
 
     /**
      * Sets the gaps between spaces and padding on all edges of the board based
@@ -45,28 +25,30 @@ public class BoardPanel extends GridPane implements BoardListener
      */
     private void setGapsAndPadding()
     {
+        int panelWidth = (int)this.getPrefWidth();
+        int panelHeight = (int)this.getPrefHeight();
         // the width and height measured in radii
         // 2*n radius for pieces + n+1 radius for gaps and padding
         int radiusWidths = 3 * this.board.getWidth() + 1;
         int radiusHeights = 3 * this.board.getHeight() + 1;
 
-        this.pieceRadius = Math.min(this.width / radiusWidths, this.height / radiusHeights);
+        this.pieceRadius = Math.min(panelWidth / radiusWidths, panelHeight / radiusHeights);
 
         // (size of the panel - total size of pieces) / (total number of gaps/padding)
         int totalPieceWidth = 2 * this.board.getWidth() * this.pieceRadius;
-        int horizontalGap = (this.width - totalPieceWidth) / (this.board.getWidth() + 1);
+        int horizontalGap = (panelWidth - totalPieceWidth) / (this.board.getWidth() + 1);
 
         int totalPieceHeight = 2 * this.board.getHeight() * this.pieceRadius;
-        int verticalGap = (this.height - totalPieceHeight) / (this.board.getHeight() + 1);
+        int verticalGap = (panelHeight - totalPieceHeight) / (this.board.getHeight() + 1);
 
         int totalGapWidth = (this.board.getWidth() - 1) * horizontalGap;
-        int horizontalPadding = (this.width - totalPieceWidth - totalGapWidth);
+        int horizontalPadding = (panelWidth - totalPieceWidth - totalGapWidth);
         int leftPadding = horizontalPadding / 2;
         // add padding % 2 to account for odd numbered padding
         int rightPadding = leftPadding + (horizontalPadding % 2);
 
         int totalGapHeight = (this.board.getHeight() - 1) * verticalGap;
-        int verticalPadding = (this.height - totalPieceHeight - totalGapHeight);
+        int verticalPadding = (panelHeight - totalPieceHeight - totalGapHeight);
         int bottomPadding = verticalPadding / 2;
         // add padding % 2 to account for odd numbered padding
         int topPadding = bottomPadding + (verticalPadding % 2);
@@ -77,7 +59,7 @@ public class BoardPanel extends GridPane implements BoardListener
     }
 
     /**
-     * Continually updates this BoardPanel each time a move is played.
+     * Updates this BoardPanel each time the underlying board is changed.
      */
     @Override
     public void boardChanged()
