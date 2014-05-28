@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml">
+  <top>
+    <Label fx:id="label" text="Player #" />
+  </top>
+  
+  <left>
+    <HBox>
+      <fx:define>
+        <ToggleGroup fx:id="playerSelect" />
+      </fx:define>
+      
+      <children>
+        <RadioButton fx:id="playerHuman" text="Human" toggleGroup="$playerSelect" />
+        <RadioButton fx:id="playerComputer" text="Computer" toggleGroup="$playerSelect" />
+      </children>
+    </HBox>
+  </left>
+  
+  <bottom>
+    <VBox>
+      <children>
+        <Label text="Computer Difficulty" />
+
+        <Slider fx:id="cpuDifficultySlider"
+            min="2" max="12" value="6"
+            orientation="HORIZONTAL"
+            majorTickUnit="2.0" minorTickCount="1"
+            showTickMarks="true" showTickLabels="true" snapToTicks="true" />
+      </children>
+    </VBox>
+  </bottom>
+</fx:root>
