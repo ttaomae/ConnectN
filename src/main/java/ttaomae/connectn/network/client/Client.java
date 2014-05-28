@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import ttaomae.connectn.Board;
@@ -24,6 +26,8 @@ public class Client implements Runnable
     /** This client's copy of the board */
     private Board board;
 
+    private List<ClientListener> listeners;
+
     public Client(String hostname, int portNumber, Player player, Board board)
             throws UnknownHostException, IOException
     {
@@ -33,6 +37,8 @@ public class Client implements Runnable
 
         this.player = player;
         this.board = board;
+
+        this.listeners = new ArrayList<>();
     }
 
     @Override
@@ -43,7 +49,7 @@ public class Client implements Runnable
             try {
                 // expecting start message from server
                 // if not, something went wrong so quit
-                if (!socketIn.readLine().equals(ConnectNProtocol.START)) {
+                if (!this.getMessageFromServer().equals(ConnectNProtocol.START)) {
                     break;
                 }
 
@@ -55,7 +61,7 @@ public class Client implements Runnable
                 System.out.println("CLIENT: Starting game");
                 playGame();
 
-                String message = socketIn.readLine();
+                String message = this.getMessageFromServer();
                 if (message.equals(ConnectNProtocol.REMATCH)) {
                     rematch = getRematch();
                 }
@@ -77,7 +83,7 @@ public class Client implements Runnable
     {
         while (this.board.getWinner() == Piece.NONE) {
             // get message from server
-            String message = this.socketIn.readLine();
+            String message = this.getMessageFromServer();
 
             // server is waiting for move
             if (message.equals(ConnectNProtocol.READY)) {
@@ -88,7 +94,7 @@ public class Client implements Runnable
                 }
                 this.board.play(move);
 
-                this.socketOut.println(ConnectNProtocol.constructMove(move));
+                this.sendMessageToServer(ConnectNProtocol.constructMove(move));
             }
             // server sent opponent move
             else if (ConnectNProtocol.verifyMove(message)) {
@@ -106,14 +112,46 @@ public class Client implements Runnable
         // TODO: very hack-y
         System.out.println("Type 'y' for a rematch.");
         if (new Scanner(System.in).nextLine().equals("y")) {
-            socketOut.println(ConnectNProtocol.YES);
+            this.sendMessageToServer(ConnectNProtocol.YES);
             // wait for server response; rematch if opponent agrees
-            return socketIn.readLine().equals(ConnectNProtocol.YES);
-
+            return this.getMessageFromServer().equals(ConnectNProtocol.YES);
         }
         else {
-            socketOut.println(ConnectNProtocol.NO);
+            this.sendMessageToServer(ConnectNProtocol.NO);
             return false;
+        }
+    }
+
+    private String getMessageFromServer() throws IOException
+    {
+        String result = this.socketIn.readLine();
+        this.notifyListeners(true, result);
+
+        return result;
+    }
+
+    private void sendMessageToServer(String message)
+    {
+        this.socketOut.println(message);
+        this.notifyListeners(false, message);
+    }
+
+    public void addListener(ClientListener cl)
+    {
+        this.listeners.add(cl);
+    }
+
+    private void notifyListeners(boolean received, String message)
+    {
+        for (ClientListener cl : this.listeners) {
+            if (cl != null) {
+                if (received) {
+                    cl.clientReceivedMessage(message);
+                }
+                else {
+                    cl.clientSentMessage(message);
+                }
+            }
         }
     }
 }
