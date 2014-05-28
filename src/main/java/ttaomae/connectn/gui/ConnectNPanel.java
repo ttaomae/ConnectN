@@ -250,7 +250,7 @@ public class ConnectNPanel extends GridPane implements BoardListener
     }
 
     /**
-     * Updates the display message whenever necessary.
+     * Updates the display each time the underlying board is changed
      */
     @Override
     public void boardChanged()
