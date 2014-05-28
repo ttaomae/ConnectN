@@ -13,7 +13,11 @@ public class ClientPanel extends GridPane
     public ClientPanel(String hostname, int portNumber) throws IOException
     {
         Board b = new Board();
-        BoardPanel bp = new BoardPanel(450, 400, b);
+        BoardPanel bp = new BoardPanel();
+        bp.setPrefWidth(450);
+        bp.setPrefHeight(400);
+        bp.setStyle("-fx-background-color:#336699");
+        bp.setBoard(b);
         this.add(bp, 0, 0);
         Player mp = new MousePlayer(bp);
         Thread myThread = new Thread(new Client(hostname, portNumber, mp, b));
