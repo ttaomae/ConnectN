@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import ttaomae.connectn.gui.*?>
+
+<fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml">
+  <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+  <top>
+    <HBox spacing="5">
+      <TextField fx:id="hostField" text="host" />
+      <Label text=":" />
+      <TextField fx:id="portField" text="port" />
+      
+      <Button text="Connect"
+          onAction="#connect" />
+    </HBox>
+  </top>
+
+  <center>
+    <BoardPanel fx:id="boardPanel" style="-fx-background-color: #336699;">
+      <BorderPane.margin><Insets top="20.0" bottom="20.0" /></BorderPane.margin>
+      <prefHeight>380</prefHeight>
+      <prefWidth>440</prefWidth>
+      <maxHeight>380</maxHeight>
+      <maxWidth>440</maxWidth>
+    </BoardPanel>
+  </center>
+  
+  <bottom>
+    <Label fx:id="displayMessage" style="-fx-font-size: 16pt"
+        text="Press 'Connect' to connect to server."/>
+  </bottom>
+</fx:root>
