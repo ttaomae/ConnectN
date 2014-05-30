@@ -197,12 +197,10 @@ public class NetworkGameManager implements Runnable
                 case ONE:
                     this.playerOneSocket.close();
                     this.playerTwo.sendMessage(ConnectNProtocol.DICONNECTED);
-                    System.out.println("p1 dc");
                     break;
                 case TWO:
                     this.playerTwoSocket.close();
                     this.playerOne.sendMessage(ConnectNProtocol.DICONNECTED);
-                    System.out.println("p2 dc");
                     break;
                 default:
                     break;
