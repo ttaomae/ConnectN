@@ -24,6 +24,7 @@ public class ClientControl extends BorderPane implements ClientListener
     @FXML private Label displayMessage;
 
     private boolean connected;
+    private Client client;
 
     public ClientControl()
     {
@@ -69,10 +70,10 @@ public class ClientControl extends BorderPane implements ClientListener
                 Board b = new Board();
                 this.boardPanel.setBoard(b);
                 MousePlayer mp = new MousePlayer(this.boardPanel);
-                Client c = new Client(host, port, mp, b);
-                c.addListener(this);
+                this.client = new Client(host, port, mp, b);
+                this.client.addListener(this);
 
-                Thread myThread = new Thread(c);
+                Thread myThread = new Thread(client);
                 myThread.setDaemon(true);
                 myThread.start();
 
@@ -86,6 +87,13 @@ public class ClientControl extends BorderPane implements ClientListener
             catch (IOException e) {
                 this.updateMessage("Could not connect to server.");
             }
+        }
+    }
+
+    public void disconnect()
+    {
+        if (this.client != null) {
+            this.client.disconnect();
         }
     }
 

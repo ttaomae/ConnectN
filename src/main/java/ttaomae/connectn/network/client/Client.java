@@ -41,6 +41,17 @@ public class Client implements Runnable
         this.listeners = new ArrayList<>();
     }
 
+    public void disconnect()
+    {
+        if (this.socket != null) {
+            try {
+                this.socket.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     public void run()
     {
