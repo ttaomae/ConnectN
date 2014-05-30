@@ -84,7 +84,11 @@ public class ClientControl extends BorderPane implements ClientListener
 
                 this.updateMessage(String.format("Connected to %s:%d%n", host, port));
                 this.connected = true;
-                this.connectButton.setDisable(true);
+                javafx.application.Platform.runLater(new Runnable() {
+                    @Override public void run() {
+                        ClientControl.this.connectButton.setDisable(true);
+                    }
+                });
             }
             catch (NumberFormatException e) {
                 this.updateMessage("Invalid port number.");
@@ -134,9 +138,7 @@ public class ClientControl extends BorderPane implements ClientListener
     public void updateMessage(final String message)
     {
         javafx.application.Platform.runLater(new Runnable() {
-            @Override
-            public void run()
-            {
+            @Override public void run() {
                 ClientControl.this.displayMessage.setText(message);
             }
         });
@@ -147,7 +149,7 @@ public class ClientControl extends BorderPane implements ClientListener
     {
         switch (message) {
             case ConnectNProtocol.START:
-                this.updateMessage("Starting game...");
+                this.updateMessage("Starting game... Waiting for opponent...");
                 break;
             case ConnectNProtocol.READY:
                 this.updateMessage("Select your move");
@@ -156,9 +158,12 @@ public class ClientControl extends BorderPane implements ClientListener
                 this.updateMessage("Game Over! Rematch?");
                 yesNoButtonsSetDisable(false);
                 break;
+            case ConnectNProtocol.NO:
+                this.updateMessage("Opponent denied rematch.");
                 break;
             case ConnectNProtocol.DICONNECTED:
                 this.updateMessage("Opponent disconnected!");
+                break;
         }
     }
 

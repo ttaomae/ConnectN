@@ -13,7 +13,7 @@
       <Label text=":" />
       <TextField fx:id="portField" text="port" />
       
-      <Button text="Connect"
+      <Button fx:id="connectButton" text="Connect"
           onAction="#connect" />
     </HBox>
   </top>
