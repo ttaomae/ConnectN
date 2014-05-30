@@ -125,7 +125,6 @@ public class Client implements Runnable
             }
             // opponent has disconnected; end game
             else if (message.equals(ConnectNProtocol.DICONNECTED)) {
-                System.out.println("opp dc");
                 break;
             }
         }
