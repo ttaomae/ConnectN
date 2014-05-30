@@ -74,10 +74,17 @@ public class Client implements Runnable
                     System.out.println("CLIENT: Starting game");
                     playGame();
                 }
+
                 // confirm a rematch
                 else if (message.equals(ConnectNProtocol.REMATCH)) {
                     getRematch();
                 }
+
+                // server is pinging so verify connection
+                else if (message.equals(ConnectNProtocol.PING)) {
+                    sendMessageToServer(ConnectNProtocol.PING);
+                }
+
                 // not what we expected so start over and get a new message
                 else {
                     continue;

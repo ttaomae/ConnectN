@@ -3,24 +3,23 @@ package ttaomae.connectn.network.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 public class Server implements Runnable
 {
     private int portNumber;
-    private Set<Socket> playerPool;
+    private ClientManager clientManager;
 
     public Server(int portNumber)
     {
         this.portNumber = portNumber;
-        this.playerPool = new HashSet<>();
+        this.clientManager = new ClientManager(this);
     }
 
     @Override
     public void run()
     {
+        new Thread(this.clientManager, "Client Manager").start();
+
         try (ServerSocket serverSocket = new ServerSocket(this.portNumber);) {
             printMessage("Waiting for connections...");
             while (true) {
@@ -34,32 +33,9 @@ public class Server implements Runnable
         }
     }
 
-    private void startGame() throws IOException
-    {
-        if (this.playerPool.size() >= 2) {
-            Iterator<Socket> iter = this.playerPool.iterator();
-            Socket one = iter.next();
-            iter.remove();
-            Socket two = iter.next();
-            iter.remove();
-            new Thread(new NetworkGameManager(this, one, two)).start();
-        }
-    }
-
     public void addToPlayerPool(Socket player)
     {
-        if (!player.isClosed()) {
-            this.playerPool.add(player);
-            printMessage("Adding player to pool...");
-        }
-
-        if (this.playerPool.size() >= 2) {
-            try {
-                startGame();
-            } catch (IOException e) {
-                System.err.println("Error starting match");
-            }
-        }
+        this.clientManager.addPlayer(player);
     }
 
     public void printMessage(String message)

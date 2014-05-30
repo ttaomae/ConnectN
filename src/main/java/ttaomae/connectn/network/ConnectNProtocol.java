@@ -12,6 +12,7 @@ public class ConnectNProtocol
     public static final String NO = "NO";
     public static final String DICONNECTED = "DISCONNECTED";
     public static final String PING = "PING";
+    public static final long PING_INTERVAL = 5000;
 
     public static String constructMove(int move)
     {

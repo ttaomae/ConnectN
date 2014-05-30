@@ -172,7 +172,6 @@ public class NetworkGameManager implements Runnable
             p2Connected = false;
         }
 
-
         if (!p1Connected) {
             this.closeSocket(PlayerNum.ONE);
             result = false;
