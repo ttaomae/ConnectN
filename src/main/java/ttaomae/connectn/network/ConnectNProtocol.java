@@ -10,6 +10,8 @@ public class ConnectNProtocol
     public static final String REMATCH = "REMATCH";
     public static final String YES = "YES";
     public static final String NO = "NO";
+    public static final String DICONNECTED = "DISCONNECTED";
+    public static final String PING = "PING";
 
     public static String constructMove(int move)
     {

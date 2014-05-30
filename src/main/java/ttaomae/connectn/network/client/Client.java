@@ -55,32 +55,26 @@ public class Client implements Runnable
     @Override
     public void run()
     {
-        boolean rematch = true;
-        while (rematch) {
+        while (true) {
             try {
-                // expecting start message from server
-                // if not, something went wrong so quit
-                if (!this.getMessageFromServer().equals(ConnectNProtocol.START)) {
-                    break;
-                }
-
-                // make sure the board is empty by undoing everything
-                // TODO: kind of hack-y. must ensure that the panel and client have the same board
-                while (this.board.undoPlay());
-
-
-                System.out.println("CLIENT: Starting game");
-                playGame();
-
                 String message = this.getMessageFromServer();
-                if (message.equals(ConnectNProtocol.REMATCH)) {
-                    rematch = getRematch();
-                }
 
-                // expecting rematch message from server
-                // if not, something went wrong so quit
+                // start a new game
+                if (message.equals(ConnectNProtocol.START)) {
+                    // make sure the board is empty by undoing everything
+                    // TODO: kind of hack-y. must ensure that the panel and client have the same board
+                    while (this.board.undoPlay());
+
+                    System.out.println("CLIENT: Starting game");
+                    playGame();
+                }
+                // confirm a rematch
+                else if (message.equals(ConnectNProtocol.REMATCH)) {
+                    getRematch();
+                }
+                // not what we expected so start over and get a new message
                 else {
-                    break;
+                    continue;
                 }
             } catch (IOException e) {
                 System.err.println("Error reading from socket.");
@@ -111,6 +105,15 @@ public class Client implements Runnable
             else if (ConnectNProtocol.verifyMove(message)) {
                 // play opponent's move
                 this.board.play(ConnectNProtocol.parseMove(message));
+            }
+            // server is pinging so verify connection
+            else if (message.equals(ConnectNProtocol.PING)) {
+                this.sendMessageToServer(ConnectNProtocol.PING);
+            }
+            // opponent has disconnected; end game
+            else if (message.equals(ConnectNProtocol.DICONNECTED)) {
+                System.out.println("opp dc");
+                break;
             }
         }
 

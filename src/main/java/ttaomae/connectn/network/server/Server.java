@@ -48,7 +48,11 @@ public class Server implements Runnable
 
     public void addToPlayerPool(Socket player)
     {
-        this.playerPool.add(player);
+        if (!player.isClosed()) {
+            this.playerPool.add(player);
+            printMessage("Adding player to pool...");
+        }
+
         if (this.playerPool.size() >= 2) {
             try {
                 startGame();
