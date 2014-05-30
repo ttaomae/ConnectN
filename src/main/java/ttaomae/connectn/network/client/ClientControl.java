@@ -23,6 +23,9 @@ public class ClientControl extends BorderPane implements ClientListener
 
     @FXML private Label displayMessage;
 
+    @FXML private Button yesButton;
+    @FXML private Button noButton;
+
     private boolean connected;
     private Client client;
 
@@ -44,6 +47,8 @@ public class ClientControl extends BorderPane implements ClientListener
         this.connectButton = new Button();
         this.boardPanel = new BoardPanel();
         this.displayMessage = new Label();
+        this.yesButton = new Button();
+        this.noButton = new Button();
     }
 
     private void load()
@@ -90,11 +95,35 @@ public class ClientControl extends BorderPane implements ClientListener
         }
     }
 
+    @FXML
+    private void confirm()
+    {
+        this.client.confirmRematch();
+        yesNoButtonsSetDisable(true);
+    }
+
+    @FXML
+    private void deny()
+    {
+        this.client.denyRematch();
+        yesNoButtonsSetDisable(true);
+    }
+
     public void disconnect()
     {
         if (this.client != null) {
             this.client.disconnect();
         }
+    }
+
+    private void yesNoButtonsSetDisable(final boolean disable)
+    {
+        javafx.application.Platform.runLater(new Runnable() {
+            @Override public void run() {
+                ClientControl.this.yesButton.setDisable(disable);
+                ClientControl.this.noButton.setDisable(disable);
+            }
+        });
     }
 
     /**
@@ -125,6 +154,8 @@ public class ClientControl extends BorderPane implements ClientListener
                 break;
             case ConnectNProtocol.REMATCH:
                 this.updateMessage("Game Over! Rematch?");
+                yesNoButtonsSetDisable(false);
+                break;
                 break;
             case ConnectNProtocol.DICONNECTED:
                 this.updateMessage("Opponent disconnected!");

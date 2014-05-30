@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import ttaomae.connectn.Board;
 import ttaomae.connectn.Piece;
@@ -27,6 +26,13 @@ public class Client implements Runnable
     private Board board;
 
     private List<ClientListener> listeners;
+
+    /**
+     * Indicates whether or not this Client is waiting for some kind of
+     * response. For example, it may be waiting to confirm whether or not to
+     * accept a rematch.
+     */
+    private volatile boolean waitingForResponse;
 
     public Client(String hostname, int portNumber, Player player, Board board)
             throws UnknownHostException, IOException
@@ -120,19 +126,35 @@ public class Client implements Runnable
         System.out.println(this.board.getWinner() + " wins!");
     }
 
-    private boolean getRematch() throws IOException
+    private void getRematch() throws IOException
     {
-        // get input from user
-        // TODO: very hack-y
-        System.out.println("Type 'y' for a rematch.");
-        if (new Scanner(System.in).nextLine().equals("y")) {
-            this.sendMessageToServer(ConnectNProtocol.YES);
-            // wait for server response; rematch if opponent agrees
-            return this.getMessageFromServer().equals(ConnectNProtocol.YES);
-        }
-        else {
+        this.waitingForResponse = true;
+        try {
+            while (this.waitingForResponse) {
+                synchronized (this) {
+                    this.wait();
+                }
+            }
+        } catch (InterruptedException e) {
             this.sendMessageToServer(ConnectNProtocol.NO);
-            return false;
+        }
+    }
+
+    public void confirmRematch()
+    {
+        this.sendMessageToServer(ConnectNProtocol.YES);
+        this.waitingForResponse = false;
+        synchronized (this) {
+            this.notifyAll();
+        }
+    }
+
+    public void denyRematch()
+    {
+        this.sendMessageToServer(ConnectNProtocol.NO);
+        this.waitingForResponse = false;
+        synchronized (this) {
+            this.notifyAll();
         }
     }
 
