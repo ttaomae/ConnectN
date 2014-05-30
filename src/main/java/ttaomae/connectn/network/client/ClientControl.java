@@ -126,6 +126,8 @@ public class ClientControl extends BorderPane implements ClientListener
             case ConnectNProtocol.REMATCH:
                 this.updateMessage("Game Over! Rematch?");
                 break;
+            case ConnectNProtocol.DICONNECTED:
+                this.updateMessage("Opponent disconnected!");
         }
     }
 
