@@ -22,10 +22,10 @@ public class Server implements Runnable
     public void run()
     {
         try (ServerSocket serverSocket = new ServerSocket(this.portNumber);) {
+            printMessage("Waiting for connections...");
             while (true) {
-                printMessage("Waiting for connection...");
-
                 this.addToPlayerPool(serverSocket.accept());
+                printMessage("Player connected!");
             }
         } catch (IOException e) {
             System.err.println("Exception caught when trying to listen on port "
