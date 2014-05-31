@@ -108,12 +108,12 @@ public class ConnectNControl extends GridPane implements BoardListener
     {
         if (this.running) {
             this.resetGame();
-            this.startButton.setText("Start");
+            this.updateStartButtonText("Start");
             this.running = false;
         }
         else {
             this.startGame();
-            this.startButton.setText("Reset");
+            this.updateStartButtonText("Reset");
             this.running = true;
         }
     }
@@ -127,8 +127,14 @@ public class ConnectNControl extends GridPane implements BoardListener
         int height = (int) this.heightSlider.getValue();
         int width = (int) this.widthSlider.getValue();
         int winCondition = (int) this.winConditionSlider.getValue();
-        if (winCondition > Math.max(height, width)) {
-            this.winConditionSlider.setValue(Math.max(height, width));
+
+        final int maxWinCondition = Math.max(height, width);
+        if (winCondition > maxWinCondition) {
+            javafx.application.Platform.runLater(new Runnable() {
+                @Override public void run() {
+                    ConnectNControl.this.winConditionSlider.setValue(maxWinCondition);
+                }
+            });
         }
     }
 
@@ -154,7 +160,7 @@ public class ConnectNControl extends GridPane implements BoardListener
         }
 
         this.gameManager = new GameManager(this.board, p1, p2);
-        this.displayMessage.setText(BLACK_TURN);
+        this.updateMessage(BLACK_TURN);
         this.gameManagerThread = new Thread(this.gameManager, "Game Manager");
         this.gameManagerThread.start();
     }
@@ -175,13 +181,18 @@ public class ConnectNControl extends GridPane implements BoardListener
      */
     private void resetBoard()
     {
-        this.title.setText("Connect " + ((int) this.winConditionSlider.getValue()));
+        javafx.application.Platform.runLater(new Runnable() {
+            @Override public void run() {
+                int winCond = (int) ConnectNControl.this.winConditionSlider.getValue();
+                ConnectNControl.this.title.setText("Connect " + winCond);
+            }
+        });
         this.board = new Board((int) this.heightSlider.getValue(),
                                (int) this.widthSlider.getValue(),
                                (int) this.winConditionSlider.getValue());
         this.board.addBoardListener(this);
         this.boardPanel.setBoard(this.board);
-        this.displayMessage.setText(START_MESSAGE);
+        this.updateMessage(START_MESSAGE);
     }
 
     /**
@@ -211,17 +222,24 @@ public class ConnectNControl extends GridPane implements BoardListener
         }
     }
 
+    private void updateStartButtonText(final String message)
+    {
+        javafx.application.Platform.runLater(new Runnable() {
+            @Override public void run() {
+                ConnectNControl.this.startButton.setText(message);
+            }
+        });
+    }
+
     /**
      * Sets the display to the specified message.
      *
      * @param message the message to update to
      */
-    public void updateMessage(final String message)
+    private void updateMessage(final String message)
     {
         javafx.application.Platform.runLater(new Runnable() {
-            @Override
-            public void run()
-            {
+            @Override public void run() {
                 ConnectNControl.this.displayMessage.setText(message);
             }
         });
