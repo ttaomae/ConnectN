@@ -1,0 +1,52 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>ttaomae</groupId>
+    <artifactId>ConnectN</artifactId>
+    <version>1.1</version>
+    <relativePath>pom.xml</relativePath>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ttaomae</groupId>
+  <artifactId>Packager</artifactId>
+  <packaging>pom</packaging>
+  <name>ConnectN</name>
+  <url>https://github.com/ttaomae/</url>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <target>
+            <copy file="core/target/jfx/app/${project.name}-core-${project.version}-jfx.jar"
+                  toDir="target/" />
+            <copy file="client/target/jfx/app/${project.name}-client-${project.version}-jfx.jar"
+                  toDir="target/" />
+            <copy file="server/target/${project.name}-server-${project.version}.jar"
+                  toDir="target/" />
+            <copy file="core/target/${project.name}-core-${project.version}.jar"
+                  toDir="target/lib" />
+          </target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <modules>
+    <module>core</module>
+    <module>client</module>
+    <module>server</module>
+  </modules>
+</project>
