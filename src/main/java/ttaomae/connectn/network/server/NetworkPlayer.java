@@ -40,7 +40,7 @@ public class NetworkPlayer implements Player
                 return move;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // player probably disconnected
             System.err.println("Error getting move from socket.");
             return -1;
         }
