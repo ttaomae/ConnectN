@@ -2,6 +2,12 @@ package ttaomae.connectn.network;
 
 import ttaomae.connectn.IllegalMoveException;
 
+/**
+ * A class providing static methods and constants to facilitate communication
+ * between the client and server.
+ *
+ * @author Todd Taomae
+ */
 public class ConnectNProtocol
 {
     public static final String START = "START";
@@ -14,11 +20,23 @@ public class ConnectNProtocol
     public static final String PING = "PING";
     public static final long PING_INTERVAL = 5000;
 
+    /**
+     * Constructs a move message with the specified move.
+     *
+     * @param move the move
+     * @return the constructed move
+     */
     public static String constructMove(int move)
     {
         return MOVE + move;
     }
 
+    /**
+     * Verifies that the specified message is a valid move message.
+     *
+     * @param message the message being verified
+     * @return true if the message is a valid move message, false otherwise
+     */
     public static boolean verifyMove(String message)
     {
         if (!message.startsWith(MOVE)) {
@@ -35,6 +53,14 @@ public class ConnectNProtocol
         }
     }
 
+    /**
+     * Returns the move described by the specified message.
+     *
+     * @param message the message to parse
+     * @return the move described by the specified message
+     *
+     * @throws IllegalMoveException if the message is not a valid move message
+     */
     public static int parseMove(String message)
     {
         if (!verifyMove(message)) {

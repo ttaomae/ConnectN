@@ -7,6 +7,11 @@ import ttaomae.connectn.GameManager;
 import ttaomae.connectn.IllegalMoveException;
 import ttaomae.connectn.network.ConnectNProtocol;
 
+/**
+ * Manages a series of games between two clients.
+ *
+ * @author Todd Taomae
+ */
 public class NetworkGameManager implements Runnable
 {
     private Server server;
@@ -15,6 +20,17 @@ public class NetworkGameManager implements Runnable
     private NetworkPlayer playerOne;
     private NetworkPlayer playerTwo;
 
+    /**
+     * Constructs a new NetworkGameManager which is part of the specified Server
+     * and manages games between two clients specified by the sockets they are
+     * connected to.
+     *
+     * @param server the server that this NetworkGameManager is part of
+     * @param playerOneSocket the socket that the first player is connected to
+     * @param playerTwoSocket the socket that the second player is connected to
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if the server or either socket is null.
+     */
     public NetworkGameManager(Server server, Socket playerOneSocket, Socket playerTwoSocket)
             throws IOException
     {
@@ -33,6 +49,14 @@ public class NetworkGameManager implements Runnable
         this.playerTwo = new NetworkPlayer(this, playerTwoSocket);
     }
 
+    /**
+     * Notify the opponent that the specified player has played the specified
+     * move. If the player parameter is neither of this NetworkGameManagers
+     * players then nothing happens.
+     *
+     * @param player the player that played a move
+     * @param move the move that was played
+     */
     public void notifyOpponent(NetworkPlayer player, int move)
     {
         if (player == this.playerOne) {
@@ -43,6 +67,10 @@ public class NetworkGameManager implements Runnable
         }
     }
 
+    /**
+     * Repeatedly starts games between the players as long as they both agree to
+     * a rematch.
+     */
     @Override
     public void run()
     {
@@ -99,6 +127,11 @@ public class NetworkGameManager implements Runnable
         }
     }
 
+    /**
+     * Asks both players if they want a rematch.
+     *
+     * @return true if both players agree to a rematch
+     */
     private boolean checkRematch()
     {
         this.playerOne.sendMessage(ConnectNProtocol.REMATCH);
@@ -149,6 +182,12 @@ public class NetworkGameManager implements Runnable
         return false;
     }
 
+    /**
+     * Checks if both players are still connected by sending a PING message and
+     * waiting for a response.
+     *
+     * @return true if both players respond.
+     */
     private boolean checkConnections()
     {
         boolean result = true;
@@ -196,6 +235,12 @@ public class NetworkGameManager implements Runnable
         ONE, TWO;
     }
 
+    /**
+     * Closes the socket of the specified player and sends a DISCONNECTED
+     * message to the opponent.
+     *
+     * @param player the player whose socket is being closed.
+     */
     private void closeSocket(PlayerNum player)
     {
         try {

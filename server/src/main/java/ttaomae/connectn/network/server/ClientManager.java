@@ -11,11 +11,23 @@ import java.util.Set;
 
 import ttaomae.connectn.network.ConnectNProtocol;
 
+/**
+ * Keeps track of the clients which are connected to a Connect-N server, but not
+ * currently in a game.
+ *
+ * @author Todd Taomae
+ */
 public class ClientManager implements Runnable
 {
     private Server server;
     private Set<Socket> playerPool;
 
+    /**
+     * Constructs a new ClientManager for the specified server.
+     *
+     * @param server the server whose clients are being managed
+     * @throws IllegalArgumentException if the server is null
+     */
     public ClientManager(Server server)
     {
         if (server == null) {
@@ -26,6 +38,12 @@ public class ClientManager implements Runnable
         this.playerPool = new HashSet<>();
     }
 
+    /**
+     * Adds a player which is connected on the specified socket to this
+     * ClientManager.
+     *
+     * @param player the player being added
+     */
     public void addPlayer(Socket player)
     {
         if (!player.isClosed()) {
@@ -42,6 +60,11 @@ public class ClientManager implements Runnable
         }
     }
 
+    /**
+     * Starts a game between two players, on a new thread.
+     *
+     * @throws IOException if there is an error starting the game
+     */
     private void startGame() throws IOException
     {
         synchronized (this) {
@@ -56,6 +79,9 @@ public class ClientManager implements Runnable
         }
     }
 
+    /**
+     * Pings clients at regular intervals to check if they are still connected.
+     */
     @Override
     public void run()
     {
@@ -72,6 +98,9 @@ public class ClientManager implements Runnable
         }
     }
 
+    /**
+     * Sends a PING message to each client then wait s for a reply.
+     */
     private void pingClients()
     {
         // send ping
@@ -101,6 +130,11 @@ public class ClientManager implements Runnable
         }
     }
 
+    /**
+     * Closes the specified socket.
+     *
+     * @param socket the socket to be closed
+     */
     private void closeSocket(Socket socket)
     {
         try {

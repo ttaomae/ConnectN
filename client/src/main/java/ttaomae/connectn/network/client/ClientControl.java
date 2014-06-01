@@ -13,6 +13,12 @@ import ttaomae.connectn.gui.BoardPanel;
 import ttaomae.connectn.gui.MousePlayer;
 import ttaomae.connectn.network.ConnectNProtocol;
 
+/**
+ * A JavaFX component which provides an interface for the client of a network
+ * multiplayer Connect-N game.
+ *
+ * @author Todd Taomae
+ */
 public class ClientControl extends BorderPane implements ClientListener
 {
     @FXML private TextField hostField;
@@ -29,6 +35,9 @@ public class ClientControl extends BorderPane implements ClientListener
     private boolean connected;
     private Client client;
 
+    /**
+     * Constructs a new ClientControl
+     */
     public ClientControl()
     {
         initialize();
@@ -40,6 +49,9 @@ public class ClientControl extends BorderPane implements ClientListener
         this.boardPanel.setBoard(new Board());
     }
 
+    /**
+     * Initializes the components.
+     */
     private void initialize()
     {
         this.hostField = new TextField();
@@ -51,6 +63,9 @@ public class ClientControl extends BorderPane implements ClientListener
         this.noButton = new Button();
     }
 
+    /**
+     * Loads the layout.
+     */
     private void load()
     {
         FXMLLoader fxmlLoader =
@@ -65,6 +80,9 @@ public class ClientControl extends BorderPane implements ClientListener
         }
     }
 
+    /**
+     * Connects to the server.
+     */
     @FXML
     private void connect()
     {
@@ -99,6 +117,9 @@ public class ClientControl extends BorderPane implements ClientListener
         }
     }
 
+    /**
+     * Confirms a rematch.
+     */
     @FXML
     private void confirm()
     {
@@ -106,6 +127,9 @@ public class ClientControl extends BorderPane implements ClientListener
         yesNoButtonsSetDisable(true);
     }
 
+    /**
+     * Denies a rematch.
+     */
     @FXML
     private void deny()
     {
@@ -113,6 +137,9 @@ public class ClientControl extends BorderPane implements ClientListener
         yesNoButtonsSetDisable(true);
     }
 
+    /**
+     * Disconnects the client from the server.
+     */
     public void disconnect()
     {
         if (this.client != null) {
@@ -120,6 +147,11 @@ public class ClientControl extends BorderPane implements ClientListener
         }
     }
 
+    /**
+     * Enables or disables the 'yes' and 'no' buttons.
+     *
+     * @param disable true if the buttons should be disabled; false if they should be enabled
+     */
     private void yesNoButtonsSetDisable(final boolean disable)
     {
         javafx.application.Platform.runLater(new Runnable() {

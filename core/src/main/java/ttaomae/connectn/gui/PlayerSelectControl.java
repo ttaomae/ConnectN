@@ -14,6 +14,14 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 
+/**
+ * A JavaFX component which provides an interface for selecting between a human
+ * or computer player and the computer difficulty. Provides two radio buttons to
+ * select between 'human' or 'computer' and a slider to select the computer
+ * difficulty.
+ *
+ * @author Todd Taomae
+ */
 public class PlayerSelectControl extends BorderPane
 {
     @FXML private Label label;
@@ -27,12 +35,24 @@ public class PlayerSelectControl extends BorderPane
     private IntegerProperty maxDifficulty;
     private BooleanProperty humanDefault;
 
+    /**
+     * Constructs a new PlayerSelectControl.
+     */
     public PlayerSelectControl()
     {
         initialize();
         load();
     }
 
+    /**
+     * Constructs a new PlayerSelectControl with the specified properties.
+     *
+     * @param minDifficulty the minimum computer difficulty
+     * @param maxDifficulty the maximum computer difficulty
+     * @param playerNumber the number of the player being selected
+     * @param humanDefault true if 'human' is selected by default, false if
+     *            'computer' is selected by default
+     */
     public PlayerSelectControl(int minDifficulty, int maxDifficulty,
                                int playerNumber, boolean humanDefault)
     {
@@ -48,6 +68,9 @@ public class PlayerSelectControl extends BorderPane
 
     }
 
+    /**
+     * Initializes the components.
+     */
     private void initialize()
     {
         this.label = new Label();
@@ -57,6 +80,9 @@ public class PlayerSelectControl extends BorderPane
         this.playerComputer = new RadioButton();
     }
 
+    /**
+     * Loads the layout.
+     */
     private void load()
     {
         FXMLLoader fxmlLoader =

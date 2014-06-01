@@ -17,6 +17,14 @@ import ttaomae.connectn.GameManager;
 import ttaomae.connectn.Piece;
 import ttaomae.connectn.Player;
 
+/**
+ * A JavaFX component which provides an interface for a Connect-N game. Provides
+ * an interface for selecting the height, width, and win condition; whether the
+ * players are human or computer; and for starting and reseting games. Also
+ * contains a display for messages to the user.
+ *
+ * @author Todd Taomae
+ */
 public class ConnectNControl extends GridPane implements BoardListener
 {
     private static final String START_MESSAGE = "Click \"Start\" to start a new game.";
@@ -45,6 +53,9 @@ public class ConnectNControl extends GridPane implements BoardListener
     private Thread gameManagerThread;
     private Board board;
 
+    /**
+     * Constructs a new ConnectNControl.
+     */
     public ConnectNControl()
     {
         initialize();
@@ -73,6 +84,9 @@ public class ConnectNControl extends GridPane implements BoardListener
 
     }
 
+    /**
+     * Initializes the components.
+     */
     private void initialize()
     {
         this.title = new Label();
@@ -89,6 +103,9 @@ public class ConnectNControl extends GridPane implements BoardListener
         this.startButton = new Button();
     }
 
+    /**
+     * Loads the layout.
+     */
     private void load()
     {
         FXMLLoader fxmlLoader =
@@ -222,11 +239,16 @@ public class ConnectNControl extends GridPane implements BoardListener
         }
     }
 
-    private void updateStartButtonText(final String message)
+    /**
+     * Sets the text of the start button.
+     *
+     * @param text the text to update to
+     */
+    private void updateStartButtonText(final String text)
     {
         javafx.application.Platform.runLater(new Runnable() {
             @Override public void run() {
-                ConnectNControl.this.startButton.setText(message);
+                ConnectNControl.this.startButton.setText(text);
             }
         });
     }

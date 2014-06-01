@@ -10,12 +10,27 @@ import ttaomae.connectn.Board;
 import ttaomae.connectn.Player;
 import ttaomae.connectn.network.ConnectNProtocol;
 
+/**
+ * A network Player.
+ *
+ * @author Todd Taomae
+ */
 public class NetworkPlayer implements Player
 {
     private NetworkGameManager server;
     private PrintWriter socketOut;
     private BufferedReader socketIn;
 
+    /**
+     * Constructs a new NetworkPlayer which communicates using the specified
+     * socket and is part of the server specified by a NetworkGameManager.
+     *
+     * @param server the server that this NetworkPlayer is part of
+     * @param socket the socket that this NetworkPlayer will use to communicate
+     *            with the client
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if the server or socket is null
+     */
     public NetworkPlayer(NetworkGameManager server, Socket socket) throws IOException
     {
         if (server == null) {
@@ -32,6 +47,10 @@ public class NetworkPlayer implements Player
         this.socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
+    /**
+     * Gets a move by sending a message through the socket and waiting for a
+     * reply.
+     */
     @Override
     public int getMove(Board board)
     {
@@ -56,11 +75,22 @@ public class NetworkPlayer implements Player
         return -1;
     }
 
+    /**
+     * Sends a message to the client on the other end of the socket.
+     *
+     * @param message the message to send
+     */
     public void sendMessage(String message)
     {
         this.socketOut.println(message);
     }
 
+    /**
+     * Receives a message from the client on the other end of the socket.
+     *
+     * @return the message received from the client
+     * @throws IOException if an I/O error occurs
+     */
     public String receiveMessage() throws IOException
     {
         return this.socketIn.readLine();
