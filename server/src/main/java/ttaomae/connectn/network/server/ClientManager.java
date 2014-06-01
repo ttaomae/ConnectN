@@ -18,6 +18,10 @@ public class ClientManager implements Runnable
 
     public ClientManager(Server server)
     {
+        if (server == null) {
+            throw new IllegalArgumentException("server must not be null");
+        }
+
         this.server = server;
         this.playerPool = new HashSet<>();
     }

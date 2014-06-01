@@ -37,6 +37,13 @@ public class Client implements Runnable
     public Client(String hostname, int portNumber, Player player, Board board)
             throws UnknownHostException, IOException
     {
+        if (player == null) {
+            throw new IllegalArgumentException("player must not be null");
+        }
+        if (board == null) {
+            throw new IllegalArgumentException("board must not be null");
+        }
+
         this.socket = new Socket(hostname, portNumber);
         this.socketOut = new PrintWriter(socket.getOutputStream(), true);
         this.socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));

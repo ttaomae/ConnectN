@@ -18,6 +18,14 @@ public class NetworkPlayer implements Player
 
     public NetworkPlayer(NetworkGameManager server, Socket socket) throws IOException
     {
+        if (server == null) {
+            throw new IllegalArgumentException("server must not be null");
+        }
+
+        if (socket == null) {
+            throw new IllegalArgumentException("socket must not be null");
+        }
+
         this.server = server;
 
         this.socketOut = new PrintWriter(socket.getOutputStream(), true);

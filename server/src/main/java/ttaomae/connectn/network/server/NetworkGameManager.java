@@ -15,10 +15,17 @@ public class NetworkGameManager implements Runnable
     private NetworkPlayer playerOne;
     private NetworkPlayer playerTwo;
 
-    public NetworkGameManager(Server server, Socket playerOneSocket,
-            Socket playerTwoSocket)
+    public NetworkGameManager(Server server, Socket playerOneSocket, Socket playerTwoSocket)
             throws IOException
     {
+        if (server == null) {
+            throw new IllegalArgumentException("server must not be null");
+        }
+
+        if (playerOneSocket == null || playerTwoSocket == null) {
+            throw new IllegalArgumentException("socket must not be null");
+        }
+
         this.server = server;
         this.playerOneSocket = playerOneSocket;
         this.playerTwoSocket = playerTwoSocket;

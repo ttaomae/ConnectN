@@ -11,6 +11,9 @@ public class Server implements Runnable
 
     public Server(int portNumber)
     {
+        if (portNumber < 0 || portNumber > 65535) {
+            throw new IllegalArgumentException("port out of range: " + portNumber);
+        }
         this.portNumber = portNumber;
         this.clientManager = new ClientManager(this);
     }
