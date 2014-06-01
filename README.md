@@ -1,29 +1,50 @@
 # ConnectN
 This is a clone of [Connect Four](http://en.wikipedia.org/wiki/Connect_Four), with adjustable board size and win condition.
 
-It was developed using test-driven development, so all non-GUI components are tested.
+It was developed using test-driven development, so most non-GUI and non-network components are tested.
+
 The GUI is built using JavaFX.
 
-It allows you to select whether each player will be a human or computer. A human player selects a move by clicking on the desired column on the board. The computer uses a minimax algorithm with alpha-beta pruning. The difficulty (search depth) can be selected using the slider below the player select buttons.
+## Versions
+Currently, there are two versions of this game. One is a stand-alone version and another is a network multiplayer version.
+
+### Stand-alone
+The stand-alone version allows you to select whether each player will be a human or computer. A human player selects a move by clicking on the desired column on the board. The computer uses a minimax algorithm with alpha-beta pruning. The difficulty (search depth) can be selected using the slider below the player select buttons.
 
 The height, width, and win condition can be adjusted using the sliders to the left, bottom, and top of the board, respectively. Be aware that increasing any of the parameters, especially the computer difficulty, can greatly increase the time (and CPU cycles) that the computer will need to select a move.
 
-# Build
-This project is built using [Maven](http://maven.apache.org/).
+### Network Multiplayer
+The network multiplayer version consists of two components: the client and the server.
 
-To compile the project, navigate to the root directory of the project and type the following command:
+When launching the server you must specify a port number. The server will continuously accept connections and start a match whenever there is at least two players connected (and not in a game).
+
+The client must connect to the server by specifying a host and port. The client will be notified when a game is starting. The player can select moves by clicking on the desired column. After a game has finished the player will be asked if they want a rematch. If both players agree, they will start another game. Otherwise they will be added back to the player pool (and possibly matched up against each other, since there is no matchmaking done by the server).
+
+# Building
+This project consists of three modules: core, client, and server.
+
+The core module contains all the core components such as the board and players as well as the GUI components for the stand-alone version (as well as one GUI component used by the client). It also contains the network protocol used by the client and server.
+
+The client and server modules both depend on the core module and contain only their respective code.
+
+This project is built using [Maven](http://maven.apache.org/). To compile and package the project, navigate to the root directory of the project and type the following command:
 ```
-mvn compile
+mvn clean package
 ```
 
-To run the tests, type the following command:
+This will create several `target` directories (one for each module and one the in the root directory).
+
+To run the tests, navigate to the `core` directory and run the following command:
 ```
 mvn test
 ```
 
-To build an executable jar file, type the following command:
+# Running
+To run the stand-alone app, simply double-click the `ConnectN-core-XX-jfx.jar` file in the root target directory. Similarly for launching the client GUI.
+
+To run the server, navigate to the root target directory and type the following command:
 ```
-mvn jfx:jar
+java -jar ConnectN-server-XX.jar <port_number>
 ```
 
-The resulting jar file will be in `target/jfx/app/`.
+Once you have started the server you can launch a client and connect to the server. If you are running the client and server from your own machine, you can use `localhost` or `127.0.0.1` as the host and whatever port number you used to launch the server.
