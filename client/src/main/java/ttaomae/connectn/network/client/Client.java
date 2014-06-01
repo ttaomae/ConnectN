@@ -139,34 +139,32 @@ public class Client implements Runnable
         System.out.println(this.board.getWinner() + " wins!");
     }
 
-    private void getRematch() throws IOException
+    private synchronized void getRematch() throws IOException
     {
         this.waitingForResponse = true;
         try {
             while (this.waitingForResponse) {
-                synchronized (this) {
                     this.wait();
-                }
             }
         } catch (InterruptedException e) {
             this.sendMessageToServer(ConnectNProtocol.NO);
         }
     }
 
-    public void confirmRematch()
+    public synchronized void confirmRematch()
     {
-        this.sendMessageToServer(ConnectNProtocol.YES);
-        this.waitingForResponse = false;
-        synchronized (this) {
+        if (this.waitingForResponse) {
+            this.sendMessageToServer(ConnectNProtocol.YES);
+            this.waitingForResponse = false;
             this.notifyAll();
         }
     }
 
-    public void denyRematch()
+    public synchronized void denyRematch()
     {
-        this.sendMessageToServer(ConnectNProtocol.NO);
-        this.waitingForResponse = false;
-        synchronized (this) {
+        if (this.waitingForResponse) {
+            this.sendMessageToServer(ConnectNProtocol.NO);
+            this.waitingForResponse = false;
             this.notifyAll();
         }
     }
