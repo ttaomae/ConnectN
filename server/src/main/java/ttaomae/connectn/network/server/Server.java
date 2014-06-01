@@ -26,8 +26,9 @@ public class Server implements Runnable
         try (ServerSocket serverSocket = new ServerSocket(this.portNumber);) {
             printMessage("Waiting for connections...");
             while (true) {
-                this.addToPlayerPool(serverSocket.accept());
+                Socket socket = serverSocket.accept();
                 printMessage("Player connected!");
+                this.addToPlayerPool(socket);
             }
         } catch (IOException e) {
             System.err.println("Exception caught when trying to listen on port "

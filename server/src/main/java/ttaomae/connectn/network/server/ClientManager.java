@@ -79,7 +79,6 @@ public class ClientManager implements Runnable
             try {
                 PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
                 pw.println(ConnectNProtocol.PING);
-                System.out.println("ping");
                 if (pw.checkError()) {
                     this.closeSocket(s);
                 }
