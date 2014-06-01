@@ -73,7 +73,7 @@ public class NetworkGameManager implements Runnable
      * @param playerOneFirst true if player 1 will go first, false otherwise
      * @return true if the game ended successfully, false otherwise
      */
-    public boolean runGame(boolean playerOneFirst)
+    private boolean runGame(boolean playerOneFirst)
     {
         // create game manager
         // the client should check for invalid moves, so only allow one bad attempt
@@ -99,7 +99,7 @@ public class NetworkGameManager implements Runnable
         }
     }
 
-    public boolean checkRematch()
+    private boolean checkRematch()
     {
         this.playerOne.sendMessage(ConnectNProtocol.REMATCH);
         this.playerTwo.sendMessage(ConnectNProtocol.REMATCH);

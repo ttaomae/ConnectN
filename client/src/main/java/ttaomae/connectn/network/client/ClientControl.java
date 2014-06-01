@@ -135,7 +135,7 @@ public class ClientControl extends BorderPane implements ClientListener
      *
      * @param message the message to update to
      */
-    public void updateMessage(final String message)
+    private void updateMessage(final String message)
     {
         javafx.application.Platform.runLater(new Runnable() {
             @Override public void run() {
