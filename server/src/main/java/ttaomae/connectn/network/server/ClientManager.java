@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import ttaomae.connectn.network.ConnectNProtocol;
@@ -21,6 +22,7 @@ public class ClientManager implements Runnable
 {
     private Server server;
     private Set<Socket> playerPool;
+    private Map<Socket, Socket> lastMatches;
 
     /**
      * Constructs a new ClientManager for the specified server.
@@ -36,6 +38,7 @@ public class ClientManager implements Runnable
 
         this.server = server;
         this.playerPool = new HashSet<>();
+        this.lastMatches = new HashMap<>();
     }
 
     /**
@@ -51,11 +54,45 @@ public class ClientManager implements Runnable
             this.server.printMessage("Adding player to pool...");
         }
 
+        findMatchup();
+    }
+
+    /**
+     * Finds a matchup between two players who have not just played each other.
+     * If two players last matches wwere both against each other then they must
+     * have played each other and at least one of them denied a rematch, so they
+     * were added back to the pool. Since at least one denied a rematch we don't
+     * want to match them up again.
+     */
+    private void findMatchup()
+    {
         if (this.playerPool.size() >= 2) {
-            try {
-                startGame();
-            } catch (IOException e) {
-                System.err.println("Error starting match");
+            Socket[] players = new Socket[this.playerPool.size()];
+            this.playerPool.toArray(players);
+
+            for (int i = 0; i < players.length; i++) {
+                Socket playerOne = players[i];
+                for (int j = i + 1; j < players.length; j++) {
+                    Socket playerTwo = players[j];
+
+                    Socket playerOneLastMatch = lastMatches.get(playerOne);
+                    Socket playerTwoLastMatch = lastMatches.get(playerTwo);
+
+                    // if each player is either new (last match is null) or they
+                    // have not just player the other player
+                    if ((playerOneLastMatch == null || !playerOneLastMatch.equals(playerTwo))
+                        && (playerTwoLastMatch == null || !playerTwoLastMatch.equals(playerOne))) {
+                        try {
+                            startGame(playerOne, playerTwo);
+                        } catch (IOException e) {
+                            System.err.println("Error starting match.");
+                        }
+
+                        // exit the method so that we don't try to start another
+                        // match
+                        return;
+                    }
+                }
             }
         }
     }
@@ -65,18 +102,16 @@ public class ClientManager implements Runnable
      *
      * @throws IOException if there is an error starting the game
      */
-    private void startGame() throws IOException
+    private void startGame(Socket playerOne, Socket playerTwo) throws IOException
     {
-        synchronized (this) {
-            if (this.playerPool.size() >= 2) {
-                Iterator<Socket> iter = this.playerPool.iterator();
-                Socket one = iter.next();
-                iter.remove();
-                Socket two = iter.next();
-                iter.remove();
-                new Thread(new NetworkGameManager(this.server, one, two)).start();
-            }
+        synchronized(this)   {
+            this.playerPool.remove(playerOne);
+            this.playerPool.remove(playerTwo);
         }
+        this.lastMatches.put(playerOne, playerTwo);
+        this.lastMatches.put(playerTwo, playerOne);
+
+        new Thread(new NetworkGameManager(this.server, playerOne, playerTwo)).start();
     }
 
     /**
@@ -138,6 +173,7 @@ public class ClientManager implements Runnable
     private void closeSocket(Socket socket)
     {
         try {
+            this.server.printMessage("Player has disconnected.");
             this.playerPool.remove(socket);
             socket.close();
         } catch (IOException e) {
