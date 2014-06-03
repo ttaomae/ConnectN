@@ -9,41 +9,60 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ttaomae</groupId>
   <artifactId>Packager</artifactId>
   <packaging>pom</packaging>
   <name>ConnectN</name>
-  <url>https://github.com/ttaomae/</url>
 
   <build>
     <plugins>
+      <!-- Packages the output of the modules into a single target directory -->
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.7</version>
         <executions>
           <execution>
-            <id>copy</id>
+            <id>copy-jars</id>
             <phase>package</phase>
             <goals>
               <goal>run</goal>
             </goals>
+            <configuration>
+              <target>
+                <copy file="core/target/${project.name}-core-${project.version}.jar"
+                      toDir="target/lib" />
+                <copy toDir="target" flatten="true" >
+                  <fileset dir="" includes="server/target/*.jar" />
+                </copy>
+                <copy toDir="target" flatten="true" >
+                  <fileset dir="" includes="*/target/jfx/app/*.jar" />
+                </copy>
+              </target>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <target>
-            <copy file="core/target/jfx/app/${project.name}-core-${project.version}-jfx.jar"
-                  toDir="target/" />
-            <copy file="client/target/jfx/app/${project.name}-client-${project.version}-jfx.jar"
-                  toDir="target/" />
-            <copy file="server/target/${project.name}-server-${project.version}.jar"
-                  toDir="target/" />
-            <copy file="core/target/${project.name}-core-${project.version}.jar"
-                  toDir="target/lib" />
-          </target>
-        </configuration>
       </plugin>
     </plugins>
   </build>
+
+  <!-- Ensures that all the other modules finish before packaging -->
+  <dependencies>
+    <dependency>
+      <groupId>ttaomae</groupId>
+      <artifactId>ConnectN-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ttaomae</groupId>
+      <artifactId>ConnectN-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ttaomae</groupId>
+      <artifactId>ConnectN-server</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
   <modules>
     <module>core</module>
     <module>client</module>

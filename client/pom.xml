@@ -8,14 +8,36 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ttaomae</groupId>
   <artifactId>ConnectN-client</artifactId>
   <packaging>jar</packaging>
   <name>ConnectN-client</name>
-  <url>https://github.com/ttaomae/</url>
 
   <build>
     <plugins>
+      <!-- Copies core classes so that they are included in the JavaFX jar -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>copy-classes</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.basedir}/target/classes</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.parent.basedir}/core/target/classes</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>com.zenjava</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
@@ -29,7 +51,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>ttaomae</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>ConnectN-core</artifactId>
       <version>${project.version}</version>
     </dependency>

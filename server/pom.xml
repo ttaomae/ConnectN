@@ -8,36 +8,50 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ttaomae</groupId>
   <artifactId>ConnectN-server</artifactId>
   <packaging>jar</packaging>
   <name>ConnectN-server</name>
-  <url>https://github.com/ttaomae/</url>
 
   <build>
     <plugins>
+      <!-- Create jar without dependencies but references them in the 'lib' directory -->
       <plugin>
-         <artifactId>maven-jar-plugin</artifactId>
-         <version>2.4</version>
-         <configuration>
-           <archive>
-             <manifest>
-               <addClasspath>true</addClasspath>
-               <classpathPrefix>lib/</classpathPrefix>
-               <mainClass>ttaomae.connectn.network.server.Main</mainClass>
-             </manifest>
-           </archive>
-         </configuration>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>ttaomae.connectn.network.server.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <!-- Create jar with dependencies -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>ttaomae.connectn.network.server.Main</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
       </plugin>
     </plugins>
   </build>
 
   <dependencies>
     <dependency>
-      <groupId>ttaomae</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>ConnectN-core</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
-</project>
 </project>
