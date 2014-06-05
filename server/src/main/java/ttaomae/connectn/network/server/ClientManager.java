@@ -44,11 +44,16 @@ public class ClientManager implements Runnable
     /**
      * Adds a player which is connected on the specified socket to this
      * ClientManager.
-     *
+     * 
      * @param player the player being added
+     * @throws IllegalArgumentException if the player is null
      */
     public void addPlayer(Socket player)
     {
+        if (player == null) {
+            throw new IllegalArgumentException("player must not be null");
+        }
+
         if (!player.isClosed()) {
             this.playerPool.add(player);
             this.server.printMessage("Adding player to pool...");

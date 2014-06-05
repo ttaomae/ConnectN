@@ -17,4 +17,15 @@ public class ClientManagerTest
             assertEquals("failure - null server", "server must not be null", e.getMessage());
         }
     }
+
+    @Test
+    public void testAddPlayer()
+    {
+        try {
+            new ClientManager(new Server(1234)).addPlayer(null);
+            fail("addPlayer with null player");
+        } catch (IllegalArgumentException e) {
+            assertEquals("failure - null player", "player must not be null", e.getMessage());
+        }
+    }
 }
