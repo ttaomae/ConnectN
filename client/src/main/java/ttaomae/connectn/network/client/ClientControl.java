@@ -196,6 +196,8 @@ public class ClientControl extends BorderPane implements ClientListener
             case ConnectNProtocol.DICONNECTED:
                 this.updateMessage("Opponent disconnected!");
                 break;
+            default:
+                throw new UnsupportedOperationException("Unknown message: " + message);
         }
     }
 

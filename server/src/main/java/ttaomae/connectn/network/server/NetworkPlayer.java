@@ -3,8 +3,11 @@ package ttaomae.connectn.network.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.Socket;
+import java.nio.charset.Charset;
 
 import ttaomae.connectn.Board;
 import ttaomae.connectn.Player;
@@ -43,8 +46,10 @@ public class NetworkPlayer implements Player
 
         this.server = server;
 
-        this.socketOut = new PrintWriter(socket.getOutputStream(), true);
-        this.socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        Writer writer = new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8"));
+        this.socketOut = new PrintWriter(writer, true);
+        this.socketIn = new BufferedReader(new InputStreamReader(
+                socket.getInputStream(), Charset.forName("UTF-8")));
     }
 
     /**

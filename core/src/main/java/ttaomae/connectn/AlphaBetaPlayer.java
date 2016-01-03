@@ -70,9 +70,9 @@ public class AlphaBetaPlayer implements Player
 
         // find all moves with max heuristic
         List<Integer> bestMoves = new ArrayList<>();
-        for (Integer key : possibleMoves.keySet()) {
-            if (possibleMoves.get(key) == maxHeuristic) {
-                bestMoves.add(key);
+        for (Map.Entry<Integer, Double> entry : possibleMoves.entrySet()) {
+            if (entry.getValue() == maxHeuristic) {
+                bestMoves.add(entry.getKey());
             }
         }
 
@@ -88,7 +88,7 @@ public class AlphaBetaPlayer implements Player
     /**
      * Returns the heuristic value given by searching the specified board with
      * the specified depth.
-     * 
+     *
      * @param board board to analyze
      * @param depth remaining search depth
      * @param alpha maximum score that maximizing player is assured of

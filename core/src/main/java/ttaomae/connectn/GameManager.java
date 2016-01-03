@@ -1,9 +1,11 @@
 package ttaomae.connectn;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * A Connect-N game manager. Manages a single game between two Players. Can be
  * run in a separate thread.
- * 
+ *
  * @author Todd Taomae
  */
 public class GameManager implements Runnable
@@ -95,6 +97,7 @@ public class GameManager implements Runnable
      * Runs a single game with this GameManager's Players.
      */
     @Override
+    @SuppressFBWarnings(value="UW_UNCOND_WAIT", justification="TODO")
     public void run()
     {
         this.running = true;
@@ -121,6 +124,7 @@ public class GameManager implements Runnable
             // use a new thread to get move
             Thread myThread = new Thread("Get Move") {
                 @Override
+                @SuppressFBWarnings(value="NN_NAKED_NOTIFY", justification="TODO")
                 public void run()
                 {
                     if (player != null) {

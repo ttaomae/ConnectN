@@ -3,9 +3,12 @@ package ttaomae.connectn.network.client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,8 +66,10 @@ public class Client implements Runnable
         }
 
         this.socket = new Socket(host, port);
-        this.socketOut = new PrintWriter(socket.getOutputStream(), true);
-        this.socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        Writer writer = new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8"));
+        this.socketOut = new PrintWriter(writer, true);
+        this.socketIn = new BufferedReader(new InputStreamReader(
+                socket.getInputStream(), Charset.forName("UTF-8")));
 
         this.player = player;
         this.board = board;

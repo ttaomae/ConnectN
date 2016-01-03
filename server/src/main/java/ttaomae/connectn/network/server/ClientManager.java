@@ -3,8 +3,11 @@ package ttaomae.connectn.network.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,7 +47,7 @@ public class ClientManager implements Runnable
     /**
      * Adds a player which is connected on the specified socket to this
      * ClientManager.
-     * 
+     *
      * @param player the player being added
      * @throws IllegalArgumentException if the player is null
      */
@@ -146,7 +149,9 @@ public class ClientManager implements Runnable
         // send ping
         for (Socket s : this.playerPool) {
             try {
-                PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+                Writer writer = new OutputStreamWriter(
+                        s.getOutputStream(), Charset.forName("UTF-8"));
+                PrintWriter pw = new PrintWriter(writer, true);
                 pw.println(ConnectNProtocol.PING);
                 if (pw.checkError()) {
                     this.closeSocket(s);
@@ -159,7 +164,8 @@ public class ClientManager implements Runnable
         // receive ping
         for (Socket s : this.playerPool) {
             try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        s.getInputStream(), Charset.forName("UTF-8")));
                 String reply = br.readLine();
                 if (reply == null) {
                     this.closeSocket(s);
