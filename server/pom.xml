@@ -1,38 +1,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>ttaomae</groupId>
     <artifactId>ConnectN</artifactId>
-    <version>1.1</version>
+    <version>1.1.1-SNAPSHOT</version>
   </parent>
 
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>ConnectN-server</artifactId>
   <packaging>jar</packaging>
   <name>ConnectN-server</name>
 
   <build>
     <plugins>
-      <!-- Create jar without dependencies but references them in the 'lib' directory -->
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>ttaomae.connectn.network.server.Main</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <!-- Create jar with dependencies -->
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.4</version>
         <configuration>
           <archive>
             <manifest>

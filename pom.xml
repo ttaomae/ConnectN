@@ -1,18 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>ttaomae</groupId>
   <artifactId>ConnectN</artifactId>
-  <packaging>pom</packaging>
-  <version>1.1</version>
-  <name>Main</name>
-  <url>https://github.com/ttaomae/</url>
+  <version>1.1.1-SNAPSHOT</version>
 
-  <!-- Parent POM. Starts the packager. -->
+  <packaging>pom</packaging>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+
+    <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
+
+    <javafx-maven-plugin.version>8.2.0</javafx-maven-plugin.version>
+
+    <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
+    <findbugs-maven-plugin.version>3.0.3</findbugs-maven-plugin.version>
+
+    <junit.version>4.12</junit.version>
   </properties>
 
   <build>
@@ -20,43 +28,66 @@
       <plugins>
         <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.4</version>
-          <executions>
-            <execution>
-              <phase>package</phase>
-              <goals>
-                <goal>single</goal>
-              </goals>
-            </execution>
-          </executions>
+          <version>${maven-assembly-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>com.zenjava</groupId>
           <artifactId>javafx-maven-plugin</artifactId>
-          <version>2.0</version>
+          <version>${javafx-maven-plugin.version}</version>
+          <configuration>
+            <jfxAppOutputDir>${project.build.directory}</jfxAppOutputDir>
+          </configuration>
           <executions>
             <execution>
               <phase>package</phase>
               <goals>
-                <goal>jar</goal>
+                <goal>build-jar</goal>
               </goals>
             </execution>
           </executions>
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>${maven-pmd-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>${findbugs-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
+
   <modules>
-    <module>packager.xml</module>
+    <module>core</module>
+    <module>client</module>
+    <module>server</module>
   </modules>
 </project>

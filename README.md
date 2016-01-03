@@ -40,7 +40,7 @@ To compile and package the project, navigate to the root directory of the projec
 mvn clean package
 ```
 
-This will create several `target` directories (one for each module and one the in the root directory). The root `target` directory will contain all the executable JAR files as well as the core module packaged as a library.
+This will create several `target` directories (one for each module and one the in the root directory).
 
 # Running
 The stand-alone and client JARs should include everything they need to run on their own. To launch them simply double-click their respective JAR files. You can copy or distribute these as-is.
