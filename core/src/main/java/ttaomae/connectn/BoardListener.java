@@ -5,5 +5,5 @@ public interface BoardListener
     /**
      * Invoked when the board is changed.
      */
-    public void boardChanged();
+    void boardChanged();
 }

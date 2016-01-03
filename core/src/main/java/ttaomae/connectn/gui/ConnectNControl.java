@@ -121,7 +121,7 @@ public class ConnectNControl extends GridPane implements BoardListener
     }
 
     @FXML
-    private void handleStartButton()
+    private void handleStartButton() // NOPMD
     {
         if (this.running) {
             this.resetGame();

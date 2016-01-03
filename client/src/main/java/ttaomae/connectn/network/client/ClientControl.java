@@ -84,7 +84,7 @@ public class ClientControl extends BorderPane implements ClientListener
      * Connects to the server.
      */
     @FXML
-    private void connect()
+    private void connect() // NOPMD
     {
         if (!this.connected) {
             try {
@@ -121,7 +121,7 @@ public class ClientControl extends BorderPane implements ClientListener
      * Confirms a rematch.
      */
     @FXML
-    private void confirm()
+    private void confirm() // NOPMD
     {
         this.client.confirmRematch();
         yesNoButtonsSetDisable(true);
@@ -131,7 +131,7 @@ public class ClientControl extends BorderPane implements ClientListener
      * Denies a rematch.
      */
     @FXML
-    private void deny()
+    private void deny() // NOPMD
     {
         this.client.denyRematch();
         yesNoButtonsSetDisable(true);

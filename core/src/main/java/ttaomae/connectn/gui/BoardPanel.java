@@ -42,13 +42,13 @@ public class BoardPanel extends GridPane implements BoardListener
         int verticalGap = (panelHeight - totalPieceHeight) / (this.board.getHeight() + 1);
 
         int totalGapWidth = (this.board.getWidth() - 1) * horizontalGap;
-        int horizontalPadding = (panelWidth - totalPieceWidth - totalGapWidth);
+        int horizontalPadding = panelWidth - totalPieceWidth - totalGapWidth;
         int leftPadding = horizontalPadding / 2;
         // add padding % 2 to account for odd numbered padding
         int rightPadding = leftPadding + (horizontalPadding % 2);
 
         int totalGapHeight = (this.board.getHeight() - 1) * verticalGap;
-        int verticalPadding = (panelHeight - totalPieceHeight - totalGapHeight);
+        int verticalPadding = panelHeight - totalPieceHeight - totalGapHeight;
         int bottomPadding = verticalPadding / 2;
         // add padding % 2 to account for odd numbered padding
         int topPadding = bottomPadding + (verticalPadding % 2);

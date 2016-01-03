@@ -11,7 +11,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 
 /**
@@ -26,7 +25,6 @@ public class PlayerSelectControl extends BorderPane
 {
     @FXML private Label label;
     @FXML private Slider cpuDifficultySlider;
-    @FXML private ToggleGroup playerSelect;
     @FXML private RadioButton playerHuman;
     @FXML private RadioButton playerComputer;
 
@@ -75,7 +73,6 @@ public class PlayerSelectControl extends BorderPane
     {
         this.label = new Label();
         this.cpuDifficultySlider = new Slider();
-        this.playerSelect = new ToggleGroup();
         this.playerHuman = new RadioButton();
         this.playerComputer = new RadioButton();
     }
