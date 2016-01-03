@@ -1,6 +1,5 @@
 package ttaomae.connectn;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A Connect-N game manager. Manages a single game between two Players. Can be
@@ -97,7 +96,6 @@ public class GameManager implements Runnable
      * Runs a single game with this GameManager's Players.
      */
     @Override
-    @SuppressFBWarnings(value="UW_UNCOND_WAIT", justification="TODO")
     public void run()
     {
         this.running = true;
@@ -122,28 +120,17 @@ public class GameManager implements Runnable
             }
 
             // use a new thread to get move
-            Thread myThread = new Thread("Get Move") {
-                @Override
-                @SuppressFBWarnings(value="NN_NAKED_NOTIFY", justification="TODO")
-                public void run()
-                {
-                    if (player != null) {
-                        GameManager.this.move = player.getMove(GameManager.this.board.copy());
-
-                        synchronized (this) {
-                            this.notify();
-                        }
-                    }
+            Thread myThread = new Thread(() -> {
+                if (player != null) {
+                    GameManager.this.move = player.getMove(GameManager.this.board.copy());
                 }
-            };
+            }, "Get Move");
             myThread.setDaemon(true);
             myThread.start();
 
             try {
-                synchronized (myThread) {
-                    // wait for thread to get move
-                    myThread.wait();
-                }
+                // wait for thread to get move
+                myThread.join();
             }
             // if the game manager is interrupted while waiting for a move
             catch (InterruptedException e) {
