@@ -1,5 +1,8 @@
 package ttaomae.connectn.network.server;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,9 +27,8 @@ public class Server implements Runnable
      */
     public Server(int port)
     {
-        if (port < 0 || port > 65535) {
-            throw new IllegalArgumentException("port out of range: " + port);
-        }
+        checkArgument(port >= 0 && port <= 65535, "port out of range: " + port);
+
         this.port = port;
         this.clientManager = new ClientManager(this);
     }
@@ -61,6 +63,7 @@ public class Server implements Runnable
      */
     public void addToPlayerPool(Socket player)
     {
+        checkNotNull(player, "player must not be null");
         this.clientManager.addPlayer(player);
     }
 

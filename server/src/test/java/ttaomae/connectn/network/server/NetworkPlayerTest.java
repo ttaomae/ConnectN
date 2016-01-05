@@ -16,7 +16,7 @@ public class NetworkPlayerTest
         try {
             new NetworkPlayer(null, new Socket());
             fail("constructor with null server");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - null server", "server must not be null", e.getMessage());
         }
 
@@ -27,14 +27,14 @@ public class NetworkPlayerTest
             Socket socket2 = new Socket("localhost", 1234);
             new NetworkPlayer(new NetworkGameManager(server, socket1, socket2), null);
             fail("constructor with null socket");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - null socket", "socket must not be null", e.getMessage());
         }
 
         try {
             new NetworkPlayer(null, new Socket());
             fail("constructor with null server");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - null server", "server must not be null", e.getMessage());
         }
 

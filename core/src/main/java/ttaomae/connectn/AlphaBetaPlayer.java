@@ -1,5 +1,7 @@
 package ttaomae.connectn;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,6 +42,8 @@ public class AlphaBetaPlayer implements Player
     @Override
     public int getMove(Board board)
     {
+        checkNotNull(board, "board must not be null");
+
         Map<Integer, Double> possibleMoves = new HashMap<>();
         Piece myPiece = board.getNextPiece();
 

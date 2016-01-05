@@ -13,7 +13,7 @@ public class ClientManagerTest
         try {
             new ClientManager(null);
             fail("constructor with null server");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - null server", "server must not be null", e.getMessage());
         }
     }
@@ -24,7 +24,7 @@ public class ClientManagerTest
         try {
             new ClientManager(new Server(1234)).addPlayer(null);
             fail("addPlayer with null player");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - null player", "player must not be null", e.getMessage());
         }
     }

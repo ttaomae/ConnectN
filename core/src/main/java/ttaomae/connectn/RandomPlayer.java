@@ -1,12 +1,14 @@
 package ttaomae.connectn;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 /**
  * A random Player. Selects a new valid, random move.
- * 
+ *
  * @author Todd Taomae
  */
 public class RandomPlayer implements Player
@@ -24,6 +26,8 @@ public class RandomPlayer implements Player
     @Override
     public int getMove(Board board)
     {
+        checkNotNull(board, "board must not be null");
+
         // find all valid moves
         List<Integer> validMoves = new ArrayList<>();
         for (int col = 0; col < board.getWidth(); col++) {

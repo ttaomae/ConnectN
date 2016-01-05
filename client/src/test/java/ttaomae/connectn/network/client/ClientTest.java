@@ -19,14 +19,14 @@ public class ClientTest
         try {
             new Client("localhost", 1234, new RandomPlayer(), null);
             fail("constructor with null board");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - null board", "board must not be null", e.getMessage());
         }
 
         try {
             new Client("localhost", 1234, null, new Board());
             fail("constructor with null player");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - null player", "player must not be null", e.getMessage());
         }
 

@@ -1,5 +1,7 @@
 package ttaomae.connectn.network.server;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
 import java.net.Socket;
 
@@ -34,13 +36,9 @@ public class NetworkGameManager implements Runnable
     public NetworkGameManager(Server server, Socket playerOneSocket, Socket playerTwoSocket)
             throws IOException
     {
-        if (server == null) {
-            throw new IllegalArgumentException("server must not be null");
-        }
-
-        if (playerOneSocket == null || playerTwoSocket == null) {
-            throw new IllegalArgumentException("socket must not be null");
-        }
+        checkNotNull(server, "server must not be null");
+        checkNotNull(playerOneSocket, "playerOneSocket must not be null");
+        checkNotNull(playerTwoSocket, "playerTwoSocket must not be null");
 
         this.server = server;
         this.playerOneSocket = playerOneSocket;

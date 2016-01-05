@@ -1,5 +1,7 @@
 package ttaomae.connectn.network.client;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -58,12 +60,8 @@ public class Client implements Runnable
     public Client(String host, int port, Player player, Board board)
             throws UnknownHostException, IOException
     {
-        if (player == null) {
-            throw new IllegalArgumentException("player must not be null");
-        }
-        if (board == null) {
-            throw new IllegalArgumentException("board must not be null");
-        }
+        checkNotNull(player, "player must not be null");
+        checkNotNull(board, "board must not be null");
 
         this.socket = new Socket(host, port);
         Writer writer = new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8"));
@@ -243,11 +241,12 @@ public class Client implements Runnable
     /**
      * Adds a ClientListener to this Client.
      *
-     * @param cl the ClientListener
+     * @param clientListner the ClientListener
      */
-    public void addListener(ClientListener cl)
+    public void addListener(ClientListener clientListner)
     {
-        this.listeners.add(cl);
+        checkNotNull(clientListner, "clientListener must not be null");
+        this.listeners.add(clientListner);
     }
 
     /**
@@ -260,13 +259,12 @@ public class Client implements Runnable
     private void notifyListeners(boolean received, String message)
     {
         for (ClientListener cl : this.listeners) {
-            if (cl != null) {
-                if (received) {
-                    cl.clientReceivedMessage(message);
-                }
-                else {
-                    cl.clientSentMessage(message);
-                }
+            assert cl != null : "ClientListener should not be null";
+            if (received) {
+                cl.clientReceivedMessage(message);
+            }
+            else {
+                cl.clientSentMessage(message);
             }
         }
     }

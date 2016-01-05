@@ -17,13 +17,13 @@ public class GameManagerTest
         // test 2 argument constructor
         try {
             new GameManager(null, playerTwo);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - playerOne argument null", "playerOne must not be null",
                     e.getMessage());
         }
         try {
             new GameManager(playerOne, null);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - playerTwo argument null", "playerTwo must not be null",
                     e.getMessage());
         }
@@ -31,12 +31,12 @@ public class GameManagerTest
         // test 3 argument constructor (Player, Player, int)
         try {
             new GameManager(playerOne, playerTwo);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - board argument null", "board must not be null", e.getMessage());
         }
         try {
             new GameManager(null, playerTwo);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - playerOne argument null", "playerOne must not be null",
                     e.getMessage());
         }
@@ -50,19 +50,19 @@ public class GameManagerTest
         // test 3 argument constructor (Board, Player, Player)
         try {
             new GameManager(null, playerOne, playerTwo);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - board argument null", "board must not be null",
                     e.getMessage());
         }
         try {
             new GameManager(board, null, playerTwo);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - playerOne argument null", "playerOne must not be null",
                     e.getMessage());
         }
         try {
             new GameManager(board, playerOne, null);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - playerTwo argument null", "playerTwo must not be null",
                     e.getMessage());
         }
@@ -70,18 +70,18 @@ public class GameManagerTest
         // test 4 argument constructor
         try {
             new GameManager(null, playerOne, playerTwo, 1);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - board argument null", "board must not be null", e.getMessage());
         }
         try {
             new GameManager(board, null, playerTwo, 1);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - playerOne argument null", "playerOne must not be null",
                     e.getMessage());
         }
         try {
             new GameManager(board, playerOne, null, 1);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - playerTwo argument null", "playerTwo must not be null",
                     e.getMessage());
         }

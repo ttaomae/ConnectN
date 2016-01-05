@@ -1,5 +1,7 @@
 package ttaomae.connectn.network.server;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,9 +25,9 @@ import ttaomae.connectn.network.ConnectNProtocol;
  */
 public class ClientManager implements Runnable
 {
-    private Server server;
-    private Set<Socket> playerPool;
-    private Map<Socket, Socket> lastMatches;
+    private final Server server;
+    private final Set<Socket> playerPool;
+    private final Map<Socket, Socket> lastMatches;
 
     /**
      * Constructs a new ClientManager for the specified server.
@@ -35,9 +37,7 @@ public class ClientManager implements Runnable
      */
     public ClientManager(Server server)
     {
-        if (server == null) {
-            throw new IllegalArgumentException("server must not be null");
-        }
+        checkNotNull(server, "server must not be null");
 
         this.server = server;
         this.playerPool = new HashSet<>();
@@ -53,9 +53,7 @@ public class ClientManager implements Runnable
      */
     public void addPlayer(Socket player)
     {
-        if (player == null) {
-            throw new IllegalArgumentException("player must not be null");
-        }
+        checkNotNull(player, "player must not be null");
 
         if (!player.isClosed()) {
             this.playerPool.add(player);
@@ -112,6 +110,9 @@ public class ClientManager implements Runnable
      */
     private void startGame(Socket playerOne, Socket playerTwo) throws IOException
     {
+        assert playerOne != null : "playerOne must not be null";
+        assert playerTwo != null : "playerTwo must not be null";
+
         synchronized(this)   {
             this.playerPool.remove(playerOne);
             this.playerPool.remove(playerTwo);
@@ -183,6 +184,7 @@ public class ClientManager implements Runnable
      */
     private void closeSocket(Socket socket)
     {
+        assert socket != null : "socket must not be null";
         try {
             this.server.printMessage("Player has disconnected.");
             this.playerPool.remove(socket);

@@ -1,5 +1,9 @@
 package ttaomae.connectn;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,15 +31,15 @@ public class Board
     /**
      * The board. Array indexes are equivalent to the row and column indexes.
      */
-    private Piece[][] board;
+    private final Piece[][] board;
     private final int winCondition;
     private int currentTurn;
 
     /** List of past plays on this board */
-    private Deque<Integer> playHistory;
+    private final Deque<Integer> playHistory;
 
     /** List of objects listening to this Board */
-    private List<BoardListener> listeners;
+    private final List<BoardListener> listeners;
 
     /**
      * Constructs a new empty Board with the specified height, width, and win
@@ -49,16 +53,10 @@ public class Board
      */
     public Board(int height, int width, int winCondition)
     {
-        if (height < 2) {
-            throw new IllegalArgumentException("height must be at least 2");
-        }
-        if (width < 2) {
-            throw new IllegalArgumentException("width must be at least 2");
-        }
-        if (winCondition < 2 || winCondition > Math.max(height, width)) {
-            throw new IllegalArgumentException(
+        checkArgument(height >= 2, "height must be at least 2");
+        checkArgument(width >= 2, "width must be at least 2");
+        checkArgument(winCondition >= 2 && winCondition <= Math.max(height, width),
                     "winCondition must be between 2 and max(height, width)");
-        }
 
         // create new empty board
         this.board = new Piece[height][width];
@@ -156,7 +154,7 @@ public class Board
 
     /**
      * Returns the winner based on the current state of the board. Assumes that
-     * the board is in a valid state and that there is only one play who has
+     * the board is in a valid state and that there is only one player who has
      * n-in-a-row.
      *
      * @return the winner
@@ -291,15 +289,8 @@ public class Board
      */
     public Piece getPieceAt(int col, int row)
     {
-        if (col < 0 || col >= this.getWidth()) {
-            String message = String.format("Column: %d, Width: %d", col, this.getWidth());
-            throw new IndexOutOfBoundsException(message);
-        }
-
-        if (row < 0 || row >= this.getHeight()) {
-            String message = String.format("Row: %d, Height: %d", row, this.getHeight());
-            throw new IndexOutOfBoundsException(message);
-        }
+        checkElementIndex(col, this.getWidth(), "Column: " + col + ", Width: " + this.getWidth());
+        checkElementIndex(row, this.getHeight(), "Row: " + row + ", Height: " + this.getHeight());
 
         return this.board[row][col];
     }
@@ -365,11 +356,12 @@ public class Board
     /**
      * Adds a BoardListener to this Board.
      *
-     * @param bl the BoardListener being added
+     * @param boardListener the BoardListener being added
      */
-    public void addBoardListener(BoardListener bl)
+    public void addBoardListener(BoardListener boardListener)
     {
-        this.listeners.add(bl);
+        checkNotNull(boardListener, "boardListener must not be null");
+        this.listeners.add(boardListener);
     }
 
     /**
@@ -378,9 +370,8 @@ public class Board
     private void notifyListeners()
     {
         for (BoardListener bl : this.listeners) {
-            if (bl != null) {
-                bl.boardChanged();
-            }
+            assert bl != null : "BoardListener should not be null";
+            bl.boardChanged();
         }
     }
 }

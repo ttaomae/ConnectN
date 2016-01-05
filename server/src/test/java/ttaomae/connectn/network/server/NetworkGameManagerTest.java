@@ -17,22 +17,24 @@ public class NetworkGameManagerTest
         try {
             new NetworkGameManager(null, new Socket(), new Socket());
             fail("constructor with null server");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals("failure - null server", "server must not be null", e.getMessage());
         }
 
         try {
             new NetworkGameManager(new Server(1234), null, new Socket());
             fail("constructor with null socket");
-        } catch (IllegalArgumentException e) {
-            assertEquals("failure - null socket 1", "socket must not be null", e.getMessage());
+        } catch (NullPointerException e) {
+            assertEquals("failure - null socket 1",
+                    "playerOneSocket must not be null", e.getMessage());
         }
 
         try {
             new NetworkGameManager(new Server(1234), new Socket(), null);
             fail("constructor with null socket");
-        } catch (IllegalArgumentException e) {
-            assertEquals("failure - null socket 2", "socket must not be null", e.getMessage());
+        } catch (NullPointerException e) {
+            assertEquals("failure - null socket 2",
+                    "playerTwoSocket must not be null", e.getMessage());
         }
 
     }

@@ -1,5 +1,9 @@
 package ttaomae.connectn;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+
 
 /**
  * A Connect-N game manager. Manages a single game between two Players. Can be
@@ -72,18 +76,10 @@ public class GameManager implements Runnable
      */
     public GameManager(Board board, Player playerOne, Player playerTwo, int attemptsAllowed)
     {
-        if (board == null) {
-            throw new IllegalArgumentException("board must not be null");
-        }
-        if (playerOne == null) {
-            throw new IllegalArgumentException("playerOne must not be null");
-        }
-        if (playerTwo == null) {
-            throw new IllegalArgumentException("playerTwo must not be null");
-        }
-        if (attemptsAllowed <= 0) {
-            throw new IllegalArgumentException("attemptsAllowed must be positive");
-        }
+        checkNotNull(board, "board must not be null");
+        checkNotNull(playerOne, "playerOne must not be null");
+        checkNotNull(playerTwo, "playerTwo must not be null");
+        checkArgument(attemptsAllowed > 0, "attemptsAllowed must be positive");
 
         this.board = board;
         this.playerOne = playerOne;

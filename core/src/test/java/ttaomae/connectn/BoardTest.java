@@ -1,9 +1,11 @@
 package ttaomae.connectn;
 
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 public class BoardTest
@@ -120,25 +122,29 @@ public class BoardTest
         try {
             board.getPieceAt(-1, 0);
         } catch (IndexOutOfBoundsException e) {
-            assertEquals("failure - get piece at (-1, 0)", "Column: -1, Width: 7", e.getMessage());
+            Assert.assertThat("failure - get piece at (-1, 0)",
+                    e.getMessage(), containsString("Column: -1, Width: 7"));
         }
 
         try {
             board.getPieceAt(board.getWidth(), 0);
         } catch (IndexOutOfBoundsException e) {
-            assertEquals("failure - get piece at (7, 0)", "Column: 7, Width: 7", e.getMessage());
+            Assert.assertThat("failure - get piece at (7, 0)",
+                    e.getMessage(), containsString("Column: 7, Width: 7"));
         }
 
         try {
             board.getPieceAt(0, -1);
         } catch (IndexOutOfBoundsException e) {
-            assertEquals("failure - get piece at (0, -1)", "Row: -1, Height: 6", e.getMessage());
+            Assert.assertThat("failure - get piece at (0, -1)",
+                    e.getMessage(), containsString("Row: -1, Height: 6"));
         }
 
         try {
             board.getPieceAt(0, board.getHeight());
         } catch (IndexOutOfBoundsException e) {
-            assertEquals("failure - get piece at (0, 6)", "Row: 6, Height: 6", e.getMessage());
+            Assert.assertThat("failure - get piece at (0, 6)",
+                    e.getMessage(), containsString("Row: 6, Height: 6"));
         }
     }
 

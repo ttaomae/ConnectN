@@ -20,6 +20,7 @@
     <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
     <findbugs-maven-plugin.version>3.0.3</findbugs-maven-plugin.version>
 
+    <guava.version>19.0</guava.version>
     <junit.version>4.12</junit.version>
   </properties>
 
@@ -77,6 +78,11 @@
   </build>
 
   <dependencies>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

@@ -1,5 +1,7 @@
 package ttaomae.connectn.network.server;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,13 +38,8 @@ public class NetworkPlayer implements Player
      */
     public NetworkPlayer(NetworkGameManager server, Socket socket) throws IOException
     {
-        if (server == null) {
-            throw new IllegalArgumentException("server must not be null");
-        }
-
-        if (socket == null) {
-            throw new IllegalArgumentException("socket must not be null");
-        }
+        checkNotNull(server, "server must not be null");
+        checkNotNull(socket, "socket must not be null");
 
         this.server = server;
 
@@ -59,6 +56,8 @@ public class NetworkPlayer implements Player
     @Override
     public int getMove(Board board)
     {
+        checkNotNull(board, "board must not be null");
+
         // notify the client that you are ready
         this.socketOut.println(ConnectNProtocol.READY);
 
