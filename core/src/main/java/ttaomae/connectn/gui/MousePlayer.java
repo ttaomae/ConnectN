@@ -1,6 +1,7 @@
 package ttaomae.connectn.gui;
 
-import javafx.event.EventHandler;
+import java.util.Optional;
+
 import javafx.scene.input.MouseEvent;
 import ttaomae.connectn.Board;
 import ttaomae.connectn.Player;
@@ -12,9 +13,7 @@ import ttaomae.connectn.Player;
  */
 public class MousePlayer implements Player
 {
-    private static final int INVALID_MOVE = -2;
-    private int move;
-
+    private Integer move;
     private BoardPanel boardPanel;
 
     /**
@@ -24,38 +23,36 @@ public class MousePlayer implements Player
      */
     public MousePlayer(BoardPanel boardPanel)
     {
-        this.move = INVALID_MOVE;
+        this.move = null;
         this.boardPanel = boardPanel;
 
-        this.boardPanel.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent me)
-            {
-                synchronized (MousePlayer.this) {
-                    MousePlayer.this.move = MousePlayer.this.boardPanel.getBoardColumn(me.getX());
-                    // let this MousePlayer know that the board has been clicked.
-                    MousePlayer.this.notifyAll();
-                }
+        this.boardPanel.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+            synchronized (MousePlayer.this) {
+                MousePlayer.this.move = MousePlayer.this.boardPanel
+                        .getBoardColumn(mouseEvent.getX());
+                // let this MousePlayer know that the board has been clicked.
+                MousePlayer.this.notifyAll();
             }
         });
     }
 
     @Override
-    public int getMove(Board board)
+    public Optional<Integer> getMove(Board board)
     {
-        this.move = INVALID_MOVE;
         synchronized (this) {
-            while (this.move == INVALID_MOVE) {
+            Integer result = null;
+            this.move = null;
+
+            while (result == null || !board.isValidMove(result)) {
                 try {
                     // wait for the handler to notify
                     this.wait();
+                    result = this.move;
                 } catch (InterruptedException e) {
-                    // do nothing
+                    return Optional.empty();
                 }
             }
+            return Optional.of(result);
         }
-        int result = this.move;
-        this.move = INVALID_MOVE;
-        return result;
     }
 }

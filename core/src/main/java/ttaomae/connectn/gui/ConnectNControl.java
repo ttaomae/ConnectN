@@ -179,6 +179,7 @@ public class ConnectNControl extends GridPane implements BoardListener
         this.gameManager = new GameManager(this.board, p1, p2);
         this.updateMessage(BLACK_TURN);
         this.gameManagerThread = new Thread(this.gameManager, "Game Manager");
+        this.gameManagerThread.setDaemon(false);
         this.gameManagerThread.start();
     }
 

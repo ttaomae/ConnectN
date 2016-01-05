@@ -1,6 +1,9 @@
 package ttaomae.connectn;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Optional;
 
 import org.junit.Test;
 
@@ -13,11 +16,17 @@ public class InvalidPlayerTest
         Player player = new InvalidPlayer();
         Player rand = new RandomPlayer();
 
-        assertEquals("failure - first play invalid", -1, player.getMove(board));
+        Optional<Integer> optionalMove = player.getMove(board);
+        assertTrue(optionalMove.isPresent());
+        assertEquals("failure - first play invalid",
+                new Integer(Board.INVALID_MOVE), optionalMove.get());
+
         for (int i = 0; i < board.getHeight() * board.getWidth(); i++) {
-            // play a random move
-            board.play(rand.getMove(board));
-            assertEquals("failure - all moves invalid", -1, player.getMove(board));
+            board.play(rand.getMove(board).get());
+            optionalMove = player.getMove(board);
+            assertTrue(optionalMove.isPresent());
+            assertEquals("failure - all moves invalid",
+                    new Integer(Board.INVALID_MOVE), optionalMove.get());
         }
     }
 }

@@ -1,6 +1,7 @@
 package ttaomae.connectn;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ public class SequentialPlayerTest
     {
         Player player = new SequentialPlayer();
         Board board = new Board();
-        assertEquals("failure - first move is 0", 0, player.getMove(board));
+        assertEquals("failure - first move is 0", new Integer(0), player.getMove(board).get());
 
         for (int col = 0; col < board.getWidth(); col++) {
             // fill column
@@ -20,11 +21,11 @@ public class SequentialPlayerTest
             }
             // do not test after the last column (board is full)
             if (col != board.getWidth() - 1) {
-                assertEquals("failure - " + (col + 1) + " full columns", col + 1,
-                        player.getMove(board));
+                assertEquals("failure - " + (col + 1) + " full columns",
+                        new Integer(col + 1), player.getMove(board).get());
             }
         }
 
-        assertEquals("failure - full board", -1, player.getMove(board));
+        assertFalse("failure - full board", player.getMove(board).isPresent());
     }
 }

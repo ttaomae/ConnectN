@@ -2,6 +2,8 @@ package ttaomae.connectn;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Optional;
+
 /**
  * A sequential Player. Always selects the leftmost valid move.
  *
@@ -10,17 +12,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class SequentialPlayer implements Player
 {
     @Override
-    public int getMove(Board board)
+    public Optional<Integer> getMove(Board board)
     {
         checkNotNull(board, "board must not be null");
 
         for (int move = 0; move < board.getWidth(); move++) {
             if (board.isValidMove(move)) {
-                return move;
+                return Optional.of(move);
             }
         }
 
         // there are no valid moves
-        return -1;
+        return Optional.empty();
     }
 }

@@ -1,16 +1,18 @@
 package ttaomae.connectn;
 
+import java.util.Optional;
+
 /**
  * A Player which always selects an invalid move.
- * 
+ *
  * @author Todd
- * 
+ *
  */
 public class InvalidPlayer implements Player
 {
     @Override
-    public int getMove(Board board)
+    public Optional<Integer> getMove(Board board)
     {
-        return -1;
+        return Optional.of(Board.INVALID_MOVE);
     }
 }

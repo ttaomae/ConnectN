@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -24,7 +25,7 @@ public class RandomPlayer implements Player
     }
 
     @Override
-    public int getMove(Board board)
+    public Optional<Integer> getMove(Board board)
     {
         checkNotNull(board, "board must not be null");
 
@@ -38,11 +39,11 @@ public class RandomPlayer implements Player
 
         // pick a random valid move
         if (validMoves.size() != 0) {
-            return validMoves.get(this.rand.nextInt(validMoves.size()));
+            return Optional.of(validMoves.get(this.rand.nextInt(validMoves.size())));
         }
 
         // there are no valid moves
-        return -1;
+        return Optional.empty();
     }
 
 }

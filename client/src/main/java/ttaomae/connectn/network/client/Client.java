@@ -146,10 +146,10 @@ public class Client implements Runnable
             // server is waiting for move
             if (message.equals(ConnectNProtocol.READY)) {
                 // get a move and play it
-                int move = -1;
-                while (!this.board.isValidMove(move)) {
-                    move = player.getMove(this.board.copy());
-                }
+                int move;
+                do {
+                    move = player.getMove(this.board.copy()).orElse(Board.INVALID_MOVE);
+                } while (!this.board.isValidMove(move));
                 this.board.play(move);
 
                 this.sendMessageToServer(ConnectNProtocol.constructMove(move));

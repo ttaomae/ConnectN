@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 import ttaomae.connectn.Board;
 import ttaomae.connectn.Player;
@@ -54,7 +55,7 @@ public class NetworkPlayer implements Player
      * reply.
      */
     @Override
-    public int getMove(Board board)
+    public Optional<Integer> getMove(Board board)
     {
         checkNotNull(board, "board must not be null");
 
@@ -68,15 +69,15 @@ public class NetworkPlayer implements Player
                 int move = ConnectNProtocol.parseMove(reply);
                 this.server.notifyOpponent(this, move);
 
-                return move;
+                return Optional.of(move);
             }
         } catch (IOException e) {
             // player probably disconnected
             System.err.println("Error getting move from socket.");
-            return -1;
+            return Optional.empty();
         }
 
-        return -1;
+        return Optional.empty();
     }
 
     /**

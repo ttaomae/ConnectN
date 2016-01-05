@@ -3,6 +3,14 @@ package ttaomae.connectn;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 
 
 /**
@@ -20,7 +28,6 @@ public class GameManager implements Runnable
     private Player playerTwo;
     private int attemptsAllowed;
 
-    private int move;
     private volatile boolean running;
 
 
@@ -94,60 +101,44 @@ public class GameManager implements Runnable
     @Override
     public void run()
     {
-        this.running = true;
+        ExecutorService executorService = Executors.newSingleThreadExecutor(
+                new ThreadFactoryBuilder().setNameFormat("Get Move").setDaemon(true).build());
         int attempts = 0;
-        while (this.running && this.board.getWinner() == Piece.NONE) {
-            attempts++;
-            this.move = -1;
-            final Player player;
-            switch (this.board.getNextPiece()) {
-                case BLACK:
-                    player = this.playerOne;
-                    break;
-                case RED:
-                    player = this.playerTwo;
-                    break;
-                case NONE:
-                case DRAW:
-                default:
-                    player = null;
-                    this.move = -1;
-                    break;
-            }
 
-            // use a new thread to get move
-            Thread myThread = new Thread(() -> {
-                if (player != null) {
-                    GameManager.this.move = player.getMove(GameManager.this.board.copy());
-                }
-            }, "Get Move");
-            myThread.setDaemon(true);
-            myThread.start();
+        this.running = true;
+        while (this.running && this.board.getWinner() == Piece.NONE) {
+            final Player player = getNextPlayer(this.board.getNextPiece());
+
+            // run getMove on a separate thread
+            Future<Optional<Integer>> future = executorService.submit(
+                    () -> player.getMove(board.copy()));
 
             try {
-                // wait for thread to get move
-                myThread.join();
+                int move = future.get().orElse(Board.INVALID_MOVE);
+
+                // only play valid moves
+                if (this.board.isValidMove(move)) {
+                    this.board.play(move);
+                    attempts = 0;
+                }
+                else {
+                    attempts++;
+                    if (attempts == this.attemptsAllowed) {
+                        throw new IllegalMoveException(this.board.getNextPiece() + " attempted "
+                                + this.attemptsAllowed + " illegal moves");
+                    }
+                }
             }
+            // if getMove throws an exception or
             // if the game manager is interrupted while waiting for a move
-            catch (InterruptedException e) {
-                // interrupt thread that is getting move
-                myThread.interrupt();
+            catch (ExecutionException | InterruptedException e) {
+                future.cancel(true);
                 // end game
                 this.running = false;
             }
 
-            // only play valid moves
-            if (this.board.isValidMove(this.move)) {
-                this.board.play(this.move);
-                attempts = 0;
-            }
-            else {
-                if (attempts == this.attemptsAllowed) {
-                    throw new IllegalMoveException(this.board.getNextPiece() + " attempted "
-                                                   + this.attemptsAllowed + " illegal moves");
-                }
-            }
         }
+        executorService.shutdownNow();
         this.running = false;
     }
 
@@ -157,5 +148,18 @@ public class GameManager implements Runnable
     public void stop()
     {
         this.running = false;
+    }
+
+    private Player getNextPlayer(Piece nextPiece)
+    {
+        switch (nextPiece) {
+            case BLACK:
+                return this.playerOne;
+            case RED:
+                return this.playerTwo;
+            default:
+                assert false : "unknown option: " + nextPiece;
+                return null;
+        }
     }
 }

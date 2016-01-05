@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -40,7 +41,7 @@ public class AlphaBetaPlayer implements Player
     }
 
     @Override
-    public int getMove(Board board)
+    public Optional<Integer> getMove(Board board)
     {
         checkNotNull(board, "board must not be null");
 
@@ -83,10 +84,10 @@ public class AlphaBetaPlayer implements Player
         // pick a random best move
         if (bestMoves.size() != 0) {
             int move = bestMoves.get(this.rand.nextInt(bestMoves.size()));
-            return move;
+            return Optional.of(move);
         }
 
-        return -1;
+        return Optional.empty();
     }
 
     /**

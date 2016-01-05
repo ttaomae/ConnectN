@@ -21,6 +21,9 @@ import java.util.List;
  */
 public class Board
 {
+    /** Value for an invalid move */
+    public static final int INVALID_MOVE = -1;
+
     /** Default board height */
     private static final int DEFAULT_HEIGHT = 6;
     /** Default board width */

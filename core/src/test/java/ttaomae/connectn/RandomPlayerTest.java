@@ -3,6 +3,8 @@ package ttaomae.connectn;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Optional;
+
 import org.junit.Test;
 
 public class RandomPlayerTest
@@ -14,11 +16,13 @@ public class RandomPlayerTest
         Player player = new RandomPlayer();
 
         for (int i = 0; i < board.getHeight() * board.getWidth(); i++) {
-            int move = player.getMove(board);
-            assertTrue("failure - selects valid move", board.isValidMove(move));
-            board.play(move);
+            Optional<Integer> optionalMove = player.getMove(board);
+            assertTrue(optionalMove.isPresent());
+            assertTrue("failure - selects valid move", board.isValidMove(optionalMove.get()));
+            board.play(optionalMove.get());
         }
 
-        assertFalse("failure - full board", board.isValidMove(player.getMove(board)));
+        Optional<Integer> optionalMove = player.getMove(board);
+        assertFalse(optionalMove.isPresent());
     }
 }

@@ -1,5 +1,7 @@
 package ttaomae.connectn;
 
+import java.util.Optional;
+
 /**
  * An interface of a Connect-N player.
  *
@@ -15,5 +17,5 @@ public interface Player
      * @param board the board being played on
      * @return the Player's move.
      */
-    int getMove(Board board);
+    Optional<Integer> getMove(Board board);
 }
