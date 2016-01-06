@@ -1,4 +1,4 @@
-package ttaomae.connectn.gui;
+package ttaomae.connectn.local.gui;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

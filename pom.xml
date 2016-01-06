@@ -93,6 +93,7 @@
 
   <modules>
     <module>core</module>
+    <module>local</module>
     <module>client</module>
     <module>server</module>
   </modules>

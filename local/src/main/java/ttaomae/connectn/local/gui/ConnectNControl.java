@@ -1,4 +1,4 @@
-package ttaomae.connectn.gui;
+package ttaomae.connectn.local.gui;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -18,6 +18,10 @@ import ttaomae.connectn.BoardListener;
 import ttaomae.connectn.GameManager;
 import ttaomae.connectn.Piece;
 import ttaomae.connectn.Player;
+import ttaomae.connectn.gui.BoardPanel;
+import ttaomae.connectn.gui.MousePlayer;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * A JavaFX component which provides an interface for a Connect-N game. Provides
@@ -63,7 +67,11 @@ public class ConnectNControl extends GridPane implements BoardListener
     public ConnectNControl()
     {
         this.executorService = Executors.newFixedThreadPool(
-                Runtime.getRuntime().availableProcessors());
+                Runtime.getRuntime().availableProcessors(),
+                new ThreadFactoryBuilder()
+                        .setNameFormat("alpha-beta-%d")
+                        .setDaemon(true)
+                        .build());
 
         initialize();
         load();
@@ -88,7 +96,6 @@ public class ConnectNControl extends GridPane implements BoardListener
         this.winConditionSlider.valueProperty().addListener(new SliderListener());
 
         this.resetBoard();
-
     }
 
     /**

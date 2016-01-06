@@ -1,4 +1,4 @@
-package ttaomae.connectn.gui;
+package ttaomae.connectn.local.gui;
 
 import java.io.IOException;
 

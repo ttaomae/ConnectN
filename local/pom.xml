@@ -8,9 +8,9 @@
     <version>1.1.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>ConnectN-client</artifactId>
+  <artifactId>ConnectN-local</artifactId>
   <packaging>jar</packaging>
-  <name>ConnectN-client</name>
+  <name>ConnectN-local</name>
 
   <build>
     <plugins>
@@ -18,8 +18,7 @@
         <groupId>com.zenjava</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
         <configuration>
-          <mainClass>ttaomae.connectn.network.client.Main</mainClass>
-          <jfxAppOutputDir>${project.build.directory}</jfxAppOutputDir>
+          <mainClass>ttaomae.connectn.local.gui.Main</mainClass>
         </configuration>
       </plugin>
     </plugins>

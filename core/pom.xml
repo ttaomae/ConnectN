@@ -11,16 +11,4 @@
   <artifactId>ConnectN-core</artifactId>
   <packaging>jar</packaging>
   <name>ConnectN-core</name>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>com.zenjava</groupId>
-        <artifactId>javafx-maven-plugin</artifactId>
-        <configuration>
-          <mainClass>ttaomae.connectn.gui.Main</mainClass>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
