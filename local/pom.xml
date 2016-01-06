@@ -4,13 +4,14 @@
 
   <parent>
     <groupId>ttaomae</groupId>
-    <artifactId>ConnectN</artifactId>
+    <artifactId>connectn</artifactId>
     <version>1.1.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>ConnectN-local</artifactId>
+  <artifactId>connectn-local</artifactId>
   <packaging>jar</packaging>
-  <name>ConnectN-local</name>
+
+  <name>ConnectN Local</name>
 
   <build>
     <plugins>
@@ -27,7 +28,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>ConnectN-core</artifactId>
+      <artifactId>connectn-core</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
