@@ -19,12 +19,9 @@
   </top>
 
   <center>
-    <BoardPanel fx:id="boardPanel" style="-fx-background-color: #336699;">
-      <BorderPane.margin><Insets top="20.0" bottom="20.0" /></BorderPane.margin>
-      <prefHeight>380</prefHeight>
-      <prefWidth>440</prefWidth>
-      <maxHeight>380</maxHeight>
-      <maxWidth>440</maxWidth>
+    <BoardPanel fx:id="boardPanel">
+      <height>380</height>
+      <width>440</width>
     </BoardPanel>
   </center>
   
