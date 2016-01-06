@@ -2,6 +2,8 @@ package ttaomae.connectn;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.Executors;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,7 +16,7 @@ public class AlphaBetaPlayerTest
     public void init()
     {
         this.board = new Board();
-        this.player = new AlphaBetaPlayer();
+        this.player = new AlphaBetaPlayer(Executors.newSingleThreadExecutor());
     }
 
     @Test

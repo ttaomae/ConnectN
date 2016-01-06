@@ -8,7 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * An Player which uses a minimax algorithm with alpha-beta pruning.
@@ -19,25 +23,31 @@ public class AlphaBetaPlayer implements Player
 {
     private static final int DEFAULT_DEPTH = 5;
     private final int depth;
-    private Random rand;
+
+    private ExecutorService executorService;
 
     /**
      * Constructs a new AlphaBetaPlayer which uses the default search depth.
+     *
+     * @param executorService the ExecutorService on which to perform
+     *          computations
      */
-    public AlphaBetaPlayer()
+    public AlphaBetaPlayer(ExecutorService executorService)
     {
-        this(DEFAULT_DEPTH);
+        this(DEFAULT_DEPTH, executorService);
     }
 
     /**
      * Constructs a new AlphaBetaPlayer which uses the specified search depth.
      *
      * @param depth the search depth
+     * @param executorService the ExecutorService on which to perform
+     *          computations
      */
-    public AlphaBetaPlayer(int depth)
+    public AlphaBetaPlayer(int depth, ExecutorService executorService)
     {
         this.depth = depth;
-        this.rand = new Random();
+        this.executorService = executorService;
     }
 
     @Override
@@ -45,7 +55,6 @@ public class AlphaBetaPlayer implements Player
     {
         checkNotNull(board, "board must not be null");
 
-        Map<Integer, Double> possibleMoves = new HashMap<>();
         Piece myPiece = board.getNextPiece();
 
         // create randomly ordered list of possible moves
@@ -55,39 +64,50 @@ public class AlphaBetaPlayer implements Player
         }
         Collections.shuffle(moves);
 
+        // move -> Future<heuristic>
+        Map<Integer, Future<Double>> moveFutures = new HashMap<>();
+
         // get minimax value for all valid moves
-        for (int move : moves) {
-            if (board.isValidMove(move)) {
-                board.play(move);
-                double heuristic = alphaBeta(board, depth - 1, Double.NEGATIVE_INFINITY,
-                        Double.POSITIVE_INFINITY, myPiece);
-                board.undoPlay();
+        IntStream.range(0, board.getWidth())
+                .filter(board::isValidMove)
+                .forEach(move -> moveFutures.put(move,
+                        this.executorService.submit(() -> {
+                            Board copy = board.copy();
+                            copy.play(move);
+                            return alphaBeta(copy, depth - 1, Double.NEGATIVE_INFINITY,
+                                    Double.POSITIVE_INFINITY, myPiece);
+                        })
+                ));
 
-                possibleMoves.put(move, heuristic);
+        Map<Integer, Double> moveScores = new HashMap<>();
+        try {
+            for (Map.Entry<Integer, Future<Double>> entry : moveFutures.entrySet()) {
+                moveScores.put(entry.getKey(), entry.getValue().get());
+            }
+        }
+        catch (ExecutionException | InterruptedException e) {
+            for (Future<Double> future : moveFutures.values()) {
+                future.cancel(true);
             }
         }
 
-        // find max value
-        double maxHeuristic = Double.NEGATIVE_INFINITY;
-        for (Double value : possibleMoves.values()) {
-            maxHeuristic = Math.max(maxHeuristic, value);
+        // find max score
+        double maxScore = moveScores.values().stream()
+                .mapToDouble(Double::doubleValue)
+                .max().orElse(Double.NEGATIVE_INFINITY);
+
+        // find moves with max score
+        List<Integer> possibleMoves = moveScores.entrySet().stream()
+                .filter(entry -> entry.getValue() == maxScore)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        if (possibleMoves.isEmpty()) {
+            return Optional.empty();
         }
 
-        // find all moves with max heuristic
-        List<Integer> bestMoves = new ArrayList<>();
-        for (Map.Entry<Integer, Double> entry : possibleMoves.entrySet()) {
-            if (entry.getValue() == maxHeuristic) {
-                bestMoves.add(entry.getKey());
-            }
-        }
-
-        // pick a random best move
-        if (bestMoves.size() != 0) {
-            int move = bestMoves.get(this.rand.nextInt(bestMoves.size()));
-            return Optional.of(move);
-        }
-
-        return Optional.empty();
+        Collections.shuffle(possibleMoves);
+        return Optional.of(possibleMoves.get(0));
     }
 
     /**
@@ -103,7 +123,11 @@ public class AlphaBetaPlayer implements Player
      */
     private double alphaBeta(Board board, int depth, double alpha, double beta, Piece maxPlayer)
     {
-        if (depth == 0 || board.getWinner() != Piece.NONE) {
+        //
+        if (Thread.currentThread().isInterrupted()) {
+            return 0;
+        }
+        if (depth == 0 || board.getWinner() != Piece.NONE ) {
             return getHeuristic(board, maxPlayer);
         }
 

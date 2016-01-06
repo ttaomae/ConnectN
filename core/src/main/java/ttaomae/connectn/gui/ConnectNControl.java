@@ -1,6 +1,8 @@
 package ttaomae.connectn.gui;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -53,11 +55,16 @@ public class ConnectNControl extends GridPane implements BoardListener
     private Thread gameManagerThread;
     private Board board;
 
+    private ExecutorService executorService;
+
     /**
      * Constructs a new ConnectNControl.
      */
     public ConnectNControl()
     {
+        this.executorService = Executors.newFixedThreadPool(
+                Runtime.getRuntime().availableProcessors());
+
         initialize();
         load();
 
@@ -166,14 +173,14 @@ public class ConnectNControl extends GridPane implements BoardListener
             p1 = new MousePlayer(this.boardPanel);
         }
         else {
-            p1 = new AlphaBetaPlayer(this.playerOne.getCpuDifficulty());
+            p1 = new AlphaBetaPlayer(this.playerOne.getCpuDifficulty(), this.executorService);
         }
 
         if (this.playerTwo.isHuman()) {
             p2 = new MousePlayer(this.boardPanel);
         }
         else {
-            p2 = new AlphaBetaPlayer(this.playerTwo.getCpuDifficulty());
+            p2 = new AlphaBetaPlayer(this.playerTwo.getCpuDifficulty(), this.executorService);
         }
 
         this.gameManager = new GameManager(this.board, p1, p2);
