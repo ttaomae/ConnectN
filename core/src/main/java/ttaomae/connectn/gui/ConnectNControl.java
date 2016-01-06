@@ -154,11 +154,7 @@ public class ConnectNControl extends GridPane implements BoardListener
 
         final int maxWinCondition = Math.max(height, width);
         if (winCondition > maxWinCondition) {
-            javafx.application.Platform.runLater(new Runnable() {
-                @Override public void run() {
-                    ConnectNControl.this.winConditionSlider.setValue(maxWinCondition);
-                }
-            });
+            ConnectNControl.this.winConditionSlider.setValue(maxWinCondition);
         }
     }
 

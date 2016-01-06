@@ -36,8 +36,8 @@
 
   <BoardPanel fx:id="boardPanel" style="-fx-background-color: #336699;"
       GridPane.columnIndex="1" GridPane.rowIndex="2">
-    <prefHeight>380</prefHeight>
-    <prefWidth>440</prefWidth>
+    <height>380</height>
+    <width>440</width>
   </BoardPanel>
 
   <BorderPane
