@@ -210,11 +210,9 @@ public class ConnectNControl extends GridPane implements BoardListener
      */
     private void resetBoard()
     {
-        javafx.application.Platform.runLater(new Runnable() {
-            @Override public void run() {
-                int winCond = (int) ConnectNControl.this.winConditionSlider.getValue();
-                ConnectNControl.this.title.setText("Connect " + winCond);
-            }
+        javafx.application.Platform.runLater(() -> {
+            int winCond = (int) ConnectNControl.this.winConditionSlider.getValue();
+            ConnectNControl.this.title.setText("Connect " + winCond);
         });
         this.board = new ArrayBoard((int) this.heightSlider.getValue(),
                                (int) this.widthSlider.getValue(),
@@ -258,11 +256,9 @@ public class ConnectNControl extends GridPane implements BoardListener
      */
     private void updateStartButtonText(final String text)
     {
-        javafx.application.Platform.runLater(new Runnable() {
-            @Override public void run() {
-                ConnectNControl.this.startButton.setText(text);
-            }
-        });
+        javafx.application.Platform.runLater(() ->
+            ConnectNControl.this.startButton.setText(text)
+        );
     }
 
     /**
@@ -272,10 +268,8 @@ public class ConnectNControl extends GridPane implements BoardListener
      */
     private void updateMessage(final String message)
     {
-        javafx.application.Platform.runLater(new Runnable() {
-            @Override public void run() {
-                ConnectNControl.this.displayMessage.setText(message);
-            }
-        });
+        javafx.application.Platform.runLater(() ->
+            ConnectNControl.this.displayMessage.setText(message)
+        );
     }
 }

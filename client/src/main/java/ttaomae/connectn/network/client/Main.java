@@ -3,11 +3,9 @@ package ttaomae.connectn.network.client;
 import java.io.IOException;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 public class Main extends Application
 {
@@ -21,13 +19,7 @@ public class Main extends Application
         root.setCenter(client);
         stage.setScene(new Scene(root, 450, 500));
         stage.setResizable(false);
-        stage.setOnHidden(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent arg0)
-            {
-                client.disconnect();
-            }
-        });
+        stage.setOnHidden(windowEvent -> client.disconnect());
         stage.show();
     }
 

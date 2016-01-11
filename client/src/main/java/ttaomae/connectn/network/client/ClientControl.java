@@ -103,11 +103,9 @@ public class ClientControl extends BorderPane implements ClientListener
 
                 this.updateMessage(String.format("Connected to %s:%d%n", host, port));
                 this.connected = true;
-                javafx.application.Platform.runLater(new Runnable() {
-                    @Override public void run() {
-                        ClientControl.this.connectButton.setDisable(true);
-                    }
-                });
+                javafx.application.Platform.runLater(() ->
+                    ClientControl.this.connectButton.setDisable(true)
+                );
             }
             catch (NumberFormatException e) {
                 this.updateMessage("Invalid port number.");
@@ -155,11 +153,9 @@ public class ClientControl extends BorderPane implements ClientListener
      */
     private void yesNoButtonsSetDisable(final boolean disable)
     {
-        javafx.application.Platform.runLater(new Runnable() {
-            @Override public void run() {
-                ClientControl.this.yesButton.setDisable(disable);
-                ClientControl.this.noButton.setDisable(disable);
-            }
+        javafx.application.Platform.runLater(() -> {
+            ClientControl.this.yesButton.setDisable(disable);
+            ClientControl.this.noButton.setDisable(disable);
         });
     }
 
@@ -170,11 +166,9 @@ public class ClientControl extends BorderPane implements ClientListener
      */
     private void updateMessage(final String message)
     {
-        javafx.application.Platform.runLater(new Runnable() {
-            @Override public void run() {
-                ClientControl.this.displayMessage.setText(message);
-            }
-        });
+        javafx.application.Platform.runLater(() ->
+            ClientControl.this.displayMessage.setText(message)
+        );
     }
 
     @Override
