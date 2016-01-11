@@ -639,12 +639,12 @@ public class ArrayBoardTest
         }
     }
 
-    @Test
+    @Test(expected=IllegalStateException.class)
     public void testUndoWithNoPlays() {
-        assertFalse(board.undoPlay());
+        board.undoPlay();
     }
 
-    @Test
+    @Test(expected=IllegalStateException.class)
     public void testUndoExtraPlays() {
         board.play(0);
         board.play(1);
@@ -664,6 +664,6 @@ public class ArrayBoardTest
         board.undoPlay();
 
         // undo extra play
-        assertFalse(board.undoPlay());
+        board.undoPlay();
     }
 }

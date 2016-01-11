@@ -103,8 +103,9 @@ public class Client implements Runnable
                 // start a new game
                 if (message.equals(ConnectNProtocol.START)) {
                     // make sure the board is empty by undoing everything
-                    // TODO: kind of hack-y. must ensure that the panel and client have the same board
-                    while (this.board.undoPlay()); // NOPMD
+                    while (this.board.getCurrentTurn() != 0) {
+                        this.board.undoPlay();
+                    }
 
                     System.out.println("CLIENT: Starting game");
                     playGame();

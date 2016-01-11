@@ -75,86 +75,25 @@ public class ArrayBoard implements Board, ImmutableBoard
         this(DEFAULT_HEIGHT, DEFAULT_WIDTH, DEFAULT_WIN_CONDITION);
     }
 
-    /**
-     * Plays the next piece in the specified column. Columns start from 0 on the
-     * far left and end with (width - 1) on the far right. The next piece is
-     * determined by the current turn. The piece will be placed in the lowest
-     * empty row in the specified column.
-     *
-     * <p> Notifies any threads waiting on this Board when the move is played.
-     *
-     * @param col the column to play the next piece
-     * @throws IllegalMoveException if the column is not a valid column or if
-     *             the column is full
-     */
-    public void play(int col) throws IllegalMoveException
+    @Override
+    public int getHeight()
     {
-        if (!isValidMove(col)) {
-            if (col < 0 || col >= this.getWidth()) {
-                throw new IllegalMoveException("Illegal column: " + col);
-            }
-            else {
-                throw new IllegalMoveException("column " + col + " full");
-            }
-        }
-
-        // check each row starting from the bottom
-        for (int row = 0; row < this.getHeight(); row++) {
-            if (this.board[row][col] == Piece.NONE) {
-                this.board[row][col] = this.getNextPiece();
-                this.playHistory.addLast(col);
-                currentTurn++;
-                this.notifyListeners();
-                break;
-            }
-        }
+        return this.board.length;
     }
 
-    /**
-     * Undoes the last play on this Board.
-     *
-     * @throws IllegalStateException if the board is empty (i.e. no plays have
-     *             been made)
-     */
-    public boolean undoPlay()
+    @Override
+    public int getWidth()
     {
-        if (this.playHistory.isEmpty()) {
-            return false;
-        }
-
-        int lastPlayCol = this.playHistory.getLast();
-        boolean moveUndone = false;
-
-        // find highest non-empty row for last play column
-        for (int row = this.getHeight() - 1; row >= 0; row--) {
-            // make empty
-            if (this.board[row][lastPlayCol] != Piece.NONE) {
-                this.board[row][lastPlayCol] = Piece.NONE;
-                this.playHistory.removeLast();
-                this.currentTurn--;
-
-                moveUndone = true;
-
-                this.notifyListeners();
-                break;
-            }
-        }
-
-        // this should not happen
-        if (!moveUndone) {
-            throw new IllegalStateException("Board is in illegal state. Could not undo play.");
-        }
-
-        return true;
+        return this.board[0].length;
     }
 
-    /**
-     * Returns the winner based on the current state of the board. Assumes that
-     * the board is in a valid state and that there is only one player who has
-     * n-in-a-row.
-     *
-     * @return the winner
-     */
+    @Override
+    public int getWinCondition()
+    {
+        return this.winCondition;
+    }
+
+    @Override
     public Piece getWinner()
     {
         // if the board is full it is a draw
@@ -256,16 +195,82 @@ public class ArrayBoard implements Board, ImmutableBoard
         return Piece.NONE;
     }
 
-    /**
-     * Checks if playing a piece in the specified column is valid. A move is
-     * valid if the column is greater than or equal to 0 (far left column) and
-     * less than the width of this Board (far right column) and the column is
-     * not full. This method assumes that the board is in a valid state and only
-     * checks if the top row of the column is empty.
-     *
-     * @param col the column to play the next piece
-     * @return true if the move is valid, false otherwise.
-     */
+    @Override
+    public Piece getPieceAt(int col, int row)
+    {
+        checkElementIndex(col, this.getWidth(), "Column: " + col + ", Width: " + this.getWidth());
+        checkElementIndex(row, this.getHeight(), "Row: " + row + ", Height: " + this.getHeight());
+
+        return this.board[row][col];
+    }
+
+    @Override
+    public int getCurrentTurn() {
+        return this.currentTurn;
+    }
+
+    @Override
+    public Piece getNextPiece()
+    {
+        return (this.currentTurn % 2 == 0) ? Piece.BLACK : Piece.RED;
+    }
+
+    @Override
+    public void play(int col) throws IllegalMoveException
+    {
+        if (!isValidMove(col)) {
+            if (col < 0 || col >= this.getWidth()) {
+                throw new IllegalMoveException("Illegal column: " + col);
+            }
+            else {
+                throw new IllegalMoveException("column " + col + " full");
+            }
+        }
+
+        // check each row starting from the bottom
+        for (int row = 0; row < this.getHeight(); row++) {
+            if (this.board[row][col] == Piece.NONE) {
+                this.board[row][col] = this.getNextPiece();
+                this.playHistory.addLast(col);
+                currentTurn++;
+                this.notifyListeners();
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void undoPlay()
+    {
+        if (this.playHistory.isEmpty()) {
+            throw new IllegalStateException("No moves to undo.");
+        }
+
+        int lastPlayCol = this.playHistory.getLast();
+        boolean moveUndone = false;
+
+        // find highest non-empty row for last play column
+        for (int row = this.getHeight() - 1; row >= 0; row--) {
+            // make empty
+            if (this.board[row][lastPlayCol] != Piece.NONE) {
+                this.board[row][lastPlayCol] = Piece.NONE;
+                this.playHistory.removeLast();
+                this.currentTurn--;
+
+                moveUndone = true;
+
+                this.notifyListeners();
+                break;
+            }
+        }
+
+        // this should not happen
+        if (!moveUndone) {
+            throw new IllegalStateException("Board is in illegal state. Could not undo play.");
+        }
+    }
+
+    @Override
     public boolean isValidMove(int col)
     {
         // invalid index
@@ -276,37 +281,7 @@ public class ArrayBoard implements Board, ImmutableBoard
         return this.getPieceAt(col, this.getHeight() - 1) == Piece.NONE;
     }
 
-    /**
-     * Returns the piece in the specified column and row.
-     *
-     * @param col the column
-     * @param row the row
-     * @return the Piece at the specified position
-     */
-    public Piece getPieceAt(int col, int row)
-    {
-        checkElementIndex(col, this.getWidth(), "Column: " + col + ", Width: " + this.getWidth());
-        checkElementIndex(row, this.getHeight(), "Row: " + row + ", Height: " + this.getHeight());
-
-        return this.board[row][col];
-    }
-
-    /**
-     * Returns the next piece to be played. Turns alternate between Black and
-     * Red, starting with Black on the first turn.
-     *
-     * @return the next piece to be played
-     */
-    public Piece getNextPiece()
-    {
-        return (this.currentTurn % 2 == 0) ? Piece.BLACK : Piece.RED;
-    }
-
-    /**
-     * Creates a copy of this Board.
-     *
-     * @return the new copy of this Board
-     */
+    @Override
     public Board getMutableCopy()
     {
         ArrayBoard copy = new ArrayBoard(this.getHeight(), this.getWidth(), this.getWinCondition());
@@ -319,46 +294,13 @@ public class ArrayBoard implements Board, ImmutableBoard
         return copy;
     }
 
+    @Override
     public ImmutableBoard getImmutableView()
     {
         return this;
     }
 
-    /**
-     * Returns the height of this Board.
-     *
-     * @return the height of this Board
-     */
-    public int getHeight()
-    {
-        return this.board.length;
-    }
-
-    /**
-     * Returns the width of this Board.
-     *
-     * @return the width of this Board
-     */
-    public int getWidth()
-    {
-        return this.board[0].length;
-    }
-
-    /**
-     * Returns the win condition of this Board.
-     *
-     * @return the win condition of this Board
-     */
-    public int getWinCondition()
-    {
-        return this.winCondition;
-    }
-
-    /**
-     * Adds a BoardListener to this Board.
-     *
-     * @param boardListener the BoardListener being added
-     */
+    @Override
     public void addBoardListener(BoardListener boardListener)
     {
         checkNotNull(boardListener, "boardListener must not be null");
