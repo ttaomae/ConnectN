@@ -14,6 +14,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ttaomae.connectn.Board;
 import ttaomae.connectn.Piece;
 import ttaomae.connectn.Player;
@@ -26,6 +29,8 @@ import ttaomae.connectn.network.ConnectNProtocol;
  */
 public class Client implements Runnable
 {
+    private static final Logger logger = LoggerFactory.getLogger(Client.class);
+
     private Socket socket;
     private PrintWriter socketOut;
     private BufferedReader socketIn;
@@ -107,7 +112,6 @@ public class Client implements Runnable
                         this.board.undoPlay();
                     }
 
-                    System.out.println("CLIENT: Starting game");
                     playGame();
                 }
 
@@ -130,7 +134,7 @@ public class Client implements Runnable
                 break;
             }
         }
-        System.out.println("CLIENT: Done!");
+        logger.info("Done!");
     }
 
     /**
@@ -170,7 +174,7 @@ public class Client implements Runnable
             }
         }
 
-        System.out.println(this.board.getWinner() + " wins!");
+        logger.info(this.board.getWinner() + " wins!");
     }
 
     /**

@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A {@link Board} implementation backed by a 2-dimensional array.
  *
@@ -17,6 +20,8 @@ import java.util.List;
  */
 public class ArrayBoard implements Board, ImmutableBoard
 {
+    private static final Logger logger = LoggerFactory.getLogger(ArrayBoard.class);
+
     /** Default board height */
     private static final int DEFAULT_HEIGHT = 6;
     /** Default board width */
@@ -227,6 +232,8 @@ public class ArrayBoard implements Board, ImmutableBoard
             }
         }
 
+        logger.debug("Playing move on column: {}", col);
+
         // check each row starting from the bottom
         for (int row = 0; row < this.getHeight(); row++) {
             if (this.board[row][col] == Piece.NONE) {
@@ -247,6 +254,9 @@ public class ArrayBoard implements Board, ImmutableBoard
         }
 
         int lastPlayCol = this.playHistory.getLast();
+
+        logger.debug("Undoing move on column: {}", lastPlayCol);
+
         boolean moveUndone = false;
 
         // find highest non-empty row for last play column

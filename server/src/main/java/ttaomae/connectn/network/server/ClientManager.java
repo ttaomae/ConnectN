@@ -15,6 +15,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ttaomae.connectn.network.ConnectNProtocol;
 
 /**
@@ -25,6 +28,8 @@ import ttaomae.connectn.network.ConnectNProtocol;
  */
 public class ClientManager implements Runnable
 {
+    private static final Logger logger = LoggerFactory.getLogger(ClientManager.class);
+
     private final Server server;
     private final Set<Socket> playerPool;
     private final Map<Socket, Socket> lastMatches;
@@ -57,7 +62,7 @@ public class ClientManager implements Runnable
 
         if (!player.isClosed()) {
             this.playerPool.add(player);
-            this.server.printMessage("Adding player to pool...");
+            logger.info("Adding player to pool...");
         }
 
         findMatchup();
@@ -186,7 +191,7 @@ public class ClientManager implements Runnable
     {
         assert socket != null : "socket must not be null";
         try {
-            this.server.printMessage("Player has disconnected.");
+            logger.info("Player has disconnected.");
             this.playerPool.remove(socket);
             socket.close();
         } catch (IOException e) {

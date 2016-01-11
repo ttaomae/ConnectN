@@ -5,6 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ttaomae.connectn.GameManager;
 import ttaomae.connectn.IllegalMoveException;
 import ttaomae.connectn.network.ConnectNProtocol;
@@ -16,6 +19,8 @@ import ttaomae.connectn.network.ConnectNProtocol;
  */
 public class NetworkGameManager implements Runnable
 {
+    private static final Logger logger = LoggerFactory.getLogger(NetworkGameManager.class);
+
     private Server server;
     private Socket playerOneSocket;
     private Socket playerTwoSocket;
@@ -110,7 +115,7 @@ public class NetworkGameManager implements Runnable
             gm = new GameManager(this.playerTwo, this.playerOne, 1);
         }
 
-        this.server.printMessage("Starting game.");
+        logger.info("Starting game.");
         this.playerOne.sendMessage(ConnectNProtocol.START);
         this.playerTwo.sendMessage(ConnectNProtocol.START);
 
@@ -120,7 +125,7 @@ public class NetworkGameManager implements Runnable
             gm.run();
             return true;
         } catch (IllegalMoveException e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
             return false;
         }
     }
@@ -246,12 +251,12 @@ public class NetworkGameManager implements Runnable
                 case ONE:
                     this.playerOneSocket.close();
                     this.playerTwo.sendMessage(ConnectNProtocol.DICONNECTED);
-                    this.server.printMessage("Player has disconnected.");
+                    logger.info("Player has disconnected.");
                     break;
                 case TWO:
                     this.playerTwoSocket.close();
                     this.playerOne.sendMessage(ConnectNProtocol.DICONNECTED);
-                    this.server.printMessage("Player has disconnected.");
+                    logger.info("Player has disconnected.");
                     break;
                 default:
                     break;

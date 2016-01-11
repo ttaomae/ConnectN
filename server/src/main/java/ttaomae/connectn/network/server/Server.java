@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A Connect-N network multiplayer server.
  *
@@ -14,6 +17,8 @@ import java.net.Socket;
  */
 public class Server implements Runnable
 {
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
+
     private int port;
     private ClientManager clientManager;
 
@@ -42,16 +47,17 @@ public class Server implements Runnable
         new Thread(this.clientManager, "Client Manager").start();
 
         try (ServerSocket serverSocket = new ServerSocket(this.port);) {
-            printMessage("Waiting for connections...");
+
+            logger.info("Waiting for connections...");
             while (true) {
                 Socket socket = serverSocket.accept();
-                printMessage("Player connected!");
+                logger.info("Player connected!");
                 this.addToPlayerPool(socket);
             }
         } catch (IOException e) {
-            System.err.println("Exception caught when trying to listen on port "
+            logger.error("Exception caught when trying to listen on port "
                              + port + " or listening for a connection");
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 
@@ -65,15 +71,5 @@ public class Server implements Runnable
     {
         checkNotNull(player, "player must not be null");
         this.clientManager.addPlayer(player);
-    }
-
-    /**
-     * Prints a server message.
-     *
-     * @param message the message to print
-     */
-    public void printMessage(String message)
-    {
-        System.out.println("SERVER: " + message);
     }
 }
