@@ -11,7 +11,7 @@ import java.util.Optional;
 public class InvalidPlayer implements Player
 {
     @Override
-    public Optional<Integer> getMove(Board board)
+    public Optional<Integer> getMove(ImmutableBoard board)
     {
         return Optional.of(Board.INVALID_MOVE);
     }

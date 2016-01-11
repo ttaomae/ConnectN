@@ -12,7 +12,7 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.Optional;
 
-import ttaomae.connectn.Board;
+import ttaomae.connectn.ImmutableBoard;
 import ttaomae.connectn.Player;
 import ttaomae.connectn.network.ConnectNProtocol;
 
@@ -55,7 +55,7 @@ public class NetworkPlayer implements Player
      * reply.
      */
     @Override
-    public Optional<Integer> getMove(Board board)
+    public Optional<Integer> getMove(ImmutableBoard board)
     {
         checkNotNull(board, "board must not be null");
 

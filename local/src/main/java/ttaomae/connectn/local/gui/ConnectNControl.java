@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
 import ttaomae.connectn.AlphaBetaPlayer;
+import ttaomae.connectn.ArrayBoard;
 import ttaomae.connectn.Board;
 import ttaomae.connectn.BoardListener;
 import ttaomae.connectn.GameManager;
@@ -215,7 +216,7 @@ public class ConnectNControl extends GridPane implements BoardListener
                 ConnectNControl.this.title.setText("Connect " + winCond);
             }
         });
-        this.board = new Board((int) this.heightSlider.getValue(),
+        this.board = new ArrayBoard((int) this.heightSlider.getValue(),
                                (int) this.widthSlider.getValue(),
                                (int) this.winConditionSlider.getValue());
         this.board.addBoardListener(this);

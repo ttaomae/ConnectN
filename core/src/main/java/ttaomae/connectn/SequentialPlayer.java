@@ -12,7 +12,7 @@ import java.util.Optional;
 public class SequentialPlayer implements Player
 {
     @Override
-    public Optional<Integer> getMove(Board board)
+    public Optional<Integer> getMove(ImmutableBoard board)
     {
         checkNotNull(board, "board must not be null");
 

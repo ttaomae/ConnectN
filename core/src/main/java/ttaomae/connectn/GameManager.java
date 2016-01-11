@@ -11,8 +11,6 @@ import java.util.concurrent.Future;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-
-
 /**
  * A Connect-N game manager. Manages a single game between two Players. Can be
  * run in a separate thread.
@@ -40,7 +38,7 @@ public class GameManager implements Runnable
      */
     public GameManager(Player playerOne, Player playerTwo)
     {
-        this(new Board(), playerOne, playerTwo, MAX_ATTEMPTS);
+        this(new ArrayBoard(), playerOne, playerTwo, MAX_ATTEMPTS);
     }
 
     /**
@@ -54,7 +52,7 @@ public class GameManager implements Runnable
      */
     public GameManager(Player playerOne, Player playerTwo, int attemptsAllowed)
     {
-        this(new Board(), playerOne, playerTwo, attemptsAllowed);
+        this(new ArrayBoard(), playerOne, playerTwo, attemptsAllowed);
     }
 
     /**
@@ -111,8 +109,7 @@ public class GameManager implements Runnable
 
             // run getMove on a separate thread
             Future<Optional<Integer>> future = executorService.submit(
-                    () -> player.getMove(board.copy()));
-
+                    () -> player.getMove(board.getImmutableView()));
             try {
                 int move = future.get().orElse(Board.INVALID_MOVE);
 

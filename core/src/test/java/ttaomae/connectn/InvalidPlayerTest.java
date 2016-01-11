@@ -12,18 +12,18 @@ public class InvalidPlayerTest
     @Test
     public void testInvalidPlayer()
     {
-        Board board = new Board();
+        Board board = new ArrayBoard();
         Player player = new InvalidPlayer();
         Player rand = new RandomPlayer();
 
-        Optional<Integer> optionalMove = player.getMove(board);
+        Optional<Integer> optionalMove = player.getMove(board.getImmutableView());
         assertTrue(optionalMove.isPresent());
         assertEquals("failure - first play invalid",
                 new Integer(Board.INVALID_MOVE), optionalMove.get());
 
         for (int i = 0; i < board.getHeight() * board.getWidth(); i++) {
-            board.play(rand.getMove(board).get());
-            optionalMove = player.getMove(board);
+            board.play(rand.getMove(board.getImmutableView()).get());
+            optionalMove = player.getMove(board.getImmutableView());
             assertTrue(optionalMove.isPresent());
             assertEquals("failure - all moves invalid",
                     new Integer(Board.INVALID_MOVE), optionalMove.get());

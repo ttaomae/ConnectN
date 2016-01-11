@@ -3,7 +3,7 @@ package ttaomae.connectn.gui;
 import java.util.Optional;
 
 import javafx.scene.input.MouseEvent;
-import ttaomae.connectn.Board;
+import ttaomae.connectn.ImmutableBoard;
 import ttaomae.connectn.Player;
 
 /**
@@ -37,7 +37,7 @@ public class MousePlayer implements Player
     }
 
     @Override
-    public Optional<Integer> getMove(Board board)
+    public Optional<Integer> getMove(ImmutableBoard board)
     {
         synchronized (this) {
             Integer result = null;

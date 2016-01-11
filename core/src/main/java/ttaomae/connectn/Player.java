@@ -17,5 +17,5 @@ public interface Player
      * @param board the board being played on
      * @return the Player's move.
      */
-    Optional<Integer> getMove(Board board);
+    Optional<Integer> getMove(ImmutableBoard board);
 }

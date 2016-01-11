@@ -51,7 +51,7 @@ public class AlphaBetaPlayer implements Player
     }
 
     @Override
-    public Optional<Integer> getMove(Board board)
+    public Optional<Integer> getMove(ImmutableBoard board)
     {
         checkNotNull(board, "board must not be null");
 
@@ -72,7 +72,7 @@ public class AlphaBetaPlayer implements Player
                 .filter(board::isValidMove)
                 .forEach(move -> moveFutures.put(move,
                         this.executorService.submit(() -> {
-                            Board copy = board.copy();
+                            Board copy = board.getMutableCopy();
                             copy.play(move);
                             return alphaBeta(copy, depth - 1, Double.NEGATIVE_INFINITY,
                                     Double.POSITIVE_INFINITY, myPiece);

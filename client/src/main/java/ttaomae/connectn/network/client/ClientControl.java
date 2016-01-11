@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import ttaomae.connectn.ArrayBoard;
 import ttaomae.connectn.Board;
 import ttaomae.connectn.gui.BoardPanel;
 import ttaomae.connectn.gui.MousePlayer;
@@ -46,7 +47,7 @@ public class ClientControl extends BorderPane implements ClientListener
         this.connected = false;
 
         // display a default board to start
-        this.boardPanel.setBoard(new Board());
+        this.boardPanel.setBoard(new ArrayBoard());
     }
 
     /**
@@ -90,7 +91,7 @@ public class ClientControl extends BorderPane implements ClientListener
             try {
                 String host = hostField.getText();
                 int port = Integer.parseInt(portField.getText());
-                Board b = new Board();
+                Board b = new ArrayBoard();
                 this.boardPanel.setBoard(b);
                 MousePlayer mp = new MousePlayer(this.boardPanel);
                 this.client = new Client(host, port, mp, b);

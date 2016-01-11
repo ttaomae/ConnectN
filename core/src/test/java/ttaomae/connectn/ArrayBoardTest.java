@@ -8,14 +8,14 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-public class BoardTest
+public class ArrayBoardTest
 {
     private Board board;
 
     @Before
     public void init()
     {
-        this.board = new Board();
+        this.board = new ArrayBoard();
     }
 
     @Test
@@ -39,35 +39,35 @@ public class BoardTest
     @Test
     public void testBoardConstructor()
     {
-        board = new Board(5, 5, 5);
+        board = new ArrayBoard(5, 5, 5);
         assertEquals("failure - new Board(5, 5, 5) height", 5, board.getHeight());
         assertEquals("failure - new Board(5, 5, 5) width", 5, board.getWidth());
         assertEquals("failure - new Board(5, 5, 5) win condition", 5, board.getWinCondition());
 
         try {
-            new Board(1, 5, 5);
+            new ArrayBoard(1, 5, 5);
         } catch (IllegalArgumentException e) {
             assertEquals("failure - illegal height", "height must be at least 2", e.getMessage());
         }
         try {
-            new Board(5, 1, 5);
+            new ArrayBoard(5, 1, 5);
         } catch (IllegalArgumentException e) {
             assertEquals("failure - illegal width", "width must be at least 2", e.getMessage());
         }
         try {
-            new Board(5, 5, 6);
+            new ArrayBoard(5, 5, 6);
         } catch (IllegalArgumentException e) {
             assertEquals("failure - illegal win condition",
                     "winCondition must be between 2 and max(height, width)", e.getMessage());
         }
         try {
-            new Board(5, 5, 1);
+            new ArrayBoard(5, 5, 1);
         } catch (IllegalArgumentException e) {
             assertEquals("failure - illegal win condition",
                     "winCondition must be between 2 and max(height, width)", e.getMessage());
         }
         try {
-            new Board(5, 5, -1);
+            new ArrayBoard(5, 5, -1);
         } catch (IllegalArgumentException e) {
             assertEquals("failure - illegal win condition",
                     "winCondition must be between 2 and max(height, width)", e.getMessage());
@@ -78,7 +78,7 @@ public class BoardTest
     public void testOnePlay()
     {
         for (int col = 0; col < board.getWidth(); col++) {
-            board = new Board();
+            board = new ArrayBoard();
             board.play(col);
             assertEquals("failure - first play is black", Piece.BLACK, board.getPieceAt(col, 0));
             assertEquals("failure - second piece is red", Piece.RED, board.getNextPiece());
@@ -158,7 +158,7 @@ public class BoardTest
         }
 
         for (int i = 0; i < board.getWidth(); i++) {
-            board = new Board();
+            board = new ArrayBoard();
             // fill a single column
             for (int j = 0; j < board.getHeight(); j++) {
                 board.play(i);
@@ -180,7 +180,7 @@ public class BoardTest
         assertEquals("failure - black horizontal winner, bottom left", Piece.BLACK,
                 board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         board.play(3); // black
         board.play(3);
         board.play(4); // black
@@ -191,7 +191,7 @@ public class BoardTest
         assertEquals("failure - black horizontal winner, bottom right", Piece.BLACK,
                 board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         // fill left side of board without a winner
         for (int i = 0; i < 3; i++) {
             board.play(0);
@@ -216,7 +216,7 @@ public class BoardTest
         assertEquals("failure - black horizontal winner, top left", Piece.BLACK, board.getWinner());
 
 
-        board = new Board();
+        board = new ArrayBoard();
         // fill right side of board without a winner
         for (int i = 0; i < 3; i++) {
             board.play(3);
@@ -253,7 +253,7 @@ public class BoardTest
         board.play(0); // black
         assertEquals("failure - black vertical winner, bottom left", Piece.BLACK, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         board.play(6); // black
         board.play(0);
         board.play(6); // black
@@ -264,7 +264,7 @@ public class BoardTest
         assertEquals("failure - black vertical winner, bottom right", Piece.BLACK,
                 board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         // fill left side of board without a winner
         for (int i = 0; i < 2; i++) {
             board.play(1);
@@ -279,7 +279,7 @@ public class BoardTest
         board.play(0); // black
         assertEquals("failure - black vertical winner, top left", Piece.BLACK, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         // fill right side of board without a winner
         for (int i = 0; i < 2; i++) {
             board.play(5);
@@ -312,7 +312,7 @@ public class BoardTest
         board.play(3); // black
         assertEquals("failure - black diagonal winner, bottom left", Piece.BLACK, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         board.play(6); // black
         board.play(5);
         board.play(5); // black
@@ -327,7 +327,7 @@ public class BoardTest
         assertEquals("failure - black diagonal winner, bottom right", Piece.BLACK,
                 board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         for (int i = 0; i < 5; i++) {
             board.play(0);
         }
@@ -348,7 +348,7 @@ public class BoardTest
         assertEquals("failure - black diagonal winner, top left", Piece.BLACK, board.getWinner());
 
 
-        board = new Board();
+        board = new ArrayBoard();
         for (int i = 0; i < 5; i++) {
             board.play(6);
         }
@@ -382,7 +382,7 @@ public class BoardTest
         board.play(3); // red
         assertEquals("failure - red horizontal winner, bottom left", Piece.RED, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         board.play(0);
         board.play(3); // red
         board.play(1);
@@ -395,7 +395,7 @@ public class BoardTest
         assertEquals("failure - red horizontal winner, bottom right", Piece.RED,
                 board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         // fill left side of board without a winner
         for (int i = 0; i < 3; i++) {
             board.play(0);
@@ -420,7 +420,7 @@ public class BoardTest
         board.play(3); // red
         assertEquals("failure - red horizontal winner, top left", Piece.RED, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         // fill right side of board without a winner
         for (int i = 0; i < 3; i++) {
             board.play(3);
@@ -459,7 +459,7 @@ public class BoardTest
         board.play(0); // red
         assertEquals("failure - red vertical winner, bottom left", Piece.RED, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         board.play(0);
         board.play(6); // red
         board.play(0);
@@ -470,7 +470,7 @@ public class BoardTest
         board.play(6); // red
         assertEquals("failure - red vertical winner, bottom right", Piece.RED, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         // fill left side of board without a winner
         for (int i = 0; i < 2; i++) {
             board.play(0);
@@ -486,7 +486,7 @@ public class BoardTest
         board.play(0); // red
         assertEquals("failure - red vertical winner, top left", Piece.RED, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         // fill right side of board without a winner
         for (int i = 0; i < 2; i++) {
             board.play(6);
@@ -518,7 +518,7 @@ public class BoardTest
         board.play(3); // red
         assertEquals("failure - red diagonal winner, bottom left", Piece.RED, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         board.play(5);
         board.play(6); // red
         board.play(4);
@@ -531,7 +531,7 @@ public class BoardTest
         board.play(3); // red
         assertEquals("failure - red diagonal winner, bottom right", Piece.RED, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         for (int i = 0; i < 5; i++) {
             board.play(0);
         }
@@ -549,7 +549,7 @@ public class BoardTest
         board.play(3); // red
         assertEquals("failure - red diagonal winner, top right", Piece.RED, board.getWinner());
 
-        board = new Board();
+        board = new ArrayBoard();
         for (int i = 0; i < 5; i++) {
             board.play(6);
         }
@@ -593,7 +593,7 @@ public class BoardTest
     public void testUndoSinglePlay() {
         for (int col = 0; col < board.getWidth(); col++) {
             board.play(col);
-            assertTrue(board.undoPlay());
+            board.undoPlay();
 
             assertEquals("failure - undo single play " + col, Piece.NONE, board.getPieceAt(col, 0));
             // should be first player's turn now
@@ -608,13 +608,13 @@ public class BoardTest
             board.play(col);
             board.play(col);
 
-            assertTrue(board.undoPlay());
+            board.undoPlay();
             // should be second player's turn now
             assertEquals("failure - undo second play " + col, Piece.NONE, board.getPieceAt(col, 1));
             assertEquals("failure - next piece after undo single play",
                     Piece.RED, board.getNextPiece());
 
-            assertTrue(board.undoPlay());
+            board.undoPlay();
             // should be first player's turn now
 
             assertEquals("failure - undo first play " + col, Piece.NONE, board.getPieceAt(col, 0));
@@ -632,7 +632,7 @@ public class BoardTest
             }
 
             for (int row = board.getHeight() - 1; row >= 0; row--) {
-                assertTrue(board.undoPlay());
+                board.undoPlay();
                 assertEquals(String.format("failure - undo col: %d, row: %d%n", col, row),
                         Piece.NONE, board.getPieceAt(col, row));
             }

@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import ttaomae.connectn.Board;
+import ttaomae.connectn.ArrayBoard;
 import ttaomae.connectn.RandomPlayer;
 
 public class ClientTest
@@ -24,21 +24,21 @@ public class ClientTest
         }
 
         try {
-            new Client("localhost", 1234, null, new Board());
+            new Client("localhost", 1234, null, new ArrayBoard());
             fail("constructor with null player");
         } catch (NullPointerException e) {
             assertEquals("failure - null player", "player must not be null", e.getMessage());
         }
 
         try {
-            new Client("localhost", -1, new RandomPlayer(), new Board());
+            new Client("localhost", -1, new RandomPlayer(), new ArrayBoard());
             fail("constructor with negative port");
         } catch (IllegalArgumentException e) {
             assertTrue("failure - negative port", e.getMessage().contains("port"));
         }
 
         try {
-            new Client("localhost", 1000000, new RandomPlayer(), new Board());
+            new Client("localhost", 1000000, new RandomPlayer(), new ArrayBoard());
             fail("constructor with port out of range");
         } catch (IllegalArgumentException e) {
             assertTrue("failure - port out of range", e.getMessage().contains("port"));

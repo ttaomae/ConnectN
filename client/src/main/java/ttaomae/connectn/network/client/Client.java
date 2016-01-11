@@ -148,7 +148,7 @@ public class Client implements Runnable
                 // get a move and play it
                 int move;
                 do {
-                    move = player.getMove(this.board.copy()).orElse(Board.INVALID_MOVE);
+                    move = player.getMove(this.board.getImmutableView()).orElse(Board.INVALID_MOVE);
                 } while (!this.board.isValidMove(move));
                 this.board.play(move);
 

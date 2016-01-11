@@ -10,7 +10,7 @@ public class GameManagerTest
     @Test
     public void testGameManagerConstructors()
     {
-        Board board = new Board();
+        Board board = new ArrayBoard();
         Player playerOne = new RandomPlayer();
         Player playerTwo = new RandomPlayer();
 
@@ -96,7 +96,7 @@ public class GameManagerTest
     @Test
     public void testGameManagerWithSequentialPlayers()
     {
-        Board board = new Board();
+        Board board = new ArrayBoard();
 
         GameManager gm = new GameManager(board, new SequentialPlayer(), new SequentialPlayer());
         gm.run();
@@ -106,7 +106,7 @@ public class GameManagerTest
     @Test
     public void testGameManagerWithRandomPlayers()
     {
-        Board board = new Board();
+        Board board = new ArrayBoard();
 
         GameManager gm = new GameManager(board, new RandomPlayer(), new RandomPlayer());
         gm.run();
