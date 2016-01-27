@@ -2,267 +2,231 @@ package ttaomae.connectn.network.server;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.IOException;
-import java.net.Socket;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ttaomae.connectn.GameManager;
+import ttaomae.connectn.ArrayBoard;
+import ttaomae.connectn.Board;
 import ttaomae.connectn.IllegalMoveException;
-import ttaomae.connectn.network.ConnectNProtocol;
+import ttaomae.connectn.Piece;
+import ttaomae.connectn.network.LostConnectionException;
+import ttaomae.connectn.network.ProtocolEvent.Message;
+import ttaomae.connectn.network.ProtocolException;
 
 /**
- * Manages a series of games between two clients.
+ * Manages a game between two {@linkplain ClientHandler clients}.
  *
  * @author Todd Taomae
  */
-public class NetworkGameManager implements Runnable
+public class NetworkGameManager implements Callable<Void>
 {
-    private static final Logger logger = LoggerFactory.getLogger(NetworkGameManager.class);
+    private final ClientManager clientManager;
+    private final ClientHandler playerOneHandler;
+    private final ClientHandler playerTwoHandler;
 
-    private Server server;
-    private Socket playerOneSocket;
-    private Socket playerTwoSocket;
-    private NetworkPlayer playerOne;
-    private NetworkPlayer playerTwo;
-
-    /**
-     * Constructs a new NetworkGameManager which is part of the specified Server
-     * and manages games between two clients specified by the sockets they are
-     * connected to.
-     *
-     * @param server the server that this NetworkGameManager is part of
-     * @param playerOneSocket the socket that the first player is connected to
-     * @param playerTwoSocket the socket that the second player is connected to
-     * @throws IOException if an I/O error occurs
-     * @throws IllegalArgumentException if the server or either socket is null.
-     */
-    public NetworkGameManager(Server server, Socket playerOneSocket, Socket playerTwoSocket)
-            throws IOException
+    public NetworkGameManager(ClientManager clientManager,
+            ClientHandler playerOneHandler, ClientHandler playerTwoHandler)
     {
-        checkNotNull(server, "server must not be null");
-        checkNotNull(playerOneSocket, "playerOneSocket must not be null");
-        checkNotNull(playerTwoSocket, "playerTwoSocket must not be null");
+        checkNotNull(clientManager, "clientManager must not be null");
+        checkNotNull(playerOneHandler, "playerOneHandler must not be null");
+        checkNotNull(playerTwoHandler, "playerTwoHandler must not be null");
 
-        this.server = server;
-        this.playerOneSocket = playerOneSocket;
-        this.playerTwoSocket = playerTwoSocket;
-        this.playerOne = new NetworkPlayer(this, playerOneSocket);
-        this.playerTwo = new NetworkPlayer(this, playerTwoSocket);
+        this.clientManager = clientManager;
+        this.playerOneHandler = playerOneHandler;
+        this.playerTwoHandler = playerTwoHandler;
     }
 
-    /**
-     * Notify the opponent that the specified player has played the specified
-     * move. If the player parameter is neither of this NetworkGameManagers
-     * players then nothing happens.
-     *
-     * @param player the player that played a move
-     * @param move the move that was played
-     */
-    public void notifyOpponent(NetworkPlayer player, int move)
+    ClientHandler getPlayerOne()
     {
-        if (player == this.playerOne) {
-            this.playerTwo.sendMessage(ConnectNProtocol.constructMove(move));
-        }
-        else if (player == this.playerTwo) {
-            this.playerOne.sendMessage(ConnectNProtocol.constructMove(move));
-        }
+        return this.playerOneHandler;
     }
 
-    /**
-     * Repeatedly starts games between the players as long as they both agree to
-     * a rematch.
-     */
+    ClientHandler getPlayerTwo()
+    {
+        return this.playerTwoHandler;
+    }
+
     @Override
-    public void run()
+    public Void call() throws ClientDisconnectedException, NetworkGameException
     {
-        boolean playAgain = true;
+        final class RematchResponse {
+            private final ClientHandler player;
+            private final Optional<Boolean> acceptRematch;
+
+            public RematchResponse(ClientHandler player, Optional<Boolean> acceptRematch) {
+                assert player != null : "player must not be null";
+                assert acceptRematch != null : "acceptRematch must not be null";
+
+                this.player = player;
+                this.acceptRematch = acceptRematch;
+            }
+        }
+
+        // this will be used to asynchronously get responses from both players
+        ExecutorService threadPool = Executors.newFixedThreadPool(2);
+        CompletionService<RematchResponse> completionService
+                = new ExecutorCompletionService<>(threadPool);
+
         boolean playerOneFirst = true;
+        boolean rematch = true;
 
-        while (playAgain) {
-            if (runGame(playerOneFirst)) {
-                playAgain = checkRematch();
-            }
-            else {
-                playAgain = checkConnections();
-            }
+        while (rematch) {
+            startMatch();
 
-            // switch player order
+            Board board = new ArrayBoard();
+            playGame(board, playerOneFirst);
+
+            completionService.submit(() ->
+                    new RematchResponse(playerOneHandler, requestRematch(playerOneHandler)));
+            completionService.submit(() ->
+                    new RematchResponse(playerTwoHandler, requestRematch(playerTwoHandler)));
+
+            RematchResponse firstReponse;
+            try {
+                firstReponse = completionService.take().get();
+                handleRematchResponse(firstReponse.player, firstReponse.acceptRematch);
+                RematchResponse secondResponse = completionService.take().get();
+                handleRematchResponse(secondResponse.player, secondResponse.acceptRematch);
+
+            }
+            catch (InterruptedException | ExecutionException e) {
+                throw new NetworkGameException("Error occured while waiting for rematch resposne.",
+                        e, this);
+            }
+            // switch player order for next game
             playerOneFirst = !playerOneFirst;
+
         }
 
-        this.server.addToPlayerPool(this.playerOneSocket);
-        this.server.addToPlayerPool(this.playerTwoSocket);
+        threadPool.shutdownNow();
+        return null;
     }
 
-    /**
-     * Runs a game between the two players managed by this NetworkGameManager.
-     * Determines which player goes first based on the specified boolean.
-     * Returns true if the game ended successfully, false otherwise.
-     *
-     * @param playerOneFirst true if player 1 will go first, false otherwise
-     * @return true if the game ended successfully, false otherwise
-     */
-    private boolean runGame(boolean playerOneFirst)
+    private void startMatch() throws ClientDisconnectedException
     {
-        // create game manager
-        // the client should check for invalid moves, so only allow one bad attempt
-        GameManager gm;
-        if (playerOneFirst) {
-            gm = new GameManager(this.playerOne, this.playerTwo, 1);
-        } else {
-            gm = new GameManager(this.playerTwo, this.playerOne, 1);
+        try {
+            playerOneHandler.startMatch();
+        }
+        catch (LostConnectionException e) {
+            throw new ClientDisconnectedException("Connection lost while starting match.",
+                    e, playerOneHandler);
         }
 
-        logger.info("Starting game.");
-        this.playerOne.sendMessage(ConnectNProtocol.START);
-        this.playerTwo.sendMessage(ConnectNProtocol.START);
-
-        // run the game manager
-        // if there is an error, it probably means that the client disconnected
+        // if we reached here "startMatch" was successfully sent to player one
         try {
-            gm.run();
-            return true;
-        } catch (IllegalMoveException e) {
-            logger.error(e.getMessage());
-            return false;
+            playerTwoHandler.startMatch();
+        }
+        catch (LostConnectionException e) {
+            throw new ClientDisconnectedException("Connection lost while starting match.",
+                    e, playerTwoHandler);
         }
     }
 
-    /**
-     * Asks both players if they want a rematch.
-     *
-     * @return true if both players agree to a rematch
-     */
-    private boolean checkRematch()
+    private void playGame(Board board, boolean playerOneFirst) throws ClientDisconnectedException
     {
-        this.playerOne.sendMessage(ConnectNProtocol.REMATCH);
-        this.playerTwo.sendMessage(ConnectNProtocol.REMATCH);
+        assert board.getCurrentTurn() == 0 : "board must be empty";
 
-        boolean p1Connected = true;
-        // get a reply from player one
-        // if anything went wrong, assume they disconnected
-        String p1Reply = null;
-        try {
-            p1Reply = this.playerOne.receiveMessage();
-            if (p1Reply == null) {
-                p1Connected = false;
+        while (board.getWinner() == Piece.NONE) {
+            // determine which is the current / next player
+            ClientHandler currentPlayer = (playerOneFirst && board.getNextPiece() == Piece.BLACK)
+                    ? playerOneHandler : playerTwoHandler;
+            ClientHandler nextPlayer = getOpponent(currentPlayer);
+
+            Optional<Integer> optionalMove;
+            try {
+                optionalMove = getMove(currentPlayer);
+            } catch (LostConnectionException e) {
+                throw new ClientDisconnectedException("Connection lost while getting move.",
+                        e, currentPlayer);
             }
-        } catch (IOException e) {
-            p1Connected = false;
-        }
 
-        boolean p2Connected = true;
-        // get a reply from player two
-        // if anything went wrong, assume they disconnected
-        String p2Reply = null;
-        try {
-            p2Reply = this.playerTwo.receiveMessage();
-            if (p2Reply == null) {
-                p2Connected = false;
+            if (!optionalMove.isPresent()) {
+                throw new ProtocolException("Recieved empty move");
             }
-        } catch (IOException e) {
-            p2Connected = false;
-        }
 
-        if (!p1Connected) {
-            this.closeSocket(PlayerNum.ONE);
-        }
-        if (!p2Connected) {
-            this.closeSocket(PlayerNum.TWO);
-        }
+            int move = optionalMove.get();
+            if (board.isValidMove(move)) {
+                throw new IllegalMoveException("Client sent illegal move: " + move);
+            }
 
-        // let players know each other's responses
-        this.playerOne.sendMessage(p2Reply);
-        this.playerTwo.sendMessage(p1Reply);
-
-        // only play again if both reply 'yes'
-        if (p1Reply != null && p1Reply.equals(ConnectNProtocol.YES)
-            && p2Reply != null && p2Reply.equals(ConnectNProtocol.YES)) {
-            return true;
+            board.play(move);
+            try {
+                nextPlayer.sendOpponentMove(move);
+            } catch (LostConnectionException e) {
+                throw new ClientDisconnectedException(
+                        "Connection lost while sending opponent move.",
+                        e, nextPlayer);
+            }
         }
-        return false;
     }
 
-    /**
-     * Checks if both players are still connected by sending a PING message and
-     * waiting for a response.
-     *
-     * @return true if both players respond.
-     */
-    private boolean checkConnections()
+    private ClientHandler getOpponent(ClientHandler player)
     {
-        boolean result = true;
+        assert player == this.playerOneHandler || player == this.playerTwoHandler
+                : "player must be either playerOneHandler or playerTwoHandler";
 
-        // ping the players to make sure they are still connected
-        this.playerOne.sendMessage(ConnectNProtocol.PING);
-        this.playerTwo.sendMessage(ConnectNProtocol.PING);
-
-        boolean p1Connected = true;
-        try {
-            String p1Reply = this.playerOne.receiveMessage();
-            if (p1Reply == null) {
-                p1Connected = false;
-            }
-
-        } catch (IOException e) {
-            p1Connected = false;
+        if (player == this.playerOneHandler) {
+            return this.playerTwoHandler;
+        }
+        else {
+            return this.playerTwoHandler;
         }
 
-        boolean p2Connected = true;
-        try {
-            String p2Reply = this.playerTwo.receiveMessage();
-            if (p2Reply == null) {
-                p2Connected = false;
-            }
+    }
+    private Optional<Integer> getMove(ClientHandler player) throws LostConnectionException
+    {
+        Optional<Integer> move = player.getMove(null);
 
-        } catch (IOException e) {
-            p2Connected = false;
+        if (move == null) {
+            throw new LostConnectionException();
         }
 
-        if (!p1Connected) {
-            this.closeSocket(PlayerNum.ONE);
-            result = false;
-        }
-        if (!p2Connected) {
-            this.closeSocket(PlayerNum.TWO);
-            result = false;
-        }
-
-        return result;
+        return move;
     }
 
-    private enum PlayerNum
-    {
-        ONE, TWO;
-    }
-
-    /**
-     * Closes the socket of the specified player and sends a DISCONNECTED
-     * message to the opponent.
-     *
-     * @param player the player whose socket is being closed.
-     */
-    private void closeSocket(PlayerNum player)
+    private Optional<Boolean> requestRematch(ClientHandler player)
     {
         try {
-            switch (player) {
-                case ONE:
-                    this.playerOneSocket.close();
-                    this.playerTwo.sendMessage(ConnectNProtocol.DICONNECTED);
-                    logger.info("Player has disconnected.");
-                    break;
-                case TWO:
-                    this.playerTwoSocket.close();
-                    this.playerOne.sendMessage(ConnectNProtocol.DICONNECTED);
-                    logger.info("Player has disconnected.");
-                    break;
-                default:
-                    break;
+            boolean acceptRematch = this.playerOneHandler.requestRematch();
+            if (!acceptRematch) {
+                // add back to player pool;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            return Optional.of(acceptRematch);
+        } catch (LostConnectionException e) {
+            // remove from player pool?
+            return Optional.empty();
+        }
+    }
+
+    private void handleRematchResponse(ClientHandler player, Optional<Boolean> acceptRematch)
+            throws ClientDisconnectedException
+    {
+        try {
+            // player disconnected
+            if (!acceptRematch.isPresent()) {
+                // close socket? or pass to higher level
+                this.clientManager.playerDisconnected(player);
+                getOpponent(player).sendMessage(Message.OPPONENT_DISCONNECTED);
+            }
+            // accepted rematch
+            else if (acceptRematch.get()) {
+                    getOpponent(player).sendMessage(Message.ACCEPT_REMATCH);
+            }
+            // denied rematch
+            else {
+                this.clientManager.playerMatchEnded(player);
+                getOpponent(player).sendMessage(Message.DENY_REMATCH);
+            }
+        }
+        catch (LostConnectionException e) {
+            throw new ClientDisconnectedException(
+                    "Connection lost while sending rematch response to opponent.",
+                    e, getOpponent(player));
         }
     }
 }

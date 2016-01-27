@@ -2,27 +2,24 @@ package ttaomae.connectn.network.server;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.Socket;
-import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ttaomae.connectn.network.ConnectNProtocol;
+import ttaomae.connectn.network.LostConnectionException;
+import ttaomae.connectn.network.ProtocolEvent.Message;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
- * Keeps track of the clients which are connected to a Connect-N server, but not
- * currently in a game.
+ * Keeps track of the clients which are connected to a Connect-N server.
  *
  * @author Todd Taomae
  */
@@ -30,172 +27,146 @@ public class ClientManager implements Runnable
 {
     private static final Logger logger = LoggerFactory.getLogger(ClientManager.class);
 
-    private final Server server;
-    private final Set<Socket> playerPool;
-    private final Map<Socket, Socket> lastMatches;
+    private final ExecutorService gameManagerPool;
+    private final Set<ClientHandler> connectedPlayers;
+    private final Set<ClientHandler> eligiblePlayers;
+    private final Map<ClientHandler, ClientHandler> lastMatches;
 
     /**
      * Constructs a new ClientManager for the specified server.
-     *
-     * @param server the server whose clients are being managed
-     * @throws IllegalArgumentException if the server is null
      */
-    public ClientManager(Server server)
+    ClientManager()
     {
-        checkNotNull(server, "server must not be null");
-
-        this.server = server;
-        this.playerPool = new HashSet<>();
+        this.connectedPlayers = ConcurrentHashMap.newKeySet();
+        this.eligiblePlayers = ConcurrentHashMap.newKeySet();
         this.lastMatches = new HashMap<>();
+
+        this.gameManagerPool = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
+                .setNameFormat("network-game-manager-%d")
+                .setUncaughtExceptionHandler((thread, cause) -> {
+                    if (cause instanceof ClientDisconnectedException) {
+                        ClientDisconnectedException cde = (ClientDisconnectedException) cause;
+                        playerDisconnected(cde.getClientHandler());
+                    }
+                    else if (cause instanceof NetworkGameException) {
+                        NetworkGameException nge = (NetworkGameException) cause;
+                        playerMatchEnded(nge.getNetworkGameManager().getPlayerOne());
+                        playerMatchEnded(nge.getNetworkGameManager().getPlayerTwo());
+                    }
+                    else {
+                        logger.error("Error while running game manager on thread " + thread, cause);
+                    }
+                })
+                .build());
     }
 
     /**
      * Adds a player which is connected on the specified socket to this
      * ClientManager.
      *
-     * @param player the player being added
+     * @param playerSocket the player being added
      * @throws IllegalArgumentException if the player is null
+     * @throws IllegalStateException if the specified socket is closed
      */
-    public void addPlayer(Socket player)
+    void playerConnected(ClientHandler player)
     {
         checkNotNull(player, "player must not be null");
 
-        if (!player.isClosed()) {
-            this.playerPool.add(player);
-            logger.info("Adding player to pool...");
-        }
-
-        findMatchup();
+        this.connectedPlayers.add(player);
+        addEligiblePlayer(player);
     }
 
-    /**
-     * Finds a matchup between two players who have not just played each other.
-     * If two players last matches wwere both against each other then they must
-     * have played each other and at least one of them denied a rematch, so they
-     * were added back to the pool. Since at least one denied a rematch we don't
-     * want to match them up again.
-     */
-    private void findMatchup()
+    void playerDisconnected(ClientHandler player)
     {
-        if (this.playerPool.size() >= 2) {
-            Socket[] players = new Socket[this.playerPool.size()];
-            this.playerPool.toArray(players);
+        checkNotNull(player, "player must not be null");
 
-            for (int i = 0; i < players.length; i++) {
-                Socket playerOne = players[i];
-                for (int j = i + 1; j < players.length; j++) {
-                    Socket playerTwo = players[j];
-
-                    Socket playerOneLastMatch = lastMatches.get(playerOne);
-                    Socket playerTwoLastMatch = lastMatches.get(playerTwo);
-
-                    // if each player is either new (last match is null) or they
-                    // have not just player the other player
-                    if ((playerOneLastMatch == null || !playerOneLastMatch.equals(playerTwo))
-                        && (playerTwoLastMatch == null || !playerTwoLastMatch.equals(playerOne))) {
-                        try {
-                            startGame(playerOne, playerTwo);
-                        } catch (IOException e) {
-                            System.err.println("Error starting match.");
-                        }
-
-                        // exit the method so that we don't try to start another
-                        // match
-                        return;
-                    }
-                }
-            }
+        if (this.connectedPlayers.contains(player)) {
+            logger.info("Player disconnected: {}", player);
+            this.connectedPlayers.remove(player);
+            this.eligiblePlayers.remove(player);
+        }
+        else {
+            logger.warn("Attempted to remove player who was not connected: {}", player);
         }
     }
 
-    /**
-     * Starts a game between two players, on a new thread.
-     *
-     * @throws IOException if there is an error starting the game
-     */
-    private void startGame(Socket playerOne, Socket playerTwo) throws IOException
+    void playerMatchEnded(ClientHandler player)
     {
-        assert playerOne != null : "playerOne must not be null";
-        assert playerTwo != null : "playerTwo must not be null";
+        checkNotNull(player, "player must not be null");
 
-        synchronized(this)   {
-            this.playerPool.remove(playerOne);
-            this.playerPool.remove(playerTwo);
+        try {
+            player.sendMessage(Message.PING);
+            logger.info("Adding {} back to eligible player pool.", player);
+            addEligiblePlayer(player);
         }
-        this.lastMatches.put(playerOne, playerTwo);
-        this.lastMatches.put(playerTwo, playerOne);
-
-        new Thread(new NetworkGameManager(this.server, playerOne, playerTwo)).start();
+        catch (LostConnectionException e) {
+            playerDisconnected(player);
+        }
     }
 
-    /**
-     * Pings clients at regular intervals to check if they are still connected.
-     */
     @Override
     public void run()
     {
         while (true) {
-            synchronized (this) {
-                pingClients();
-            }
             try {
-                Thread.sleep(ConnectNProtocol.PING_INTERVAL);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                this.eligiblePlayers.wait();
+            }
+            catch (InterruptedException e) {
+                break;
+            }
+
+            Optional<NetworkGameManager> optionalGameManager = findMatchup();
+            if (optionalGameManager.isPresent()) {
+                NetworkGameManager gameManager = optionalGameManager.get();
+
+                logger.info("Starting match between {} and {}.",
+                        gameManager.getPlayerOne(), gameManager.getPlayerTwo());;
+
+                this.eligiblePlayers.remove(gameManager.getPlayerOne());
+                this.eligiblePlayers.remove(gameManager.getPlayerTwo());
+
+                this.lastMatches.put(gameManager.getPlayerOne(), gameManager.getPlayerTwo());
+                this.lastMatches.put(gameManager.getPlayerTwo(), gameManager.getPlayerOne());
+
+                this.gameManagerPool.submit(gameManager);
             }
         }
     }
-
     /**
-     * Sends a PING message to each client then wait s for a reply.
+     * Finds a matchup between two players who have not just played each other.
+     * If two players last matches were both against each other then they must
+     * have played each other and at least one of them denied a rematch, so they
+     * were added back to the pool. Since at least one denied a rematch we don't
+     * want to match them up again.
      */
-    private void pingClients()
+    private Optional<NetworkGameManager> findMatchup()
     {
-        // send ping
-        for (Socket s : this.playerPool) {
-            try {
-                Writer writer = new OutputStreamWriter(
-                        s.getOutputStream(), Charset.forName("UTF-8"));
-                PrintWriter pw = new PrintWriter(writer, true);
-                pw.println(ConnectNProtocol.PING);
-                if (pw.checkError()) {
-                    this.closeSocket(s);
-                }
-            } catch (IOException e) {
-                this.closeSocket(s);
+        if (this.eligiblePlayers.size() < 2) {
+            return Optional.empty();
+        }
+
+        for (ClientHandler playerOne : this.eligiblePlayers) {
+            Optional<ClientHandler> optionalPlayerTwo = this.eligiblePlayers.stream()
+                    // exclude playerOne
+                    .filter(player -> !playerOne.equals(player))
+                    // exclude playerOne's last opponent
+                    .filter(player -> !this.lastMatches.get(playerOne).equals(player))
+                    // exclude player's whose last opponent was playerOne
+                    .filter(player -> !this.lastMatches.get(player).equals(playerOne))
+                    .findAny();
+
+            if (optionalPlayerTwo.isPresent()) {
+                ClientHandler playerTwo = optionalPlayerTwo.get();
+                return Optional.of(new NetworkGameManager(this, playerOne, playerTwo));
             }
         }
 
-        // receive ping
-        for (Socket s : this.playerPool) {
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        s.getInputStream(), Charset.forName("UTF-8")));
-                String reply = br.readLine();
-                if (reply == null) {
-                    this.closeSocket(s);
-                }
-            } catch (IOException e) {
-                this.closeSocket(s);
-            }
-        }
+        return Optional.empty();
     }
 
-    /**
-     * Closes the specified socket.
-     *
-     * @param socket the socket to be closed
-     */
-    private void closeSocket(Socket socket)
+    private void addEligiblePlayer(ClientHandler player)
     {
-        assert socket != null : "socket must not be null";
-        try {
-            logger.info("Player has disconnected.");
-            this.playerPool.remove(socket);
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.eligiblePlayers.add(player);
+        this.eligiblePlayers.notifyAll();
     }
 }

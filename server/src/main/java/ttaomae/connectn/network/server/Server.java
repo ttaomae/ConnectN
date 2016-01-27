@@ -2,6 +2,7 @@ package ttaomae.connectn.network.server;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -35,7 +36,7 @@ public class Server implements Runnable
         checkArgument(port >= 0 && port <= 65535, "port out of range: " + port);
 
         this.port = port;
-        this.clientManager = new ClientManager(this);
+        this.clientManager = new ClientManager();
     }
 
     /**
@@ -44,20 +45,24 @@ public class Server implements Runnable
     @Override
     public void run()
     {
-        new Thread(this.clientManager, "Client Manager").start();
+        Thread clientManagerThread = new Thread(this.clientManager, "Client Manager");
+        clientManagerThread.start();
 
         try (ServerSocket serverSocket = new ServerSocket(this.port);) {
-
             logger.info("Waiting for connections...");
             while (true) {
                 Socket socket = serverSocket.accept();
                 logger.info("Player connected!");
                 this.addToPlayerPool(socket);
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             logger.error("Exception caught when trying to listen on port "
                              + port + " or listening for a connection");
             logger.error(e.getMessage());
+        }
+        finally {
+            clientManagerThread.interrupt();
         }
     }
 
@@ -65,11 +70,22 @@ public class Server implements Runnable
      * Adds a player which is connected on the specified socket to the pool of
      * players.
      *
-     * @param player the player being added
+     * @param playerSocket the player being added
      */
-    public void addToPlayerPool(Socket player)
+    private void addToPlayerPool(Socket playerSocket)
     {
-        checkNotNull(player, "player must not be null");
-        this.clientManager.addPlayer(player);
+        checkNotNull(playerSocket, "playerSocket must not be null");
+        checkState(!playerSocket.isClosed(), "playerSocket must not be closed");
+
+        try {
+            ClientHandler player = new ClientHandler(playerSocket);
+            this.clientManager.playerConnected(player);
+            logger.info("Player connected on socket [{}] added to player pool.", playerSocket);
+        } catch (IOException e) {
+            String message = String.format(
+                    "Could not add player connected on socket [%s] to player pool.",
+                    playerSocket);
+            logger.error(message, e);
+        }
     }
 }

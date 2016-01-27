@@ -2,40 +2,43 @@ package ttaomae.connectn.network.server;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.net.Socket;
 
 import org.junit.Test;
 
 public class NetworkGameManagerTest
 {
-
     @Test
-    public void test() throws IOException
+    public void testConstructor_illegalArguments() throws IOException
     {
+        ClientManager mockClientManager = mock(ClientManager.class);
+        ClientHandler mockClientHandlerOne = mock(ClientHandler.class);
+        ClientHandler mockClientHandlerTwo = mock(ClientHandler.class);
+
         try {
-            new NetworkGameManager(null, new Socket(), new Socket());
-            fail("constructor with null server");
+            new NetworkGameManager(null, mockClientHandlerOne, mockClientHandlerTwo);
+            fail("constructor with null client manager");
         } catch (NullPointerException e) {
-            assertEquals("failure - null server", "server must not be null", e.getMessage());
+            assertEquals("failure - null client manager",
+                    "clientManager must not be null", e.getMessage());
         }
 
         try {
-            new NetworkGameManager(new Server(1234), null, new Socket());
-            fail("constructor with null socket");
+            new NetworkGameManager(mockClientManager, null, mockClientHandlerTwo);
+            fail("constructor with null client handler 1");
         } catch (NullPointerException e) {
-            assertEquals("failure - null socket 1",
-                    "playerOneSocket must not be null", e.getMessage());
+            assertEquals("failure - null client handler 1",
+                    "playerOneHandler must not be null", e.getMessage());
         }
 
         try {
-            new NetworkGameManager(new Server(1234), new Socket(), null);
-            fail("constructor with null socket");
+            new NetworkGameManager(mockClientManager, mockClientHandlerOne, null);
+            fail("constructor with null client handler 2");
         } catch (NullPointerException e) {
-            assertEquals("failure - null socket 2",
-                    "playerTwoSocket must not be null", e.getMessage());
+            assertEquals("failure - null client handler 2",
+                    "playerTwoHandler must not be null", e.getMessage());
         }
-
     }
 }
