@@ -10,6 +10,9 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ttaomae.connectn.ArrayBoard;
 import ttaomae.connectn.Board;
 import ttaomae.connectn.IllegalMoveException;
@@ -25,6 +28,8 @@ import ttaomae.connectn.network.ProtocolException;
  */
 public class NetworkGameManager implements Callable<Void>
 {
+    private final Logger logger = LoggerFactory.getLogger(NetworkGameManager.class);
+
     private final ClientManager clientManager;
     private final ClientHandler playerOneHandler;
     private final ClientHandler playerTwoHandler;
@@ -109,6 +114,7 @@ public class NetworkGameManager implements Callable<Void>
 
     private void startMatch() throws ClientDisconnectedException
     {
+        logger.info("Starting match between {} and {}", playerOneHandler, playerTwoHandler);
         try {
             playerOneHandler.startMatch();
         }
@@ -133,7 +139,7 @@ public class NetworkGameManager implements Callable<Void>
 
         while (board.getWinner() == Piece.NONE) {
             // determine which is the current / next player
-            ClientHandler currentPlayer = (playerOneFirst && board.getNextPiece() == Piece.BLACK)
+            ClientHandler currentPlayer = playerOneFirst && board.getNextPiece() == Piece.BLACK
                     ? playerOneHandler : playerTwoHandler;
             ClientHandler nextPlayer = getOpponent(currentPlayer);
 
@@ -150,7 +156,7 @@ public class NetworkGameManager implements Callable<Void>
             }
 
             int move = optionalMove.get();
-            if (board.isValidMove(move)) {
+            if (!board.isValidMove(move)) {
                 throw new IllegalMoveException("Client sent illegal move: " + move);
             }
 
@@ -174,7 +180,7 @@ public class NetworkGameManager implements Callable<Void>
             return this.playerTwoHandler;
         }
         else {
-            return this.playerTwoHandler;
+            return this.playerOneHandler;
         }
 
     }
@@ -194,7 +200,8 @@ public class NetworkGameManager implements Callable<Void>
         try {
             boolean acceptRematch = this.playerOneHandler.requestRematch();
             if (!acceptRematch) {
-                // add back to player pool;
+                // TODO: add player back to player pool
+                player.hashCode(); // temporary fix to stop PMD from complaining
             }
             return Optional.of(acceptRematch);
         } catch (LostConnectionException e) {

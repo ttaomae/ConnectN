@@ -14,27 +14,21 @@ import ttaomae.connectn.network.ProtocolEvent;
 import ttaomae.connectn.network.ProtocolEvent.Message;
 import ttaomae.connectn.network.ProtocolException;
 import ttaomae.connectn.network.ProtocolHandler;
-
-import com.google.common.base.Preconditions;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class ClientHandler implements Player
 {
     private final ProtocolHandler protocolHandler;
-    private State currentState;
 
     ClientHandler(Socket socket) throws IOException
     {
         checkNotNull(socket, "socket must not be null.");
 
         this.protocolHandler = new ProtocolHandler(socket);
-        this.currentState = State.WAITING_FOR_MATCH;
     }
 
     public void startMatch() throws LostConnectionException
     {
-        checkState(State.WAITING_FOR_MATCH);
         this.protocolHandler.sendMessage(Message.START_GAME);
     }
 
@@ -47,8 +41,6 @@ public class ClientHandler implements Player
     @Override
     public Optional<Integer> getMove(ImmutableBoard board)
     {
-        checkState(State.WAITING_FOR_MOVE);
-
         ProtocolEvent event;
         try {
             this.protocolHandler.sendMessage(Message.REQUEST_MOVE);
@@ -71,7 +63,7 @@ public class ClientHandler implements Player
 
     public void sendOpponentMove(int move) throws LostConnectionException
     {
-        this.protocolHandler.sendPlayerMove(move);
+        this.protocolHandler.sendOpponentMove(move);
     }
 
     public void sendMessage(Message message) throws LostConnectionException
@@ -114,19 +106,5 @@ public class ClientHandler implements Player
     public int hashCode()
     {
         return Objects.hash(this.protocolHandler);
-    }
-
-    private void checkState(State expectedState)
-    {
-        Preconditions.checkState(this.currentState == expectedState,
-                "Must be in %s state.", expectedState);
-    }
-
-    private enum State
-    {
-        DISCONNECTED,
-        WAITING_FOR_MATCH,
-        WAITING_FOR_MOVE,
-        WAITING_FOR_REMATCH;
     }
 }

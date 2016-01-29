@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ public class ClientManager implements Runnable
     private final Set<ClientHandler> eligiblePlayers;
     private final Map<ClientHandler, ClientHandler> lastMatches;
 
+    private volatile boolean possibleMatchups;
+
     /**
      * Constructs a new ClientManager for the specified server.
      */
@@ -41,8 +44,11 @@ public class ClientManager implements Runnable
         this.eligiblePlayers = ConcurrentHashMap.newKeySet();
         this.lastMatches = new HashMap<>();
 
+        this.possibleMatchups = false;
         this.gameManagerPool = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
                 .setNameFormat("network-game-manager-%d")
+                // TODO: A possible alternative is to use a CompleteionService
+                // which would repeatedly take Futures and handle any exceptions
                 .setUncaughtExceptionHandler((thread, cause) -> {
                     if (cause instanceof ClientDisconnectedException) {
                         ClientDisconnectedException cde = (ClientDisconnectedException) cause;
@@ -109,26 +115,44 @@ public class ClientManager implements Runnable
     {
         while (true) {
             try {
-                this.eligiblePlayers.wait();
+                synchronized (this.eligiblePlayers) {
+                    while (!this.possibleMatchups) {
+                        this.eligiblePlayers.wait();
+                    }
+                }
             }
             catch (InterruptedException e) {
+                logger.warn("Client Manager was interrupted.");
                 break;
             }
 
-            Optional<NetworkGameManager> optionalGameManager = findMatchup();
-            if (optionalGameManager.isPresent()) {
-                NetworkGameManager gameManager = optionalGameManager.get();
+            synchronized(this.eligiblePlayers) {
+                Optional<NetworkGameManager> optionalGameManager = findMatchup();
 
-                logger.info("Starting match between {} and {}.",
-                        gameManager.getPlayerOne(), gameManager.getPlayerTwo());;
+                if (optionalGameManager.isPresent()) {
+                    NetworkGameManager gameManager = optionalGameManager.get();
 
-                this.eligiblePlayers.remove(gameManager.getPlayerOne());
-                this.eligiblePlayers.remove(gameManager.getPlayerTwo());
+                    logger.info("Found match: {} and {}.",
+                            gameManager.getPlayerOne(), gameManager.getPlayerTwo());
 
-                this.lastMatches.put(gameManager.getPlayerOne(), gameManager.getPlayerTwo());
-                this.lastMatches.put(gameManager.getPlayerTwo(), gameManager.getPlayerOne());
+                    this.eligiblePlayers.remove(gameManager.getPlayerOne());
+                    this.eligiblePlayers.remove(gameManager.getPlayerTwo());
 
-                this.gameManagerPool.submit(gameManager);
+                    this.lastMatches.put(gameManager.getPlayerOne(), gameManager.getPlayerTwo());
+                    this.lastMatches.put(gameManager.getPlayerTwo(), gameManager.getPlayerOne());
+
+                    @SuppressWarnings("unused")
+                    // if we do not assign to a variable, FindBugs will mark
+                    // this as: RV_RETURN_VALUE_IGNORED_BAD_PRACTICE
+                    // we do not care about the return value and exceptions are
+                    // handled by the gameManagerPool's UncaughtExceptionHandler
+                    Future<Void> unused = this.gameManagerPool.submit(gameManager);
+                }
+                // there was no matchup found so don't look again until a new
+                // player is added
+                else {
+                    this.possibleMatchups = false;
+                }
             }
         }
     }
@@ -145,14 +169,15 @@ public class ClientManager implements Runnable
             return Optional.empty();
         }
 
+        logger.info("searching through players: {}", this.eligiblePlayers);
         for (ClientHandler playerOne : this.eligiblePlayers) {
             Optional<ClientHandler> optionalPlayerTwo = this.eligiblePlayers.stream()
                     // exclude playerOne
                     .filter(player -> !playerOne.equals(player))
                     // exclude playerOne's last opponent
-                    .filter(player -> !this.lastMatches.get(playerOne).equals(player))
+                    .filter(player -> !player.equals(this.lastMatches.get(playerOne)))
                     // exclude player's whose last opponent was playerOne
-                    .filter(player -> !this.lastMatches.get(player).equals(playerOne))
+                    .filter(player -> !playerOne.equals(this.lastMatches.get(player)))
                     .findAny();
 
             if (optionalPlayerTwo.isPresent()) {
@@ -166,7 +191,11 @@ public class ClientManager implements Runnable
 
     private void addEligiblePlayer(ClientHandler player)
     {
-        this.eligiblePlayers.add(player);
-        this.eligiblePlayers.notifyAll();
+        synchronized (this.eligiblePlayers) {
+            this.eligiblePlayers.add(player);
+            // there is a new player so we want to check for new matchups
+            this.possibleMatchups = true;
+            this.eligiblePlayers.notifyAll();
+        }
     }
 }

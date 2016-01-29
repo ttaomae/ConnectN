@@ -46,6 +46,7 @@ public class Server implements Runnable
     public void run()
     {
         Thread clientManagerThread = new Thread(this.clientManager, "Client Manager");
+        clientManagerThread.setDaemon(true);
         clientManagerThread.start();
 
         try (ServerSocket serverSocket = new ServerSocket(this.port);) {
