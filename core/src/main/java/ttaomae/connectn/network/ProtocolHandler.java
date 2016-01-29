@@ -6,9 +6,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import ttaomae.connectn.network.ProtocolEvent.Message;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * A handler for managing the client-server protocol.
@@ -18,11 +22,13 @@ import ttaomae.connectn.network.ProtocolEvent.Message;
 public class ProtocolHandler
 {
     // cache of Message values
-    private static final Message[] MESSAGE_VALUES = Message.values();
+    private static final List<Message> MESSAGE_VALUES = ImmutableList.copyOf(Message.values());
 
     private final Socket socket;
     private final DataOutputStream writer;
     private final DataInputStream reader;
+
+    private final List<ProtocolListener> listeners;
 
     /**
      * Constructs a new protocol handler which communicates using the specified
@@ -39,6 +45,8 @@ public class ProtocolHandler
         this.socket = socket;
         this.writer = new DataOutputStream(socket.getOutputStream());
         this.reader = new DataInputStream(socket.getInputStream());
+
+        this.listeners = new ArrayList<>();
     }
 
     /**
@@ -52,6 +60,9 @@ public class ProtocolHandler
     {
         try {
             this.writer.writeInt(message.ordinal());
+            if (!message.isMoveMessage()) {
+                this.notifyListenersMessageSent(message);
+            }
         } catch (IOException e) {
             throw new LostConnectionException(e);
         }
@@ -69,6 +80,7 @@ public class ProtocolHandler
         sendMessage(Message.PLAYER_MOVE);
         try {
             this.writer.writeInt(move);
+            this.notifyListenersMoveSent(Message.PLAYER_MOVE, move);
         }
         catch (IOException e) {
             throw new LostConnectionException(e);
@@ -88,6 +100,7 @@ public class ProtocolHandler
         sendMessage(Message.OPPONENT_MOVE);
         try {
             this.writer.writeInt(move);
+            this.notifyListenersMoveSent(Message.OPPONENT_MOVE, move);
         }
         catch (IOException e) {
             throw new LostConnectionException(e);
@@ -109,23 +122,53 @@ public class ProtocolHandler
             int messageIndex;
             do {
                 messageIndex = this.reader.readInt();
-            } while (MESSAGE_VALUES[messageIndex] == Message.PING);
+            } while (MESSAGE_VALUES.get(messageIndex) == Message.PING);
 
-            if (messageIndex < 0 || messageIndex > MESSAGE_VALUES.length) {
+            if (messageIndex < 0 || messageIndex > MESSAGE_VALUES.size()) {
                 throw new ProtocolException("Unknown message received: " + messageIndex);
             }
 
-            Message message = MESSAGE_VALUES[messageIndex];
-            if (message.isMoveMessage()) {
-                return ProtocolEvent.createProtocolMoveEvent(message, this.reader.readInt());
-            }
-            else {
-                return ProtocolEvent.createProtocolEvent(message);
-            }
+            Message message = MESSAGE_VALUES.get(messageIndex);
+            ProtocolEvent receivedEvent = message.isMoveMessage()
+                    ? ProtocolEvent.createProtocolMoveEvent(message, this.reader.readInt())
+                    : ProtocolEvent.createProtocolEvent(message);
+            this.notifyListenersEventReceived(receivedEvent);
+            return receivedEvent;
         }
         catch (IOException e) {
             // also handles EOFException
             throw new LostConnectionException(e);
+        }
+    }
+
+    public void addListener(ProtocolListener listener)
+    {
+        checkNotNull(listener, "listener must not be null");
+
+        this.listeners.add(listener);
+    }
+
+    private void notifyListenersEventReceived(ProtocolEvent receivedEvent)
+    {
+        for (ProtocolListener listener : this.listeners) {
+            assert listener != null : "listener should not be null";
+            listener.eventReceived(receivedEvent);
+        }
+    }
+
+    private void notifyListenersMessageSent(Message sentMessage)
+    {
+        for (ProtocolListener listener : this.listeners) {
+            assert listener != null : "listener should not be null";
+            listener.messageSent(sentMessage);
+        }
+    }
+
+    private void notifyListenersMoveSent(Message moveMessage, int move)
+    {
+        for (ProtocolListener listener : this.listeners) {
+            assert listener != null : "listener should not be null";
+            listener.moveSent(moveMessage, move);
         }
     }
 
