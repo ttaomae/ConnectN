@@ -1,6 +1,7 @@
 package ttaomae.connectn.network.client;
 
 import java.io.IOException;
+import java.net.Socket;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,7 +13,10 @@ import ttaomae.connectn.ArrayBoard;
 import ttaomae.connectn.Board;
 import ttaomae.connectn.gui.BoardPanel;
 import ttaomae.connectn.gui.MousePlayer;
-import ttaomae.connectn.network.ConnectNProtocol;
+import ttaomae.connectn.network.LostConnectionException;
+import ttaomae.connectn.network.ProtocolEvent;
+import ttaomae.connectn.network.ProtocolEvent.Message;
+import ttaomae.connectn.network.ProtocolListener;
 
 /**
  * A JavaFX component which provides an interface for the client of a network
@@ -20,7 +24,7 @@ import ttaomae.connectn.network.ConnectNProtocol;
  *
  * @author Todd Taomae
  */
-public class ClientControl extends BorderPane implements ClientListener
+public class ClientControl extends BorderPane implements ProtocolListener
 {
     @FXML private TextField hostField;
     @FXML private TextField portField;
@@ -34,7 +38,7 @@ public class ClientControl extends BorderPane implements ClientListener
     @FXML private Button noButton;
 
     private boolean connected;
-    private Client client;
+    private ServerHandler serverHandler;
 
     /**
      * Constructs a new ClientControl
@@ -91,13 +95,16 @@ public class ClientControl extends BorderPane implements ClientListener
             try {
                 String host = hostField.getText();
                 int port = Integer.parseInt(portField.getText());
-                Board b = new ArrayBoard();
-                this.boardPanel.setBoard(b);
-                MousePlayer mp = new MousePlayer(this.boardPanel);
-                this.client = new Client(host, port, mp, b);
-                this.client.addListener(this);
+                Socket socket = new Socket(host, port);
 
-                Thread myThread = new Thread(client);
+                Board board = new ArrayBoard();
+                this.boardPanel.setBoard(board);
+
+                MousePlayer player = new MousePlayer(this.boardPanel);
+                this.serverHandler = new ServerHandler(socket, player, board);
+                this.serverHandler.addProtocolListener(this);
+
+                Thread myThread = new Thread(serverHandler, "Server Handler");
                 myThread.setDaemon(true);
                 myThread.start();
 
@@ -122,7 +129,12 @@ public class ClientControl extends BorderPane implements ClientListener
     @FXML
     private void confirm() // NOPMD
     {
-        this.client.confirmRematch();
+        try {
+            this.serverHandler.confirmRematch();
+        } catch (LostConnectionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         yesNoButtonsSetDisable(true);
     }
 
@@ -132,7 +144,12 @@ public class ClientControl extends BorderPane implements ClientListener
     @FXML
     private void deny() // NOPMD
     {
-        this.client.denyRematch();
+        try {
+            this.serverHandler.denyRematch();
+        } catch (LostConnectionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         yesNoButtonsSetDisable(true);
     }
 
@@ -141,8 +158,8 @@ public class ClientControl extends BorderPane implements ClientListener
      */
     public void disconnect()
     {
-        if (this.client != null) {
-            this.client.disconnect();
+        if (this.serverHandler != null) {
+            this.serverHandler.disconnect();
         }
     }
 
@@ -172,23 +189,23 @@ public class ClientControl extends BorderPane implements ClientListener
     }
 
     @Override
-    public void clientReceivedMessage(String message)
+    public void eventReceived(ProtocolEvent receivedEvent)
     {
-        switch (message) {
-            case ConnectNProtocol.START:
+        switch (receivedEvent.getMessage()) {
+            case START_GAME:
                 this.updateMessage("Starting game... Waiting for opponent...");
                 break;
-            case ConnectNProtocol.READY:
+            case REQUEST_MOVE:
                 this.updateMessage("Select your move");
                 break;
-            case ConnectNProtocol.REMATCH:
+            case REQUEST_REMATCH:
                 this.updateMessage("Game Over! Rematch?");
                 yesNoButtonsSetDisable(false);
                 break;
-            case ConnectNProtocol.NO:
+            case DENY_REMATCH:
                 this.updateMessage("Opponent denied rematch.");
                 break;
-            case ConnectNProtocol.DICONNECTED:
+            case OPPONENT_DISCONNECTED:
                 this.updateMessage("Opponent disconnected!");
                 break;
             default:
@@ -197,10 +214,14 @@ public class ClientControl extends BorderPane implements ClientListener
     }
 
     @Override
-    public void clientSentMessage(String message)
+    public void messageSent(Message sentMessage)
     {
-        if (message.startsWith(ConnectNProtocol.MOVE)) {
-            this.updateMessage("Waiting for opponent...");
-        }
+
+    }
+
+    @Override
+    public void moveSent(Message moveMessage, int move)
+    {
+
     }
 }
