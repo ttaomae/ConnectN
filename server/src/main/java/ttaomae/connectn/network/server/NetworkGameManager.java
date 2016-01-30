@@ -91,9 +91,8 @@ public class NetworkGameManager implements Callable<Void>
             completionService.submit(() ->
                     new RematchResponse(playerTwoHandler, requestRematch(playerTwoHandler)));
 
-            RematchResponse firstReponse;
             try {
-                firstReponse = completionService.take().get();
+                RematchResponse firstReponse = completionService.take().get();
                 handleRematchResponse(firstReponse.player, firstReponse.acceptRematch);
                 RematchResponse secondResponse = completionService.take().get();
                 handleRematchResponse(secondResponse.player, secondResponse.acceptRematch);
@@ -198,7 +197,7 @@ public class NetworkGameManager implements Callable<Void>
     private Optional<Boolean> requestRematch(ClientHandler player)
     {
         try {
-            boolean acceptRematch = this.playerOneHandler.requestRematch();
+            boolean acceptRematch = player.requestRematch();
             if (!acceptRematch) {
                 // TODO: add player back to player pool
                 player.hashCode(); // temporary fix to stop PMD from complaining
@@ -222,7 +221,7 @@ public class NetworkGameManager implements Callable<Void>
             }
             // accepted rematch
             else if (acceptRematch.get()) {
-                    getOpponent(player).sendMessage(Message.ACCEPT_REMATCH);
+                getOpponent(player).sendMessage(Message.ACCEPT_REMATCH);
             }
             // denied rematch
             else {
