@@ -138,8 +138,15 @@ public class NetworkGameManager implements Callable<Void>
 
         while (board.getWinner() == Piece.NONE) {
             // determine which is the current / next player
-            ClientHandler currentPlayer = playerOneFirst && board.getNextPiece() == Piece.BLACK
-                    ? playerOneHandler : playerTwoHandler;
+            ClientHandler currentPlayer;
+            if (playerOneFirst) {
+                currentPlayer = board.getNextPiece() == Piece.BLACK
+                        ? playerOneHandler : playerTwoHandler;
+            }
+            else {
+                currentPlayer = board.getNextPiece() == Piece.BLACK
+                        ? playerTwoHandler : playerOneHandler;
+            }
             ClientHandler nextPlayer = getOpponent(currentPlayer);
 
             Optional<Integer> optionalMove;
