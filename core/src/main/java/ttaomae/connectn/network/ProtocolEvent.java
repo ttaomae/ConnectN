@@ -127,6 +127,11 @@ public final class ProtocolEvent
             return this == PLAYER_MOVE || this == OPPONENT_MOVE;
         }
 
+        public boolean isRematchResponse()
+        {
+            return this == ACCEPT_REMATCH || this == DENY_REMATCH || this == OPPONENT_DISCONNECTED;
+        }
+
         public static EnumSet<Message> getNormalMessages()
         {
             EnumSet<Message> messages = EnumSet.allOf(Message.class);

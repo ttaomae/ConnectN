@@ -105,6 +105,7 @@ public class ServerHandler implements Runnable
                     this.board.undoPlay();
                 }
 
+                // play game
                 try {
                     playGame();
                 }
@@ -112,6 +113,7 @@ public class ServerHandler implements Runnable
                     break;
                 }
 
+                // wait for rematch request
                 try {
                     event = this.protocolHandler.receiveEvent();
                 }
@@ -128,6 +130,18 @@ public class ServerHandler implements Runnable
                 } else {
                     throw new ProtocolException(protocolExceptionMessage(
                             Message.REQUEST_REMATCH, event.getMessage()));
+                }
+
+                // wait for rematch response
+                try {
+                    event = this.protocolHandler.receiveEvent();
+                    if (!event.getMessage().isRematchResponse()) {
+                        throw new ProtocolException("Expected rematch response but recieved "
+                                + event.getMessage());
+                    }
+                }
+                catch (LostConnectionException e) {
+                    break;
                 }
             }
             else {
