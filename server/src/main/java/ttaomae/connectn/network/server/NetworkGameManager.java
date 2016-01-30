@@ -97,6 +97,9 @@ public class NetworkGameManager implements Callable<Void>
                 RematchResponse secondResponse = completionService.take().get();
                 handleRematchResponse(secondResponse.player, secondResponse.acceptRematch);
 
+                // only rematch if both accept
+                rematch = firstReponse.acceptRematch.orElse(false)
+                        && secondResponse.acceptRematch.orElse(false);
             }
             catch (InterruptedException | ExecutionException e) {
                 throw new NetworkGameException("Error occured while waiting for rematch resposne.",
