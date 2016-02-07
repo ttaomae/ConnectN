@@ -102,7 +102,6 @@ public class ClientManager implements Runnable
 
         try {
             player.sendMessage(Message.PING);
-            logger.info("Adding {} back to eligible player pool.", player);
             addEligiblePlayer(player);
         }
         catch (LostConnectionException e) {
@@ -171,6 +170,7 @@ public class ClientManager implements Runnable
 
         logger.info("searching through players: {}", this.eligiblePlayers);
         for (ClientHandler playerOne : this.eligiblePlayers) {
+            logger.info("finding opponent for: {}", playerOne);
             Optional<ClientHandler> optionalPlayerTwo = this.eligiblePlayers.stream()
                     // exclude playerOne
                     .filter(player -> !playerOne.equals(player))
@@ -182,7 +182,11 @@ public class ClientManager implements Runnable
 
             if (optionalPlayerTwo.isPresent()) {
                 ClientHandler playerTwo = optionalPlayerTwo.get();
+                logger.info("\tfound opponent: {}", playerTwo);
                 return Optional.of(new NetworkGameManager(this, playerOne, playerTwo));
+            }
+            else {
+                logger.info("\tcould not find opponent");
             }
         }
 
@@ -191,6 +195,7 @@ public class ClientManager implements Runnable
 
     private void addEligiblePlayer(ClientHandler player)
     {
+        logger.info("Adding player to player pool: {}", player);
         synchronized (this.eligiblePlayers) {
             this.eligiblePlayers.add(player);
             // there is a new player so we want to check for new matchups
