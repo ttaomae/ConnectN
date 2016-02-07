@@ -84,7 +84,7 @@ public class NetworkGameManager implements Callable<Void>
             startMatch();
 
             Board board = new ArrayBoard();
-            playGame(board, playerOneFirst);
+            playMatch(board, playerOneFirst);
 
             completionService.submit(() ->
                     new RematchResponse(playerOneHandler, requestRematch(playerOneHandler)));
@@ -135,7 +135,7 @@ public class NetworkGameManager implements Callable<Void>
         }
     }
 
-    private void playGame(Board board, boolean playerOneFirst) throws ClientDisconnectedException
+    private void playMatch(Board board, boolean playerOneFirst) throws ClientDisconnectedException
     {
         assert board.getCurrentTurn() == 0 : "board must be empty";
 
