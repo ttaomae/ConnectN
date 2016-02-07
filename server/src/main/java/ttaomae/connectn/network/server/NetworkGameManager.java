@@ -8,7 +8,9 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,13 @@ public class NetworkGameManager implements Callable<Void>
     private final ClientHandler playerOneHandler;
     private final ClientHandler playerTwoHandler;
 
+    /**
+     * A thread pool used to send messages to both clients simultaneously. It
+     * should contain only two threads and should reject anything beyond two
+     * simultaneous tasks.
+     */
+    private final ExecutorService clientRequestThreadPool;
+
     public NetworkGameManager(ClientManager clientManager,
             ClientHandler playerOneHandler, ClientHandler playerTwoHandler)
     {
@@ -44,6 +53,9 @@ public class NetworkGameManager implements Callable<Void>
         this.clientManager = clientManager;
         this.playerOneHandler = playerOneHandler;
         this.playerTwoHandler = playerTwoHandler;
+
+        this.clientRequestThreadPool = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
+                new SynchronousQueue<>());
     }
 
     ClientHandler getPlayerOne()
@@ -73,10 +85,8 @@ public class NetworkGameManager implements Callable<Void>
         }
 
         // this will be used to asynchronously get responses from both players
-        ExecutorService threadPool = Executors.newFixedThreadPool(2);
-        CompletionService<RematchResponse> completionService
-                = new ExecutorCompletionService<>(threadPool);
-
+        CompletionService<Boolean> completionService
+                = new ExecutorCompletionService<>(clientRequestThreadPool);
         boolean playerOneFirst = true;
         boolean rematch = true;
 
