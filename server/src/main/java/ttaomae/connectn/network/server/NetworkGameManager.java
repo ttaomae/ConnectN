@@ -128,7 +128,7 @@ public class NetworkGameManager implements Callable<Void>
     {
         logger.info("Starting match between {} and {}", playerOneHandler, playerTwoHandler);
         try {
-            playerOneHandler.startMatch();
+            playerOneHandler.sendMessage(Message.START_GAME);
         }
         catch (LostConnectionException e) {
             throw new ClientDisconnectedException("Connection lost while starting match.",
@@ -137,7 +137,7 @@ public class NetworkGameManager implements Callable<Void>
 
         // if we reached here "startMatch" was successfully sent to player one
         try {
-            playerTwoHandler.startMatch();
+            playerTwoHandler.sendMessage(Message.START_GAME);
         }
         catch (LostConnectionException e) {
             throw new ClientDisconnectedException("Connection lost while starting match.",

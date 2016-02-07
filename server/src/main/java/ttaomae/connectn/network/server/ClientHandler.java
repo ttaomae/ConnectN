@@ -27,11 +27,6 @@ public class ClientHandler implements Player
         this.protocolHandler = new ProtocolHandler(socket);
     }
 
-    public void startMatch() throws LostConnectionException
-    {
-        this.protocolHandler.sendMessage(Message.START_GAME);
-    }
-
     /**
      * {@inheritDoc}
      * <p>
