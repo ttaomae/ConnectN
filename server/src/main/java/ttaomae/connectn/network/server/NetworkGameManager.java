@@ -182,8 +182,7 @@ public class NetworkGameManager implements Callable<Void>
 
     private ClientHandler getOpponent(ClientHandler player)
     {
-        assert player == this.playerOneHandler || player == this.playerTwoHandler
-                : "player must be either playerOneHandler or playerTwoHandler";
+        assert managerOwnsPlayer(player) : "player does not belong to this game manager";
 
         if (player == this.playerOneHandler) {
             return this.playerTwoHandler;
@@ -195,6 +194,8 @@ public class NetworkGameManager implements Callable<Void>
     }
     private Optional<Integer> getMove(ClientHandler player) throws LostConnectionException
     {
+        assert managerOwnsPlayer(player) : "player does not belong to this game manager";
+
         Optional<Integer> move = player.getMove(null);
 
         if (move == null) {
@@ -222,6 +223,8 @@ public class NetworkGameManager implements Callable<Void>
     private void handleRematchResponse(ClientHandler player, Optional<Boolean> acceptRematch)
             throws ClientDisconnectedException
     {
+        assert managerOwnsPlayer(player) : "player does not belong to this game manager";
+
         try {
             // player disconnected
             if (!acceptRematch.isPresent()) {
@@ -244,5 +247,10 @@ public class NetworkGameManager implements Callable<Void>
                     "Connection lost while sending rematch response to opponent.",
                     e, getOpponent(player));
         }
+    }
+
+    private boolean managerOwnsPlayer(ClientHandler player)
+    {
+        return player == playerOneHandler || player == playerTwoHandler;
     }
 }
