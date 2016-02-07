@@ -71,19 +71,6 @@ public class NetworkGameManager implements Callable<Void>
     @Override
     public Void call() throws ClientDisconnectedException, NetworkGameException
     {
-        final class RematchResponse {
-            private final ClientHandler player;
-            private final Optional<Boolean> acceptRematch;
-
-            public RematchResponse(ClientHandler player, Optional<Boolean> acceptRematch) {
-                assert player != null : "player must not be null";
-                assert acceptRematch != null : "acceptRematch must not be null";
-
-                this.player = player;
-                this.acceptRematch = acceptRematch;
-            }
-        }
-
         // this will be used to asynchronously get responses from both players
         CompletionService<Boolean> completionService
                 = new ExecutorCompletionService<>(clientRequestThreadPool);
@@ -96,20 +83,15 @@ public class NetworkGameManager implements Callable<Void>
             Board board = new ArrayBoard();
             playMatch(board, playerOneFirst);
 
-            completionService.submit(() ->
-                    new RematchResponse(playerOneHandler, requestRematch(playerOneHandler)));
-            completionService.submit(() ->
-                    new RematchResponse(playerTwoHandler, requestRematch(playerTwoHandler)));
+            completionService.submit(() -> handleRematchRequest(playerOneHandler));
+            completionService.submit(() -> handleRematchRequest(playerTwoHandler));
 
             try {
-                RematchResponse firstReponse = completionService.take().get();
-                handleRematchResponse(firstReponse.player, firstReponse.acceptRematch);
-                RematchResponse secondResponse = completionService.take().get();
-                handleRematchResponse(secondResponse.player, secondResponse.acceptRematch);
+                boolean firstReponse = completionService.take().get();
+                boolean secondResponse = completionService.take().get();
 
                 // only rematch if both accept
-                rematch = firstReponse.acceptRematch.orElse(false)
-                        && secondResponse.acceptRematch.orElse(false);
+                rematch = firstReponse && secondResponse;
             }
             catch (InterruptedException | ExecutionException e) {
                 throw new NetworkGameException("Error occured while waiting for rematch resposne.",
@@ -215,48 +197,21 @@ public class NetworkGameManager implements Callable<Void>
         return move;
     }
 
-    private Optional<Boolean> requestRematch(ClientHandler player)
-    {
-        try {
-            boolean acceptRematch = player.requestRematch();
-            if (!acceptRematch) {
-                // TODO: add player back to player pool
-                player.hashCode(); // temporary fix to stop PMD from complaining
-            }
-            return Optional.of(acceptRematch);
-        } catch (LostConnectionException e) {
-            // remove from player pool?
-            return Optional.empty();
-        }
-    }
-
-    private void handleRematchResponse(ClientHandler player, Optional<Boolean> acceptRematch)
-            throws ClientDisconnectedException
+    private boolean handleRematchRequest(ClientHandler player) throws LostConnectionException
     {
         assert managerOwnsPlayer(player) : "player does not belong to this game manager";
 
-        try {
-            // player disconnected
-            if (!acceptRematch.isPresent()) {
-                // close socket? or pass to higher level
-                this.clientManager.playerDisconnected(player);
-                getOpponent(player).sendMessage(Message.OPPONENT_DISCONNECTED);
-            }
-            // accepted rematch
-            else if (acceptRematch.get()) {
-                getOpponent(player).sendMessage(Message.ACCEPT_REMATCH);
-            }
-            // denied rematch
-            else {
-                this.clientManager.playerMatchEnded(player);
-                getOpponent(player).sendMessage(Message.DENY_REMATCH);
-            }
+        ClientHandler opponent = getOpponent(player);
+        boolean acceptRematch = player.requestRematch();
+
+        if (acceptRematch) {
+            opponent.sendMessage(Message.ACCEPT_REMATCH);
         }
-        catch (LostConnectionException e) {
-            throw new ClientDisconnectedException(
-                    "Connection lost while sending rematch response to opponent.",
-                    e, getOpponent(player));
+        else {
+            opponent.sendMessage(Message.DENY_REMATCH);
         }
+
+        return acceptRematch;
     }
 
     private boolean managerOwnsPlayer(ClientHandler player)
