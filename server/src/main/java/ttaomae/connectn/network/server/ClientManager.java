@@ -104,7 +104,7 @@ public class ClientManager implements Runnable
                 playerTwo.sendMessage(Message.OPPONENT_DISCONNECTED);
                 playerMatchEnded(playerTwo);
             }
-            catch (LostConnectionException e) {
+            catch (LostConnectionException e) { // NOPMD
                 // if p2 is disconnected, we don't care
                 // they will be removed in following if block
             }
