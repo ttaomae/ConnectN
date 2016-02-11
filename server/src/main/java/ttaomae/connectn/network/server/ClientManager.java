@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -28,7 +30,7 @@ public class ClientManager implements Runnable
 {
     private static final Logger logger = LoggerFactory.getLogger(ClientManager.class);
 
-    private final ExecutorService gameManagerPool;
+    private final CompletionService<Void> gameManagerPool;
     private final Set<ClientHandler> connectedPlayers;
     private final Set<ClientHandler> eligiblePlayers;
     private final Map<ClientHandler, ClientHandler> lastMatches;
@@ -45,25 +47,13 @@ public class ClientManager implements Runnable
         this.lastMatches = new HashMap<>();
 
         this.possibleMatchups = false;
-        this.gameManagerPool = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
-                .setNameFormat("network-game-manager-%d")
-                // TODO: A possible alternative is to use a CompleteionService
-                // which would repeatedly take Futures and handle any exceptions
-                .setUncaughtExceptionHandler((thread, cause) -> {
-                    if (cause instanceof ClientDisconnectedException) {
-                        ClientDisconnectedException cde = (ClientDisconnectedException) cause;
-                        playerDisconnected(cde.getClientHandler());
-                    }
-                    else if (cause instanceof NetworkGameException) {
-                        NetworkGameException nge = (NetworkGameException) cause;
-                        playerMatchEnded(nge.getNetworkGameManager().getPlayerOne());
-                        playerMatchEnded(nge.getNetworkGameManager().getPlayerTwo());
-                    }
-                    else {
-                        logger.error("Error while running game manager on thread " + thread, cause);
-                    }
-                })
-                .build());
+        this.gameManagerPool = new ExecutorCompletionService<>(Executors.newCachedThreadPool(
+                new ThreadFactoryBuilder().setNameFormat("network-game-manager-%d").build()));
+
+        Thread cleanerThread = new Thread(new GameManagerCleaner(gameManagerPool),
+                "game-manager-cleaner");
+        cleanerThread.setDaemon(true);
+        cleanerThread.start();
     }
 
     /**
@@ -86,26 +76,52 @@ public class ClientManager implements Runnable
     {
         checkNotNull(player, "player must not be null");
 
-        if (this.connectedPlayers.contains(player)) {
+        if (this.connectedPlayers.remove(player)) {
             logger.info("Player disconnected: {}", player);
-            this.connectedPlayers.remove(player);
-            this.eligiblePlayers.remove(player);
         }
-        else {
-            logger.warn("Attempted to remove player who was not connected: {}", player);
-        }
+        this.eligiblePlayers.remove(player);
     }
 
     void playerMatchEnded(ClientHandler player)
     {
         checkNotNull(player, "player must not be null");
 
-        try {
-            player.sendMessage(Message.PING);
-            addEligiblePlayer(player);
+        this.addEligiblePlayer(player);
+    }
+
+    // this should only be called if at least one of the two specified players
+    // have disconnected
+    private void checkConnections(ClientHandler playerOne, ClientHandler playerTwo)
+    {
+        assert playerOne != null : "playerOne must not be null";
+        assert playerTwo != null : "playerTwo must not be null";
+
+        logger.info("Checking connections for [{}] and [{}].", playerOne, playerTwo);
+        if (!playerOne.isConnected()) {
+            playerDisconnected(playerOne);
+            try {
+                // notify opponent
+                playerTwo.sendMessage(Message.OPPONENT_DISCONNECTED);
+                playerMatchEnded(playerTwo);
+            }
+            catch (LostConnectionException e) {
+                // if p2 is disconnected, we don't care
+                // they will be removed in following if block
+            }
         }
-        catch (LostConnectionException e) {
-            playerDisconnected(player);
+
+        if (!playerTwo.isConnected()) {
+            playerDisconnected(playerTwo);
+            try {
+                // notify opponent
+                playerOne.sendMessage(Message.OPPONENT_DISCONNECTED);
+                playerMatchEnded(playerOne);
+            }
+            catch (LostConnectionException e) {
+                // it may be possible that p1 was connected during the first
+                // check but is disconnected here
+                playerDisconnected(playerOne);
+            }
         }
     }
 
@@ -170,7 +186,7 @@ public class ClientManager implements Runnable
 
         logger.info("searching through players: {}", this.eligiblePlayers);
         for (ClientHandler playerOne : this.eligiblePlayers) {
-            logger.info("finding opponent for: {}", playerOne);
+            logger.debug("finding opponent for: {}", playerOne);
             Optional<ClientHandler> optionalPlayerTwo = this.eligiblePlayers.stream()
                     // exclude playerOne
                     .filter(player -> !playerOne.equals(player))
@@ -182,11 +198,11 @@ public class ClientManager implements Runnable
 
             if (optionalPlayerTwo.isPresent()) {
                 ClientHandler playerTwo = optionalPlayerTwo.get();
-                logger.info("\tfound opponent: {}", playerTwo);
+                logger.debug("\tFound opponent: {}", playerTwo);
                 return Optional.of(new NetworkGameManager(this, playerOne, playerTwo));
             }
             else {
-                logger.info("\tcould not find opponent");
+                logger.debug("\tCould not find opponent");
             }
         }
 
@@ -201,6 +217,51 @@ public class ClientManager implements Runnable
             // there is a new player so we want to check for new matchups
             this.possibleMatchups = true;
             this.eligiblePlayers.notifyAll();
+        }
+    }
+
+    private class GameManagerCleaner implements Runnable
+    {
+        private CompletionService<Void> completionService;
+
+        private GameManagerCleaner(CompletionService<Void> completionService)
+        {
+            this.completionService = completionService;
+        }
+
+        @Override
+        public void run()
+        {
+            while (true) {
+                Future<Void> future;
+                try {
+                    logger.info("Waiting for game manager completion.");
+                    future = this.completionService.take();
+                    try {
+                        logger.info("Game manager completed.");
+                        // we only do this to check if there was an exception
+                        future.get();
+                    }
+                    catch (ExecutionException e) {
+                        Throwable cause = e.getCause();
+                        if (cause instanceof ClientDisconnectedException) {
+                            logger.info("client disconnected");
+                            ClientDisconnectedException cde = (ClientDisconnectedException) cause;
+                            NetworkGameManager ngm = cde.getNetworkGameManager();
+                            checkConnections(ngm.getPlayerOne(), ngm.getPlayerTwo());
+                        }
+                        // unknown exception
+                        else {
+                            logger.error("Error while running game manager.", e);
+                        }
+                    }
+                }
+                catch (InterruptedException e) {
+                    logger.error("GameManagerCleaner was interrupted", e);
+                    // stop running
+                    break;
+                }
+            }
         }
     }
 }

@@ -69,7 +69,7 @@ public class NetworkGameManager implements Callable<Void>
     }
 
     @Override
-    public Void call() throws ClientDisconnectedException, NetworkGameException
+    public Void call() throws NetworkGameException
     {
         // this will be used to asynchronously get responses from both players
         CompletionService<Boolean> completionService
@@ -78,10 +78,22 @@ public class NetworkGameManager implements Callable<Void>
         boolean rematch = true;
 
         while (rematch) {
-            startMatch();
+            try {
+                startMatch();
+            } catch (LostConnectionException e) {
+                String message = "A player disconnected while starting match.";
+                logger.info(message);
+                throw new ClientDisconnectedException(message, e, this);
+            }
 
             Board board = new ArrayBoard();
-            playMatch(board, playerOneFirst);
+            try {
+                playMatch(board, playerOneFirst);
+            } catch (LostConnectionException e) {
+                String message = "A player disconnected while playing match.";
+                logger.info(message);
+                throw new ClientDisconnectedException(message, e, this);
+            }
 
             completionService.submit(() -> handleRematchRequest(playerOneHandler));
             completionService.submit(() -> handleRematchRequest(playerTwoHandler));
@@ -93,41 +105,38 @@ public class NetworkGameManager implements Callable<Void>
                 // only rematch if both accept
                 rematch = firstReponse && secondResponse;
             }
-            catch (InterruptedException | ExecutionException e) {
-                throw new NetworkGameException("Error occured while waiting for rematch resposne.",
-                        e, this);
+            catch (ExecutionException | InterruptedException e) {
+                if (e.getCause() instanceof LostConnectionException) {
+                    String message = "A player disconnected while waiting for rematch response.";
+                    logger.info(message);
+                    throw new ClientDisconnectedException(message, e.getCause(), this);
+                }
+                else {
+                    String errorMessage = "Error occured while waiting for rematch response";
+                    logger.error(errorMessage, e);
+                    throw new NetworkGameException(errorMessage, e, this);
+                }
+            }
+
+            if (!rematch) {
+                this.clientManager.playerMatchEnded(playerOneHandler);
+                this.clientManager.playerMatchEnded(playerTwoHandler);
             }
             // switch player order for next game
             playerOneFirst = !playerOneFirst;
-
         }
 
-        threadPool.shutdownNow();
         return null;
     }
 
-    private void startMatch() throws ClientDisconnectedException
+    private void startMatch() throws LostConnectionException
     {
         logger.info("Starting match between {} and {}", playerOneHandler, playerTwoHandler);
-        try {
-            playerOneHandler.sendMessage(Message.START_GAME);
-        }
-        catch (LostConnectionException e) {
-            throw new ClientDisconnectedException("Connection lost while starting match.",
-                    e, playerOneHandler);
-        }
-
-        // if we reached here "startMatch" was successfully sent to player one
-        try {
-            playerTwoHandler.sendMessage(Message.START_GAME);
-        }
-        catch (LostConnectionException e) {
-            throw new ClientDisconnectedException("Connection lost while starting match.",
-                    e, playerTwoHandler);
-        }
+        playerOneHandler.sendMessage(Message.START_GAME);
+        playerTwoHandler.sendMessage(Message.START_GAME);
     }
 
-    private void playMatch(Board board, boolean playerOneFirst) throws ClientDisconnectedException
+    private void playMatch(Board board, boolean playerOneFirst) throws LostConnectionException
     {
         assert board.getCurrentTurn() == 0 : "board must be empty";
 
@@ -144,13 +153,7 @@ public class NetworkGameManager implements Callable<Void>
             }
             ClientHandler nextPlayer = getOpponent(currentPlayer);
 
-            Optional<Integer> optionalMove;
-            try {
-                optionalMove = getMove(currentPlayer);
-            } catch (LostConnectionException e) {
-                throw new ClientDisconnectedException("Connection lost while getting move.",
-                        e, currentPlayer);
-            }
+            Optional<Integer> optionalMove = getMove(currentPlayer);
 
             if (!optionalMove.isPresent()) {
                 throw new ProtocolException("Recieved empty move");
@@ -162,13 +165,7 @@ public class NetworkGameManager implements Callable<Void>
             }
 
             board.play(move);
-            try {
-                nextPlayer.sendOpponentMove(move);
-            } catch (LostConnectionException e) {
-                throw new ClientDisconnectedException(
-                        "Connection lost while sending opponent move.",
-                        e, nextPlayer);
-            }
+            nextPlayer.sendOpponentMove(move);
         }
     }
 
