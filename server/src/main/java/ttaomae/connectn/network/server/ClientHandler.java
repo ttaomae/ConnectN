@@ -82,6 +82,11 @@ public class ClientHandler implements Player
         }
     }
 
+    public boolean isConnected()
+    {
+        return this.protocolHandler.isConnected();
+    }
+
     @Override
     public boolean equals(Object obj)
     {

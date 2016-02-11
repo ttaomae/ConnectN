@@ -141,6 +141,17 @@ public class ProtocolHandler
         }
     }
 
+    public boolean isConnected()
+    {
+        try {
+            this.sendMessage(Message.PING);
+            return true;
+        }
+        catch (LostConnectionException e) {
+            return false;
+        }
+    }
+
     public void addListener(ProtocolListener listener)
     {
         checkNotNull(listener, "listener must not be null");
