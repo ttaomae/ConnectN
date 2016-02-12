@@ -217,7 +217,7 @@ public class ArrayBoard implements Board, ImmutableBoard
     @Override
     public Piece getNextPiece()
     {
-        return (this.currentTurn % 2 == 0) ? Piece.BLACK : Piece.RED;
+        return (this.getCurrentTurn() % 2 == 0) ? Piece.BLACK : Piece.RED;
     }
 
     @Override

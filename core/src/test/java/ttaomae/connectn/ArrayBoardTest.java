@@ -666,4 +666,33 @@ public class ArrayBoardTest
         // undo extra play
         board.undoPlay();
     }
+
+    @Test
+    public void testListener()
+    {
+        // this is a workaround for Java's restriction of only being able to
+        // capture final variables in anonymous classes/lambdas
+        final int[] eventCount = {0};
+        board.addBoardListener(() -> eventCount[0]++);
+
+        board.play(0);
+        board.play(1);
+        board.play(2);
+        board.play(3);
+        board.play(4);
+
+        board.undoPlay();
+        board.undoPlay();
+        board.undoPlay();
+        board.undoPlay();
+        board.undoPlay();
+
+        assertEquals(10, eventCount[0]);
+    }
+
+    @Test(expected=NullPointerException.class)
+    public void testAddNullListener()
+    {
+        board.addBoardListener(null);
+    }
 }
