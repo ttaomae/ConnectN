@@ -237,6 +237,21 @@ public class ProtocolHandlerTest
     }
 
     @Test
+    public void testIsConnected()
+    {
+        assertTrue(client.isConnected());
+        assertTrue(server.isConnected());
+    }
+
+    @Test
+    public void testIsConnected_closedSocket() throws IOException
+    {
+        clientSocket.close();
+        assertFalse(client.isConnected());
+        assertFalse(server.isConnected());
+    }
+
+    @Test
     public void testEquals() throws IOException
     {
         Socket mockSocket = mock(Socket.class);
