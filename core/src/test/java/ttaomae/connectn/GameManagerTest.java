@@ -2,6 +2,7 @@ package ttaomae.connectn;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -17,79 +18,86 @@ public class GameManagerTest
         // test 2 argument constructor
         try {
             new GameManager(null, playerTwo);
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
             assertEquals("failure - playerOne argument null", "playerOne must not be null",
-                    e.getMessage());
+                    expected.getMessage());
         }
         try {
             new GameManager(playerOne, null);
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
             assertEquals("failure - playerTwo argument null", "playerTwo must not be null",
-                    e.getMessage());
+                    expected.getMessage());
         }
 
         // test 3 argument constructor (Player, Player, int)
         try {
-            new GameManager(playerOne, playerTwo);
-        } catch (NullPointerException e) {
-            assertEquals("failure - board argument null", "board must not be null", e.getMessage());
-        }
-        try {
             new GameManager(null, playerTwo);
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
             assertEquals("failure - playerOne argument null", "playerOne must not be null",
-                    e.getMessage());
+                    expected.getMessage());
         }
         try {
             new GameManager(playerOne, playerTwo, -1);
-        } catch (IllegalArgumentException e) {
+            fail();
+        } catch (IllegalArgumentException expected) {
             assertEquals("failure - attemptsAllowed argument negative",
-                    "attemptsAllowed must be positive", e.getMessage());
+                    "attemptsAllowed must be positive", expected.getMessage());
         }
 
         // test 3 argument constructor (Board, Player, Player)
         try {
             new GameManager(null, playerOne, playerTwo);
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
             assertEquals("failure - board argument null", "board must not be null",
-                    e.getMessage());
+                    expected.getMessage());
         }
         try {
             new GameManager(board, null, playerTwo);
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
             assertEquals("failure - playerOne argument null", "playerOne must not be null",
-                    e.getMessage());
+                    expected.getMessage());
         }
         try {
             new GameManager(board, playerOne, null);
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
             assertEquals("failure - playerTwo argument null", "playerTwo must not be null",
-                    e.getMessage());
+                    expected.getMessage());
         }
 
         // test 4 argument constructor
         try {
             new GameManager(null, playerOne, playerTwo, 1);
-        } catch (NullPointerException e) {
-            assertEquals("failure - board argument null", "board must not be null", e.getMessage());
+            fail();
+        } catch (NullPointerException expected) {
+            assertEquals("failure - board argument null", "board must not be null",
+                    expected.getMessage());
         }
         try {
             new GameManager(board, null, playerTwo, 1);
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
             assertEquals("failure - playerOne argument null", "playerOne must not be null",
-                    e.getMessage());
+                    expected.getMessage());
         }
         try {
             new GameManager(board, playerOne, null, 1);
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
             assertEquals("failure - playerTwo argument null", "playerTwo must not be null",
-                    e.getMessage());
+                    expected.getMessage());
         }
         try {
             new GameManager(board, playerOne, playerTwo, -1);
-        } catch (IllegalArgumentException e) {
+            fail();
+        } catch (IllegalArgumentException expected) {
             assertEquals("failure - attemptsAllowed argument negative",
-                    "attemptsAllowed must be positive", e.getMessage());
+                    "attemptsAllowed must be positive", expected.getMessage());
         }
     }
 
@@ -119,9 +127,10 @@ public class GameManagerTest
         GameManager gm = new GameManager(new InvalidPlayer(), new InvalidPlayer(), 10);
         try {
             gm.run();
-        } catch (IllegalMoveException e) {
+            fail();
+        } catch (IllegalMoveException expected) {
             assertEquals("failure - throws exception", "BLACK attempted 10 illegal moves",
-                    e.getMessage());
+                    expected.getMessage());
         }
     }
 }

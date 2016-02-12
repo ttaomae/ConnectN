@@ -4,6 +4,7 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,31 +47,36 @@ public class ArrayBoardTest
 
         try {
             new ArrayBoard(1, 5, 5);
-        } catch (IllegalArgumentException e) {
-            assertEquals("failure - illegal height", "height must be at least 2", e.getMessage());
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertEquals("failure - illegal height", "height must be at least 2", expected.getMessage());
         }
         try {
             new ArrayBoard(5, 1, 5);
-        } catch (IllegalArgumentException e) {
-            assertEquals("failure - illegal width", "width must be at least 2", e.getMessage());
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertEquals("failure - illegal width", "width must be at least 2", expected.getMessage());
         }
         try {
             new ArrayBoard(5, 5, 6);
-        } catch (IllegalArgumentException e) {
+            fail();
+        } catch (IllegalArgumentException expected) {
             assertEquals("failure - illegal win condition",
-                    "winCondition must be between 2 and max(height, width)", e.getMessage());
+                    "winCondition must be between 2 and max(height, width)", expected.getMessage());
         }
         try {
             new ArrayBoard(5, 5, 1);
-        } catch (IllegalArgumentException e) {
+            fail();
+        } catch (IllegalArgumentException expected) {
             assertEquals("failure - illegal win condition",
-                    "winCondition must be between 2 and max(height, width)", e.getMessage());
+                    "winCondition must be between 2 and max(height, width)", expected.getMessage());
         }
         try {
             new ArrayBoard(5, 5, -1);
-        } catch (IllegalArgumentException e) {
+            fail();
+        } catch (IllegalArgumentException expected) {
             assertEquals("failure - illegal win condition",
-                    "winCondition must be between 2 and max(height, width)", e.getMessage());
+                    "winCondition must be between 2 and max(height, width)", expected.getMessage());
         }
     }
 
@@ -105,14 +111,16 @@ public class ArrayBoardTest
     {
         try {
             board.play(-1);
-        } catch (IllegalMoveException e) {
-            assertEquals("failure - illegal move: -1", "Illegal column: -1", e.getMessage());
+            fail();
+        } catch (IllegalMoveException expected) {
+            assertEquals("failure - illegal move: -1", "Illegal column: -1", expected.getMessage());
         }
 
         try {
             board.play(board.getWidth());
-        } catch (IllegalMoveException e) {
-            assertEquals("failure - illegal move: 7", "Illegal column: 7", e.getMessage());
+            fail();
+        } catch (IllegalMoveException expected) {
+            assertEquals("failure - illegal move: 7", "Illegal column: 7", expected.getMessage());
         }
     }
 
@@ -121,30 +129,34 @@ public class ArrayBoardTest
     {
         try {
             board.getPieceAt(-1, 0);
-        } catch (IndexOutOfBoundsException e) {
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
             Assert.assertThat("failure - get piece at (-1, 0)",
-                    e.getMessage(), containsString("Column: -1, Width: 7"));
+                    expected.getMessage(), containsString("Column: -1, Width: 7"));
         }
 
         try {
             board.getPieceAt(board.getWidth(), 0);
-        } catch (IndexOutOfBoundsException e) {
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
             Assert.assertThat("failure - get piece at (7, 0)",
-                    e.getMessage(), containsString("Column: 7, Width: 7"));
+                    expected.getMessage(), containsString("Column: 7, Width: 7"));
         }
 
         try {
             board.getPieceAt(0, -1);
-        } catch (IndexOutOfBoundsException e) {
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
             Assert.assertThat("failure - get piece at (0, -1)",
-                    e.getMessage(), containsString("Row: -1, Height: 6"));
+                    expected.getMessage(), containsString("Row: -1, Height: 6"));
         }
 
         try {
             board.getPieceAt(0, board.getHeight());
-        } catch (IndexOutOfBoundsException e) {
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
             Assert.assertThat("failure - get piece at (0, 6)",
-                    e.getMessage(), containsString("Row: 6, Height: 6"));
+                    expected.getMessage(), containsString("Row: 6, Height: 6"));
         }
     }
 
@@ -639,12 +651,17 @@ public class ArrayBoardTest
         }
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testUndoWithNoPlays() {
-        board.undoPlay();
+        try {
+            board.undoPlay();
+            fail();
+        } catch (IllegalStateException expected) {
+            assertEquals("No moves to undo.", expected.getMessage());
+        }
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testUndoExtraPlays() {
         board.play(0);
         board.play(1);
@@ -663,8 +680,13 @@ public class ArrayBoardTest
         board.undoPlay();
         board.undoPlay();
 
-        // undo extra play
-        board.undoPlay();
+        try {
+            // undo extra play
+            board.undoPlay();
+            fail();
+        } catch (IllegalStateException expected) {
+            assertEquals("No moves to undo.", expected.getMessage());
+        }
     }
 
     @Test
@@ -690,9 +712,14 @@ public class ArrayBoardTest
         assertEquals(10, eventCount[0]);
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testAddNullListener()
     {
-        board.addBoardListener(null);
+        try {
+            board.addBoardListener(null);
+            fail();
+        } catch (NullPointerException expected) {
+            assertEquals("boardListener must not be null", expected.getMessage());
+        }
     }
 }
