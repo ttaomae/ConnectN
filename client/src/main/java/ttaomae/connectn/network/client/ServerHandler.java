@@ -90,63 +90,46 @@ public class ServerHandler implements Runnable
     @Override
     public void run()
     {
-        ProtocolEvent event;
         while (true) {
             try {
+                ProtocolEvent event;
                 event = this.protocolHandler.receiveEvent();
+                if (event.getMessage() == Message.START_GAME) {
+                    // make sure the board is empty by undoing everything
+                    while (this.board.getCurrentTurn() != 0) {
+                        this.board.undoPlay();
+                    }
+
+                    boolean gameSuccessful = playGame();
+
+                    if (gameSuccessful) {
+                        // wait for rematch request
+                        event = this.protocolHandler.receiveEvent();
+
+                        if (event.getMessage() == Message.REQUEST_REMATCH) {
+                            getRematch();
+                        }
+                        else {
+                            throw new ProtocolException(protocolExceptionMessage(
+                                    Message.REQUEST_REMATCH, event.getMessage()));
+                        }
+
+                        // wait for rematch response
+                        event = this.protocolHandler.receiveEvent();
+                        if (!event.getMessage().isRematchResponse()) {
+                            throw new ProtocolException("Expected rematch response but recieved "
+                                    + event.getMessage());
+                        }
+                    }
+                }
+                else {
+                    throw new ProtocolException(protocolExceptionMessage(
+                            Message.START_GAME, event.getMessage()));
+                }
             }
             catch (LostConnectionException e) {
+                logger.info("Lost connection with server.");
                 break;
-            }
-
-            if (event.getMessage() == Message.START_GAME) {
-                // make sure the board is empty by undoing everything
-                while (this.board.getCurrentTurn() != 0) {
-                    this.board.undoPlay();
-                }
-
-                // play game
-                try {
-                    playGame();
-                }
-                catch (LostConnectionException e) {
-                    break;
-                }
-
-                // wait for rematch request
-                try {
-                    event = this.protocolHandler.receiveEvent();
-                }
-                catch (LostConnectionException e) {
-                    break;
-                }
-
-                if (event.getMessage() == Message.REQUEST_REMATCH) {
-                    try {
-                        getRematch();
-                    } catch (LostConnectionException e) {
-                        break;
-                    }
-                } else {
-                    throw new ProtocolException(protocolExceptionMessage(
-                            Message.REQUEST_REMATCH, event.getMessage()));
-                }
-
-                // wait for rematch response
-                try {
-                    event = this.protocolHandler.receiveEvent();
-                    if (!event.getMessage().isRematchResponse()) {
-                        throw new ProtocolException("Expected rematch response but recieved "
-                                + event.getMessage());
-                    }
-                }
-                catch (LostConnectionException e) {
-                    break;
-                }
-            }
-            else {
-                throw new ProtocolException(protocolExceptionMessage(
-                        Message.START_GAME, event.getMessage()));
             }
         }
     }
@@ -154,9 +137,9 @@ public class ServerHandler implements Runnable
     /**
      * Plays a game.
      *
-     * @throws LostConnectionException
+     * @return whether or not the game finished successfully
      */
-    private void playGame() throws LostConnectionException
+    private boolean playGame() throws LostConnectionException
     {
         while (this.board.getWinner() == Piece.NONE) {
             ProtocolEvent event = this.protocolHandler.receiveEvent();
@@ -179,6 +162,8 @@ public class ServerHandler implements Runnable
                     this.board.play(event.getMove().orElseThrow(() ->
                             new ProtocolException("Received invalid opponent move")));
                     break;
+                case OPPONENT_DISCONNECTED:
+                    return false;
                 default:
                     throw new ProtocolException("Recieved unexpected message: "
                             + event.getMessage());
@@ -186,6 +171,7 @@ public class ServerHandler implements Runnable
         }
 
         logger.info(this.board.getWinner() + " wins!");
+        return true;
     }
 
     /**

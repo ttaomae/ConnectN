@@ -196,7 +196,7 @@ public class ClientControl extends BorderPane implements ProtocolListener
                 this.updateMessage("Starting game... Waiting for opponent...");
                 break;
             case REQUEST_MOVE:
-                this.updateMessage("Select your move");
+                this.updateMessage("Select your move.");
                 break;
             case REQUEST_REMATCH:
                 this.updateMessage("Game Over! Rematch?");
@@ -222,6 +222,8 @@ public class ClientControl extends BorderPane implements ProtocolListener
     @Override
     public void moveSent(Message moveMessage, int move)
     {
-
+        if (moveMessage == Message.PLAYER_MOVE) {
+            this.updateMessage("Waiting for opponent move.");
+        }
     }
 }
