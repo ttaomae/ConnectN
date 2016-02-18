@@ -74,7 +74,6 @@ public class ConnectNControl extends GridPane implements BoardListener
                         .setDaemon(true)
                         .build());
 
-        initialize();
         load();
 
         this.running = false;
@@ -97,25 +96,6 @@ public class ConnectNControl extends GridPane implements BoardListener
         this.winConditionSlider.valueProperty().addListener(new SliderListener());
 
         this.resetBoard();
-    }
-
-    /**
-     * Initializes the components.
-     */
-    private void initialize()
-    {
-        this.title = new Label();
-
-        this.playerOne = new PlayerSelectControl();
-        this.playerTwo = new PlayerSelectControl();
-
-        this.heightSlider = new Slider();
-        this.widthSlider = new Slider();
-        this.winConditionSlider = new Slider();
-
-        this.boardPanel = new BoardPanel();
-        this.displayMessage = new Label();
-        this.startButton = new Button();
     }
 
     /**

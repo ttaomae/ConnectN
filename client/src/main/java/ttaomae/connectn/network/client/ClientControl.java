@@ -45,27 +45,12 @@ public class ClientControl extends BorderPane implements ProtocolListener
      */
     public ClientControl()
     {
-        initialize();
         load();
 
         this.connected = false;
 
         // display a default board to start
         this.boardPanel.setBoard(new ArrayBoard());
-    }
-
-    /**
-     * Initializes the components.
-     */
-    private void initialize()
-    {
-        this.hostField = new TextField();
-        this.portField = new TextField();
-        this.connectButton = new Button();
-        this.boardPanel = new BoardPanel();
-        this.displayMessage = new Label();
-        this.yesButton = new Button();
-        this.noButton = new Button();
     }
 
     /**

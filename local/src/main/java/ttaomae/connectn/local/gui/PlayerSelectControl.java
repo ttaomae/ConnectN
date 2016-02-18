@@ -38,43 +38,7 @@ public class PlayerSelectControl extends BorderPane
      */
     public PlayerSelectControl()
     {
-        initialize();
         load();
-    }
-
-    /**
-     * Constructs a new PlayerSelectControl with the specified properties.
-     *
-     * @param minDifficulty the minimum computer difficulty
-     * @param maxDifficulty the maximum computer difficulty
-     * @param playerNumber the number of the player being selected
-     * @param humanDefault true if 'human' is selected by default, false if
-     *            'computer' is selected by default
-     */
-    public PlayerSelectControl(int minDifficulty, int maxDifficulty,
-                               int playerNumber, boolean humanDefault)
-    {
-        this();
-
-        this.setMinDifficulty(minDifficulty);
-        this.setMaxDifficulty(maxDifficulty);
-        int midDifficulty = (minDifficulty + maxDifficulty) / 2;
-        this.cpuDifficultySlider.setValue(midDifficulty);
-
-        this.setPlayerNumber(playerNumber);
-        this.setHumanDefault(humanDefault);
-
-    }
-
-    /**
-     * Initializes the components.
-     */
-    private void initialize()
-    {
-        this.label = new Label();
-        this.cpuDifficultySlider = new Slider();
-        this.playerHuman = new RadioButton();
-        this.playerComputer = new RadioButton();
     }
 
     /**
