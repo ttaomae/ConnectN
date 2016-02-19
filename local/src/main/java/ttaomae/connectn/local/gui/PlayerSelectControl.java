@@ -143,9 +143,11 @@ public class PlayerSelectControl extends BorderPane
         humanDefaultProperty().set(humanDefault);
         if (humanDefault) {
             this.playerHuman.setSelected(true);
+            this.disableCpuDifficultySlider();
         }
         else {
             this.playerComputer.setSelected(true);
+            this.enableCpuDifficultySlider();
         }
     }
 
@@ -157,5 +159,17 @@ public class PlayerSelectControl extends BorderPane
     public int getCpuDifficulty()
     {
         return (int) this.cpuDifficultySlider.getValue();
+    }
+
+    @FXML
+    private void disableCpuDifficultySlider() // NOPMD
+    {
+        this.cpuDifficultySlider.setDisable(true);
+    }
+
+    @FXML
+    private void enableCpuDifficultySlider() // NOPMD
+    {
+        this.cpuDifficultySlider.setDisable(false);
     }
 }

@@ -15,8 +15,10 @@
       </fx:define>
       
       <children>
-        <RadioButton fx:id="playerHuman" text="%human_button" toggleGroup="$playerSelect" />
-        <RadioButton fx:id="playerComputer" text="%computer_button" toggleGroup="$playerSelect" />
+        <RadioButton fx:id="playerHuman" text="%human_button" toggleGroup="$playerSelect"
+            onAction="#disableCpuDifficultySlider"/>
+        <RadioButton fx:id="playerComputer" text="%computer_button" toggleGroup="$playerSelect"
+            onAction="#enableCpuDifficultySlider"/>
       </children>
     </HBox>
   </left>
