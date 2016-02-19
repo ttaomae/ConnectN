@@ -9,11 +9,11 @@
   <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
   <top>
     <HBox spacing="5">
-      <TextField fx:id="hostField" text="host" />
+      <TextField fx:id="hostField" text="%host_label" />
       <Label text=":" />
-      <TextField fx:id="portField" text="port" />
+      <TextField fx:id="portField" text="%port_label" />
       
-      <Button fx:id="connectButton" text="Connect"
+      <Button fx:id="connectButton" text="%connect_button"
           onAction="#connect" />
     </HBox>
   </top>
@@ -28,10 +28,10 @@
   <bottom>
     <HBox>
       <Label fx:id="displayMessage" style="-fx-font-size: 16pt"
-          text="Press 'Connect' to connect to server."/>
-      <Button fx:id="yesButton" text="Yes" disable="true"
+          text="%connect_message"/>
+      <Button fx:id="yesButton" text="%yes_button" disable="true"
           onAction="#confirm" />
-      <Button fx:id="noButton" text="No" disable="true"
+      <Button fx:id="noButton" text="%no_button" disable="true"
           onAction="#deny" />
     </HBox>
   </bottom>

@@ -2,6 +2,7 @@ package ttaomae.connectn.network.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,6 +18,7 @@ import ttaomae.connectn.network.LostConnectionException;
 import ttaomae.connectn.network.ProtocolEvent;
 import ttaomae.connectn.network.ProtocolEvent.Message;
 import ttaomae.connectn.network.ProtocolListener;
+import ttaomae.connectn.util.ResourceBundleUtil;
 
 /**
  * A JavaFX component which provides an interface for the client of a network
@@ -26,6 +28,9 @@ import ttaomae.connectn.network.ProtocolListener;
  */
 public class ClientControl extends BorderPane implements ProtocolListener
 {
+    private static final ResourceBundle GUI_STRINGS
+            = ResourceBundleUtil.getResourceBundle("gui", "locale.properties");
+
     @FXML private TextField hostField;
     @FXML private TextField portField;
     @FXML private Button connectButton;
@@ -60,6 +65,7 @@ public class ClientControl extends BorderPane implements ProtocolListener
     {
         FXMLLoader fxmlLoader =
                 new FXMLLoader(getClass().getResource("/layout/client.fxml"));
+        fxmlLoader.setResources(GUI_STRINGS);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -93,17 +99,18 @@ public class ClientControl extends BorderPane implements ProtocolListener
                 myThread.setDaemon(true);
                 myThread.start();
 
-                this.updateMessage(String.format("Connected to %s:%d%n", host, port));
+                this.updateMessage(String.format(
+                        GUI_STRINGS.getString("connected_message_prefix") + "%s:%s\n", host, port));
                 this.connected = true;
                 javafx.application.Platform.runLater(() ->
                     ClientControl.this.connectButton.setDisable(true)
                 );
             }
             catch (NumberFormatException e) {
-                this.updateMessage("Invalid port number.");
+                this.updateMessage(GUI_STRINGS.getString("invalid_port_message"));
             }
             catch (IOException e) {
-                this.updateMessage("Could not connect to server.");
+                this.updateMessage(GUI_STRINGS.getString("cannot_connect_message"));
             }
         }
     }
@@ -178,20 +185,20 @@ public class ClientControl extends BorderPane implements ProtocolListener
     {
         switch (receivedEvent.getMessage()) {
             case START_GAME:
-                this.updateMessage("Starting game... Waiting for opponent...");
+                this.updateMessage(GUI_STRINGS.getString("start_game_message"));
                 break;
             case REQUEST_MOVE:
-                this.updateMessage("Select your move.");
+                this.updateMessage(GUI_STRINGS.getString("select_move_message"));
                 break;
             case REQUEST_REMATCH:
-                this.updateMessage("Game Over! Rematch?");
+                this.updateMessage(GUI_STRINGS.getString("request_rematch_message"));
                 yesNoButtonsSetDisable(false);
                 break;
             case DENY_REMATCH:
-                this.updateMessage("Opponent denied rematch.");
+                this.updateMessage(GUI_STRINGS.getString("opponent_deny_rematch_message"));
                 break;
             case OPPONENT_DISCONNECTED:
-                this.updateMessage("Opponent disconnected!");
+                this.updateMessage(GUI_STRINGS.getString("opponent_disconnect_message"));
                 break;
             default:
                 // ignore other cases
@@ -208,7 +215,7 @@ public class ClientControl extends BorderPane implements ProtocolListener
     public void moveSent(Message moveMessage, int move)
     {
         if (moveMessage == Message.PLAYER_MOVE) {
-            this.updateMessage("Waiting for opponent move.");
+            this.updateMessage(GUI_STRINGS.getString("opponent_move_message"));
         }
     }
 }

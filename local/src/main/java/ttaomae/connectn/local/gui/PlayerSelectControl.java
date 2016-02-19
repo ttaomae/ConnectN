@@ -1,6 +1,7 @@
 package ttaomae.connectn.local.gui;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -12,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
+import ttaomae.connectn.util.ResourceBundleUtil;
 
 /**
  * A JavaFX component which provides an interface for selecting between a human
@@ -23,6 +25,9 @@ import javafx.scene.layout.BorderPane;
  */
 public class PlayerSelectControl extends BorderPane
 {
+    private static final ResourceBundle GUI_STRINGS
+            = ResourceBundleUtil.getResourceBundle("gui", "locale.properties");
+
     @FXML private Label label;
     @FXML private Slider cpuDifficultySlider;
     @FXML private RadioButton playerHuman;
@@ -48,6 +53,7 @@ public class PlayerSelectControl extends BorderPane
     {
         FXMLLoader fxmlLoader =
                 new FXMLLoader(getClass().getResource("/layout/player_select.fxml"));
+        fxmlLoader.setResources(GUI_STRINGS);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -75,7 +81,7 @@ public class PlayerSelectControl extends BorderPane
     public final void setPlayerNumber(int playerNumber)
     {
         playerNumberProperty().set(playerNumber);
-        this.label.setText("Player " + playerNumber);
+        this.label.setText(GUI_STRINGS.getString("player_label") + playerNumber);
     }
 
     public IntegerProperty minDifficultyProperty()

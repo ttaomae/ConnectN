@@ -5,7 +5,7 @@
 
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml">
   <top>
-    <Label fx:id="label" text="Player #" />
+    <Label fx:id="label" text="{%player_label} #" />
   </top>
   
   <left>
@@ -15,8 +15,8 @@
       </fx:define>
       
       <children>
-        <RadioButton fx:id="playerHuman" text="Human" toggleGroup="$playerSelect" />
-        <RadioButton fx:id="playerComputer" text="Computer" toggleGroup="$playerSelect" />
+        <RadioButton fx:id="playerHuman" text="%human_button" toggleGroup="$playerSelect" />
+        <RadioButton fx:id="playerComputer" text="%computer_button" toggleGroup="$playerSelect" />
       </children>
     </HBox>
   </left>
@@ -24,7 +24,7 @@
   <bottom>
     <VBox>
       <children>
-        <Label text="Computer Difficulty" />
+        <Label text="%cpu_difficulty" />
 
         <Slider fx:id="cpuDifficultySlider"
             min="2" max="12" value="6"

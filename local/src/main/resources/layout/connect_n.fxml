@@ -56,12 +56,12 @@
 
   <GridPane hgap="20.0"
       GridPane.columnIndex="1" GridPane.rowIndex="5">
-    <Button fx:id="startButton" text="Start"
+    <Button fx:id="startButton" text="%start_button"
         onAction="#handleStartButton"
         GridPane.columnIndex="0" GridPane.rowIndex="0"/>
 
     <Label fx:id="displayMessage" style="-fx-font: 12pt 'Sans Serif'"
-        text="Click 'Start' to start a new game." 
+        text="%start_message"
         GridPane.columnIndex="1" GridPane.rowIndex="0"/>
   </GridPane>
 </fx:root>

@@ -1,6 +1,7 @@
 package ttaomae.connectn.local.gui;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,6 +22,7 @@ import ttaomae.connectn.Piece;
 import ttaomae.connectn.Player;
 import ttaomae.connectn.gui.BoardPanel;
 import ttaomae.connectn.gui.MousePlayer;
+import ttaomae.connectn.util.ResourceBundleUtil;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -34,12 +36,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  */
 public class ConnectNControl extends GridPane implements BoardListener
 {
-    private static final String START_MESSAGE = "Click \"Start\" to start a new game.";
-    private static final String BLACK_TURN = "BLACK's turn.";
-    private static final String RED_TURN = "RED's turn.";
-    private static final String BLACK_WIN = "BLACK Wins!";
-    private static final String RED_WIN = "RED Wins!";
-    private static final String DRAW = "Draw!";
+    private static final ResourceBundle GUI_STRINGS
+            = ResourceBundleUtil.getResourceBundle("gui", "locale.properties");
 
     @FXML private Label title;
 
@@ -105,6 +103,7 @@ public class ConnectNControl extends GridPane implements BoardListener
     {
         FXMLLoader fxmlLoader =
                 new FXMLLoader(getClass().getResource("/layout/connect_n.fxml"));
+        fxmlLoader.setResources(GUI_STRINGS);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -120,12 +119,12 @@ public class ConnectNControl extends GridPane implements BoardListener
     {
         if (this.running) {
             this.resetGame();
-            this.updateStartButtonText("Start");
+            this.updateStartButtonText(GUI_STRINGS.getString("start_button"));
             this.running = false;
         }
         else {
             this.startGame();
-            this.updateStartButtonText("Reset");
+            this.updateStartButtonText(GUI_STRINGS.getString("reset_button"));
             this.running = true;
         }
     }
@@ -168,7 +167,7 @@ public class ConnectNControl extends GridPane implements BoardListener
         }
 
         this.gameManager = new GameManager(this.board, p1, p2);
-        this.updateMessage(BLACK_TURN);
+        this.updateMessage(GUI_STRINGS.getString("black_turn"));
         this.gameManagerThread = new Thread(this.gameManager, "Game Manager");
         this.gameManagerThread.setDaemon(false);
         this.gameManagerThread.start();
@@ -192,14 +191,14 @@ public class ConnectNControl extends GridPane implements BoardListener
     {
         javafx.application.Platform.runLater(() -> {
             int winCond = (int) ConnectNControl.this.winConditionSlider.getValue();
-            ConnectNControl.this.title.setText("Connect " + winCond);
+            ConnectNControl.this.title.setText(GUI_STRINGS.getString("title_prefix") + winCond);
         });
         this.board = new ArrayBoard((int) this.heightSlider.getValue(),
                                (int) this.widthSlider.getValue(),
                                (int) this.winConditionSlider.getValue());
         this.board.addBoardListener(this);
         this.boardPanel.setBoard(this.board);
-        this.updateMessage(START_MESSAGE);
+        this.updateMessage(GUI_STRINGS.getString("start_message"));
     }
 
     /**
@@ -211,20 +210,20 @@ public class ConnectNControl extends GridPane implements BoardListener
         switch (this.board.getWinner()) {
             case NONE:
                 if (this.board.getNextPiece() == Piece.BLACK) {
-                    this.updateMessage(BLACK_TURN);
+                    this.updateMessage(GUI_STRINGS.getString("black_turn"));
                 }
                 else if (this.board.getNextPiece() == Piece.RED) {
-                    this.updateMessage(RED_TURN);
+                    this.updateMessage(GUI_STRINGS.getString("red_turn"));
                 }
                 break;
             case BLACK:
-                this.updateMessage(BLACK_WIN);
+                this.updateMessage(GUI_STRINGS.getString("black_win"));
                 break;
             case RED:
-                this.updateMessage(RED_WIN);
+                this.updateMessage(GUI_STRINGS.getString("red_win"));
                 break;
             case DRAW:
-                this.updateMessage(DRAW);
+                this.updateMessage(GUI_STRINGS.getString("draw"));
                 break;
         }
     }
