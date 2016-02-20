@@ -105,10 +105,20 @@ public class ArrayBoard implements Board, ImmutableBoard
         if (this.currentTurn == this.getHeight() * this.getWidth()) {
             return Piece.DRAW;
         }
+        // there cannot be a winner until the first player has played at least
+        // winCondition pieces
+        if (this.getCurrentTurn() < (this.getWinCondition() * 2) - 1) {
+            return Piece.NONE;
+        }
 
         // check each board position
         for (int row = 0; row < this.getHeight(); row++) {
             for (int col = 0; col < this.getWidth(); col++) {
+                // if the current location is empty, it cannot be part of the
+                // winning line
+                if (this.getPieceAt(col, row) == Piece.NONE) {
+                    continue;
+                }
                 int horizontalBlack = 0;
                 int horizontalRed = 0;
                 int verticalBlack = 0;
