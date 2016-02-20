@@ -1,6 +1,10 @@
 package ttaomae.connectn.network.server;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ttaomae.connectn.network.LostConnectionException;
+import ttaomae.connectn.network.ProtocolEvent.Message;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +17,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ttaomae.connectn.network.LostConnectionException;
-import ttaomae.connectn.network.ProtocolEvent.Message;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Keeps track of the clients which are connected to a Connect-N server.
@@ -60,7 +58,7 @@ public class ClientManager implements Runnable
      * Adds a player which is connected on the specified socket to this
      * ClientManager.
      *
-     * @param playerSocket the player being added
+     * @param player the player being added
      * @throws IllegalArgumentException if the player is null
      * @throws IllegalStateException if the specified socket is closed
      */
@@ -72,7 +70,7 @@ public class ClientManager implements Runnable
         addEligiblePlayer(player);
     }
 
-    void playerDisconnected(ClientHandler player)
+    private void playerDisconnected(ClientHandler player)
     {
         checkNotNull(player, "player must not be null");
 
@@ -222,7 +220,7 @@ public class ClientManager implements Runnable
 
     private class GameManagerCleaner implements Runnable
     {
-        private CompletionService<Void> completionService;
+        private final CompletionService<Void> completionService;
 
         private GameManagerCleaner(CompletionService<Void> completionService)
         {

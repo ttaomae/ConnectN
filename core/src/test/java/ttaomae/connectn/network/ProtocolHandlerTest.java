@@ -1,12 +1,9 @@
 package ttaomae.connectn.network;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import ttaomae.connectn.network.ProtocolEvent.Message;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
@@ -15,11 +12,13 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-
-import ttaomae.connectn.network.ProtocolEvent.Message;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProtocolHandlerTest
 {
@@ -189,7 +188,7 @@ public class ProtocolHandlerTest
     }
 
     @Test
-    public void testRecieveMessage_closedSocket() throws IOException
+    public void testReceiveMessage_closedSocket() throws IOException
     {
         clientSocket.close();
 

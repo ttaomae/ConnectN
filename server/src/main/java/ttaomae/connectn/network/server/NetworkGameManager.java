@@ -1,6 +1,14 @@
 package ttaomae.connectn.network.server;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ttaomae.connectn.ArrayBoard;
+import ttaomae.connectn.Board;
+import ttaomae.connectn.IllegalMoveException;
+import ttaomae.connectn.Piece;
+import ttaomae.connectn.network.LostConnectionException;
+import ttaomae.connectn.network.ProtocolEvent.Message;
+import ttaomae.connectn.network.ProtocolException;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -12,16 +20,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ttaomae.connectn.ArrayBoard;
-import ttaomae.connectn.Board;
-import ttaomae.connectn.IllegalMoveException;
-import ttaomae.connectn.Piece;
-import ttaomae.connectn.network.LostConnectionException;
-import ttaomae.connectn.network.ProtocolEvent.Message;
-import ttaomae.connectn.network.ProtocolException;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Manages a game between two {@linkplain ClientHandler clients}.
@@ -99,11 +98,11 @@ public class NetworkGameManager implements Callable<Void>
             completionService.submit(() -> handleRematchRequest(playerTwoHandler));
 
             try {
-                boolean firstReponse = completionService.take().get();
+                boolean firstResponse = completionService.take().get();
                 boolean secondResponse = completionService.take().get();
 
                 // only rematch if both accept
-                rematch = firstReponse && secondResponse;
+                rematch = firstResponse && secondResponse;
             }
             catch (ExecutionException | InterruptedException e) {
                 if (e.getCause() instanceof LostConnectionException) {
@@ -112,7 +111,7 @@ public class NetworkGameManager implements Callable<Void>
                     throw new ClientDisconnectedException(message, e.getCause(), this);
                 }
                 else {
-                    String errorMessage = "Error occured while waiting for rematch response";
+                    String errorMessage = "Error occurred while waiting for rematch response";
                     logger.error(errorMessage, e);
                     throw new NetworkGameException(errorMessage, e, this);
                 }
@@ -156,7 +155,7 @@ public class NetworkGameManager implements Callable<Void>
             Optional<Integer> optionalMove = getMove(currentPlayer);
 
             if (!optionalMove.isPresent()) {
-                throw new ProtocolException("Recieved empty move");
+                throw new ProtocolException("Received empty move");
             }
 
             int move = optionalMove.get();

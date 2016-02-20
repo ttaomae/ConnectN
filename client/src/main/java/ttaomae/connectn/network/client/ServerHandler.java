@@ -1,14 +1,7 @@
 package ttaomae.connectn.network.client;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ttaomae.connectn.Board;
 import ttaomae.connectn.Piece;
 import ttaomae.connectn.Player;
@@ -18,6 +11,12 @@ import ttaomae.connectn.network.ProtocolEvent.Message;
 import ttaomae.connectn.network.ProtocolException;
 import ttaomae.connectn.network.ProtocolHandler;
 import ttaomae.connectn.network.ProtocolListener;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.net.SocketException;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A Connect-N network multiplayer client.
@@ -36,34 +35,37 @@ public class ServerHandler implements Runnable
     private Board board;
 
     /**
-     * Indicates whether or not this Client is waiting for some kind of
+     * Indicates whether or not this ServerHandler is waiting for some kind of
      * response. For example, it may be waiting to confirm whether or not to
      * accept a rematch.
      */
     private volatile boolean waitingForResponse;
 
     /**
-     * Constructs a new Client which connects to the server specified by the
-     * host and port. Moves are selected by the specified Player and are played
-     * on the specified Board. It is the client's responsibility to keep a
-     * properly updated board.
+     * Constructs a new ServerHandler which is connected to the server on the
+     * specified socket. Moves are selected by the specified Player and are
+     * played on the specified Board. It is the client's responsibility to keep
+     * a properly updated board.
      *
-     * @param host the host name, or null for the loopback address
-     * @param port the port number
+     * @param socket the socket which is connected to the client
      * @param player the player that will select moves
      * @param board the client's copy of the board
-     * @throws UnknownHostException - if the IP address of the host could not be determined
-     * @throws IOException if an I/O error occurs when connecting to the server
-     * @throws IllegalArgumentException if the player or board is null or if the port is invalid
+     * @throws SocketException if there was an problem accessing the socket
+     * @throws NullPointerException if the socket, player, or board is null
      */
-    public ServerHandler(Socket socket, Player player, Board board) throws IOException
+    public ServerHandler(Socket socket, Player player, Board board) throws SocketException
     {
         checkNotNull(socket, "socket must not be null");
         checkNotNull(player, "player must not be null");
         checkNotNull(board, "board must not be null");
 
         this.socket = socket;
-        this.protocolHandler = new ProtocolHandler(socket);
+        try {
+            this.protocolHandler = new ProtocolHandler(socket);
+        }
+        catch (IOException e) {
+            throw new SocketException("Could not access socket.");
+        }
 
         this.player = player;
         this.board = board;
@@ -117,7 +119,7 @@ public class ServerHandler implements Runnable
                         // wait for rematch response
                         event = this.protocolHandler.receiveEvent();
                         if (!event.getMessage().isRematchResponse()) {
-                            throw new ProtocolException("Expected rematch response but recieved "
+                            throw new ProtocolException("Expected rematch response but received "
                                     + event.getMessage());
                         }
                     }
@@ -165,7 +167,7 @@ public class ServerHandler implements Runnable
                 case OPPONENT_DISCONNECTED:
                     return false;
                 default:
-                    throw new ProtocolException("Recieved unexpected message: "
+                    throw new ProtocolException("Received unexpected message: "
                             + event.getMessage());
             }
         }

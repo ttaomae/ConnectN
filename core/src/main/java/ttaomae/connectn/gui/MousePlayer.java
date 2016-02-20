@@ -1,10 +1,10 @@
 package ttaomae.connectn.gui;
 
-import java.util.Optional;
-
 import javafx.scene.input.MouseEvent;
 import ttaomae.connectn.ImmutableBoard;
 import ttaomae.connectn.Player;
+
+import java.util.Optional;
 
 /**
  * A mouse player. Selects move based on click on a BoardPanel.
@@ -14,7 +14,7 @@ import ttaomae.connectn.Player;
 public class MousePlayer implements Player
 {
     private Integer move;
-    private BoardPanel boardPanel;
+    private final BoardPanel boardPanel;
 
     /**
      * Constructs a new MousePlayer which plays on the specified BoardPanel.

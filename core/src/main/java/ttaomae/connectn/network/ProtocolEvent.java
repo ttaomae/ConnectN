@@ -1,9 +1,9 @@
 package ttaomae.connectn.network;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import java.util.EnumSet;
 import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * A client-server protocol event.
@@ -81,7 +81,7 @@ public final class ProtocolEvent
      *
      * @author Todd Taomae
      */
-    public static enum Message
+    public enum Message
     {
         /** Sent by the server at the start of a game. */
         START_GAME,

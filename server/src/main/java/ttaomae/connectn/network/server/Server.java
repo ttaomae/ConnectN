@@ -1,15 +1,15 @@
 package ttaomae.connectn.network.server;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * A Connect-N network multiplayer server.
@@ -20,8 +20,8 @@ public class Server implements Runnable
 {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
-    private int port;
-    private ClientManager clientManager;
+    private final int port;
+    private final ClientManager clientManager;
 
     /**
      * Constructs a new Server bound to the specified port.
@@ -49,7 +49,7 @@ public class Server implements Runnable
         clientManagerThread.setDaemon(true);
         clientManagerThread.start();
 
-        try (ServerSocket serverSocket = new ServerSocket(this.port);) {
+        try (ServerSocket serverSocket = new ServerSocket(this.port)) {
             logger.info("Waiting for connections...");
             while (true) {
                 Socket socket = serverSocket.accept();

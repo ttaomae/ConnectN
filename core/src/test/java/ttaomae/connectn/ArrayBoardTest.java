@@ -1,14 +1,14 @@
 package ttaomae.connectn;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 public class ArrayBoardTest
 {
     private Board board;
@@ -180,7 +180,7 @@ public class ArrayBoardTest
     }
 
     @Test
-    public void testBlackHorizinalWin()
+    public void testBlackHorizontalWin()
     {
         board.play(0); // black
         board.play(0);
@@ -382,7 +382,7 @@ public class ArrayBoardTest
     }
 
     @Test
-    public void testRedkHorizinalWin()
+    public void testRedHorizontalWin()
     {
         board.play(6);
         board.play(0); // red

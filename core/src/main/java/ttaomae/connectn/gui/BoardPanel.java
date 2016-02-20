@@ -50,7 +50,7 @@ public class BoardPanel extends Canvas implements BoardListener
     @Override
     public void boardChanged()
     {
-        javafx.application.Platform.runLater(() -> this.update());
+        javafx.application.Platform.runLater(this::update);
     }
 
     /**

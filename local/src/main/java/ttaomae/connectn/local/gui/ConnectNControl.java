@@ -1,10 +1,6 @@
 package ttaomae.connectn.local.gui;
 
-import java.io.IOException;
-import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -24,12 +20,15 @@ import ttaomae.connectn.gui.BoardPanel;
 import ttaomae.connectn.gui.MousePlayer;
 import ttaomae.connectn.util.ResourceBundleUtil;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.io.IOException;
+import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A JavaFX component which provides an interface for a Connect-N game. Provides
  * an interface for selecting the height, width, and win condition; whether the
- * players are human or computer; and for starting and reseting games. Also
+ * players are human or computer; and for starting and resetting games. Also
  * contains a display for messages to the user.
  *
  * @author Todd Taomae
@@ -58,7 +57,7 @@ public class ConnectNControl extends GridPane implements BoardListener
     private Thread gameManagerThread;
     private Board board;
 
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
 
     /**
      * Constructs a new ConnectNControl.

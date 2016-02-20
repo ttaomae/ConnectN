@@ -45,7 +45,7 @@ public final class ResourceBundleUtil
             return ResourceBundle.getBundle(resourceBaseName, locale);
         }
         catch (IOException e) {
-            throw new RuntimeException("An error occured while closing locale property file.", e);
+            throw new RuntimeException("An error occurred while closing locale property file.", e);
         }
     }
 }

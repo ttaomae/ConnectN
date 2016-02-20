@@ -1,7 +1,6 @@
 package ttaomae.connectn;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -9,7 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A Connect-N game manager. Manages a single game between two Players. Can be
@@ -19,12 +19,12 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  */
 public class GameManager implements Runnable
 {
-    /** The maxmimum number of attempts that a GameManager might allow */
+    /** The maximum number of attempts that a GameManager might allow */
     private static final int MAX_ATTEMPTS = Integer.MAX_VALUE;
-    private Board board;
-    private Player playerOne;
-    private Player playerTwo;
-    private int attemptsAllowed;
+    private final Board board;
+    private final Player playerOne;
+    private final Player playerTwo;
+    private final int attemptsAllowed;
 
     private volatile boolean running;
 
@@ -155,8 +155,8 @@ public class GameManager implements Runnable
             case RED:
                 return this.playerTwo;
             default:
-                assert false : "unknown option: " + nextPiece;
-                return null;
+                assert false : "invalid option: " + nextPiece;
+                throw new IllegalArgumentException("invalid option: " + nextPiece);
         }
     }
 }
