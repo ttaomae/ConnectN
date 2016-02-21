@@ -136,8 +136,9 @@ public class AlphaBetaPlayer implements Player
         if (Thread.currentThread().isInterrupted()) {
             return 0;
         }
-        if (depth == 0 || board.getWinner() != Piece.NONE ) {
-            return getHeuristic(board, maxPlayer, depth);
+        Piece winner = board.getWinner();
+        if (depth == 0 || winner != Piece.NONE) {
+            return getHeuristic(board, maxPlayer, depth, winner);
         }
 
         // max player
@@ -196,17 +197,18 @@ public class AlphaBetaPlayer implements Player
      *
      * @param board board to evaluate
      * @param maxPlayer maximizing player
+     * @param winner the winner of the specified board
      * @return the heuristic value of the specified board
      */
-    private double getHeuristic(Board board, Piece maxPlayer, int depth)
+    private double getHeuristic(Board board, Piece maxPlayer, int depth, Piece winner)
     {
-        if (board.getWinner() == maxPlayer) {
-            return depth * WIN_VALUE;
+        if (winner == maxPlayer) {
+            return (depth + 1) * WIN_VALUE;
         }
-        if (board.getWinner() == maxPlayer.opposite()) {
-            return depth * -WIN_VALUE;
+        if (winner == maxPlayer.opposite()) {
+            return (depth + 1) * -WIN_VALUE;
         }
-        if (board.getWinner() == Piece.DRAW) {
+        if (winner == Piece.DRAW) {
             // slightly worse than neutral
             return -1.0f;
         }
@@ -280,7 +282,7 @@ public class AlphaBetaPlayer implements Player
             }
         }
 
-        return (maxPlayerNInARow - minPlayerNInARow) * (WIN_VALUE / 100.0) * depth;
+        return (maxPlayerNInARow - minPlayerNInARow) * (WIN_VALUE / 100.0) * (depth + 1);
     }
 
     private List<Integer> getValidMoves(ImmutableBoard board)
