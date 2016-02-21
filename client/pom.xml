@@ -13,15 +13,32 @@
 
   <name>ConnectN Client</name>
 
+  <properties>
+    <main-class>ttaomae.connectn.network.client.Main</main-class>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
-        <groupId>com.zenjava</groupId>
-        <artifactId>javafx-maven-plugin</artifactId>
+        <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
-          <mainClass>ttaomae.connectn.network.client.Main</mainClass>
-          <jfxAppOutputDir>${project.build.directory}</jfxAppOutputDir>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>${main-class}</mainClass>
+            </manifest>
+          </archive>
         </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
