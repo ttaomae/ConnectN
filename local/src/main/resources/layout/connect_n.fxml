@@ -45,12 +45,12 @@
     <left>
       <PlayerSelectControl fx:id="playerOne" prefWidth="220"
           playerNumber="1" humanDefault="true"
-          minDifficulty="2" maxDifficulty="10" />
+          minDifficulty="0" maxDifficulty="10" />
     </left>
     <right>
       <PlayerSelectControl fx:id="playerTwo" prefWidth="220"
           playerNumber="2" humanDefault="false"
-          minDifficulty="2" maxDifficulty="10" />
+          minDifficulty="0" maxDifficulty="10" />
     </right>
   </BorderPane>
 
