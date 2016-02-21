@@ -1,9 +1,5 @@
 package ttaomae.connectn;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +8,10 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A {@link Board} implementation backed by a 2-dimensional array.
@@ -213,8 +213,8 @@ public class ArrayBoard implements Board, ImmutableBoard
     @Override
     public Piece getPieceAt(int col, int row)
     {
-        checkElementIndex(col, this.getWidth(), "Column: " + col + ", Width: " + this.getWidth());
-        checkElementIndex(row, this.getHeight(), "Row: " + row + ", Height: " + this.getHeight());
+        checkElementIndex(col, this.getWidth(), "column");
+        checkElementIndex(row, this.getHeight(), "row");
 
         return this.board[row][col];
     }

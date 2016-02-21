@@ -4,7 +4,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.core.StringContains.containsString;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -131,32 +133,32 @@ public class ArrayBoardTest
             board.getPieceAt(-1, 0);
             fail();
         } catch (IndexOutOfBoundsException expected) {
-            Assert.assertThat("failure - get piece at (-1, 0)",
-                    expected.getMessage(), containsString("Column: -1, Width: 7"));
+            Assert.assertThat("failure - get piece at (-1, 0)", expected.getMessage(),
+                    allOf(containsString("-1"), containsString("must not be negative")));
         }
 
         try {
             board.getPieceAt(board.getWidth(), 0);
             fail();
         } catch (IndexOutOfBoundsException expected) {
-            Assert.assertThat("failure - get piece at (7, 0)",
-                    expected.getMessage(), containsString("Column: 7, Width: 7"));
+            Assert.assertThat("failure - get piece at (7, 0)", expected.getMessage(),
+                    allOf(containsString("7"), containsString("must be less than")));
         }
 
         try {
             board.getPieceAt(0, -1);
             fail();
         } catch (IndexOutOfBoundsException expected) {
-            Assert.assertThat("failure - get piece at (0, -1)",
-                    expected.getMessage(), containsString("Row: -1, Height: 6"));
+            Assert.assertThat("failure - get piece at (0, -1)", expected.getMessage(),
+                    allOf(containsString("-1"), containsString("must not be negative")));
         }
 
         try {
             board.getPieceAt(0, board.getHeight());
             fail();
         } catch (IndexOutOfBoundsException expected) {
-            Assert.assertThat("failure - get piece at (0, 6)",
-                    expected.getMessage(), containsString("Row: 6, Height: 6"));
+            Assert.assertThat("failure - get piece at (0, 6)", expected.getMessage(),
+                    allOf(containsString("6"), containsString("must be less than")));
         }
     }
 
