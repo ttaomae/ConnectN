@@ -160,7 +160,7 @@ public class ClientManager implements Runnable
                     // if we do not assign to a variable, FindBugs will mark
                     // this as: RV_RETURN_VALUE_IGNORED_BAD_PRACTICE
                     // we do not care about the return value and exceptions are
-                    // handled by the gameManagerPool's UncaughtExceptionHandler
+                    // handled by a GameManagerCleaner
                     Future<Void> unused = this.gameManagerPool.submit(gameManager);
                 }
                 // there was no matchup found so don't look again until a new
@@ -188,6 +188,15 @@ public class ClientManager implements Runnable
         for (ClientHandler playerOne : this.eligiblePlayers) {
             logger.debug("finding opponent for: {}", playerOne);
             Optional<ClientHandler> optionalPlayerTwo = this.eligiblePlayers.stream()
+                    // don't choose a player that has disconnected
+                    .filter(player -> {
+                        if (player.isConnected()) {
+                            return true;
+                        } else {
+                            this.eligiblePlayers.remove(player);
+                            return false;
+                        }
+                    })
                     // exclude playerOne
                     .filter(player -> !playerOne.equals(player))
                     // exclude playerOne's last opponent
