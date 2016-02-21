@@ -1,18 +1,26 @@
 package ttaomae.connectn;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * An Player which uses a minimax algorithm with alpha-beta pruning.
@@ -21,9 +29,11 @@ import java.util.stream.IntStream;
  */
 public class AlphaBetaPlayer implements Player
 {
+    private static final Logger logger = LoggerFactory.getLogger(AlphaBetaPlayer.class);
+
     private static final double WIN_VALUE = 10000.0;
     private static final int DEFAULT_DEPTH = 5;
-    private final int depth;
+    private final int maxDepth;
 
     private ExecutorService executorService;
 
@@ -41,13 +51,16 @@ public class AlphaBetaPlayer implements Player
     /**
      * Constructs a new AlphaBetaPlayer which uses the specified search depth.
      *
-     * @param depth the search depth
+     * @param maxDepth the search depth
      * @param executorService the ExecutorService on which to perform
      *          computations
      */
-    public AlphaBetaPlayer(int depth, ExecutorService executorService)
+    public AlphaBetaPlayer(int maxDepth, ExecutorService executorService)
     {
-        this.depth = depth;
+        checkArgument(maxDepth >= 0, "maxDepth must be non-negative");
+        checkNotNull(executorService, "executorService must not be null");
+
+        this.maxDepth = maxDepth;
         this.executorService = executorService;
     }
 
@@ -58,57 +71,53 @@ public class AlphaBetaPlayer implements Player
 
         Piece myPiece = board.getNextPiece();
 
-        // create randomly ordered list of possible moves
-        List<Integer> moves = new ArrayList<>();
-        for (int move = 0; move < board.getWidth(); move++) {
-            moves.add(move);
+        // if depth is 0, select a random move
+        if (this.maxDepth == 0) {
+            List<Integer> validMoves = getValidMoves(board);
+            Collections.shuffle(validMoves);
+            return Optional.of(validMoves.get(0));
         }
-        Collections.shuffle(moves);
 
-        // move -> Future<heuristic>
-        Map<Integer, Future<Double>> moveFutures = new HashMap<>();
-
-        // get minimax value for all valid moves
-        IntStream.range(0, board.getWidth())
-                .filter(board::isValidMove)
-                .forEach(move -> moveFutures.put(move,
-                        this.executorService.submit(() -> {
-                            Board copy = board.getMutableCopy();
-                            copy.play(move);
-                            return alphaBeta(copy, depth - 1, Double.NEGATIVE_INFINITY,
-                                    Double.POSITIVE_INFINITY, myPiece);
-                        })
-                ));
-
-        Map<Integer, Double> moveScores = new HashMap<>();
         try {
-            for (Map.Entry<Integer, Future<Double>> entry : moveFutures.entrySet()) {
-                moveScores.put(entry.getKey(), entry.getValue().get());
-            }
+            ArrayList<Integer> bestMoves = new ArrayList<>(
+                    getBestMoves(board, this.maxDepth, myPiece));
+            Collections.shuffle(bestMoves);
+            return Optional.of(bestMoves.get(0));
         }
         catch (ExecutionException | InterruptedException e) {
-            for (Future<Double> future : moveFutures.values()) {
-                future.cancel(true);
-            }
-        }
-
-        // find max score
-        double maxScore = moveScores.values().stream()
-                .mapToDouble(Double::doubleValue)
-                .max().orElse(Double.NEGATIVE_INFINITY);
-
-        // find moves with max score
-        List<Integer> possibleMoves = moveScores.entrySet().stream()
-                .filter(entry -> entry.getValue() == maxScore)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        if (possibleMoves.isEmpty()) {
+            logger.warn("Error occurred while getting move.", e);
             return Optional.empty();
         }
+    }
 
-        Collections.shuffle(possibleMoves);
-        return Optional.of(possibleMoves.get(0));
+    private Collection<Integer> getBestMoves(ImmutableBoard board, int depth, Piece myPiece)
+            throws ExecutionException, InterruptedException
+    {
+        assert this.maxDepth > 0 : "getBestMoves should only be used with maxDepth > 0";
+
+        List<Integer> validMoves = getValidMoves(board);
+        Collections.shuffle(validMoves);
+
+        Multimap<Double, Integer> moveHeuristics = Multimaps.newListMultimap(
+                new HashMap<>(), () -> new ArrayList<>());
+
+        Collection<Callable<Void>> tasks = new ArrayList<>();
+        for (int move : validMoves) {
+            tasks.add(() -> {
+                Board copy = board.getMutableCopy();
+                copy.play(move);
+                moveHeuristics.put(alphaBeta(copy, depth - 1, Double.NEGATIVE_INFINITY,
+                        Double.POSITIVE_INFINITY, myPiece), move);
+                return null;
+            });
+        }
+        List<Future<Void>> futures = this.executorService.invokeAll(tasks);
+        // check for ExecutionExceptions
+        for (Future<Void> future : futures) {
+            future.get();
+        }
+
+        return moveHeuristics.get(Collections.max(moveHeuristics.keySet()));
     }
 
     /**
@@ -272,5 +281,14 @@ public class AlphaBetaPlayer implements Player
         }
 
         return (maxPlayerNInARow - minPlayerNInARow) * (WIN_VALUE / 100.0) * depth;
+    }
+
+    private List<Integer> getValidMoves(ImmutableBoard board)
+    {
+        // create randomly ordered list of possible moves
+        return IntStream.range(0, board.getWidth())
+                .filter(board::isValidMove)
+                .boxed()
+                .collect(Collectors.toList());
     }
 }
