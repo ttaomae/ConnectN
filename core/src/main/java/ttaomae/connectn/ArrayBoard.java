@@ -102,7 +102,7 @@ public class ArrayBoard implements Board, ImmutableBoard
     public Piece getWinner()
     {
         // if the board is full it is a draw
-        if (this.currentTurn == this.getHeight() * this.getWidth()) {
+        if (this.getCurrentTurn() == this.getHeight() * this.getWidth()) {
             return Piece.DRAW;
         }
         // there cannot be a winner until the first player has played at least
@@ -115,94 +115,117 @@ public class ArrayBoard implements Board, ImmutableBoard
         for (int row = 0; row < this.getHeight(); row++) {
             for (int col = 0; col < this.getWidth(); col++) {
                 // if the current location is empty, it cannot be part of the
-                // winning line
+                // winning line, so skip to the next location
                 if (this.getPieceAt(col, row) == Piece.NONE) {
                     continue;
                 }
-                int horizontalBlack = 0;
-                int horizontalRed = 0;
-                int verticalBlack = 0;
-                int verticalRed = 0;
-                int diagonalBlack1 = 0;
-                int diagonalRed1 = 0;
-                int diagonalBlack2 = 0;
-                int diagonalRed2 = 0;
 
-                for (int i = 0; i < this.getWinCondition(); i++) {
-                    // check horizontal win
-                    if (col <= this.getWidth() - this.getWinCondition()) {
+                // For each direction (horizontal, vertical, up-right, up-left)
+                // check if there are n pieces of the same color in a line.
+                // This is done by keeping a count for each direction, one color
+                // increments the count and the other decrements the count.
+                // When checking the nth piece in a line, if the absolute value
+                // of the count is not n, then there cannot be a winner for that
+                // line, so we can stop checking.
+                int horizontal = 0;
+                int vertical = 0;
+                int upLeft = 0;
+                int upRight = 0;
+
+                boolean rightPossible = col <= this.getWidth() - this.getWinCondition();
+                boolean leftPossible = col >= this.getWidth() - this.getWinCondition();
+                boolean vertcalPossible = row <= this.getHeight() - this.getWinCondition();
+                if (rightPossible) {
+                    loop:
+                    for (int i = 0; i < this.getWinCondition(); i++) {
                         switch (this.getPieceAt(col + i, row)) {
                             case BLACK:
-                                horizontalBlack++;
+                                if (horizontal < i) break loop;
+                                horizontal++;
                                 break;
                             case RED:
-                                horizontalRed++;
+                                if (horizontal > -i) break loop;
+                                horizontal--;
                                 break;
-                            case NONE:
-                            case DRAW:
+                            default:
                                 break;
                         }
                     }
-
-                    // check vertical win
-                    if (row <= this.getHeight() - this.getWinCondition()) {
+                    if (horizontal == this.getWinCondition()) {
+                        return Piece.BLACK;
+                    }
+                    else if (horizontal == -this.getWinCondition()) {
+                        return Piece.RED;
+                    }
+                }
+                if (vertcalPossible) {
+                    loop:
+                    for (int i = 0; i < this.getWinCondition(); i++) {
                         switch (this.getPieceAt(col, row + i)) {
                             case BLACK:
-                                verticalBlack++;
+                                if (vertical < i) break loop;
+                                vertical++;
                                 break;
                             case RED:
-                                verticalRed++;
+                                if (vertical > -i) break loop;
+                                vertical--;
                                 break;
-                            case NONE:
-                            case DRAW:
+                            default:
                                 break;
                         }
                     }
-
-                    // check up-right diagonal win
-                    if (col <= this.getWidth() - this.getWinCondition()
-                        && row <= this.getHeight() - this.getWinCondition()) {
+                    if (vertical == this.getWinCondition()) {
+                        return Piece.BLACK;
+                    }
+                    else if (vertical == -this.getWinCondition()) {
+                        return Piece.RED;
+                    }
+                }
+                if (vertcalPossible && rightPossible) {
+                    loop:
+                    for (int i = 0; i < this.getWinCondition(); i++) {
                         switch (this.getPieceAt(col + i, row + i)) {
                             case BLACK:
-                                diagonalBlack1++;
+                                if (upRight < i) break loop;
+                                upRight++;
                                 break;
                             case RED:
-                                diagonalRed1++;
+                                if (upRight > -i) break loop;
+                                upRight--;
                                 break;
-                            case NONE:
-                            case DRAW:
+                            default:
                                 break;
                         }
                     }
-
-                    // check up-left diagonal win
-                    if (col >= this.getWinCondition() - 1
-                        && row <= this.getHeight() - this.getWinCondition()) {
+                    if (upRight == this.getWinCondition()) {
+                        return Piece.BLACK;
+                    }
+                    else if (upRight == -this.getWinCondition()) {
+                        return Piece.RED;
+                    }
+                }
+                if (vertcalPossible && leftPossible) {
+                    loop:
+                    for (int i = 0; i < this.getWinCondition(); i++) {
                         switch (this.getPieceAt(col - i, row + i)) {
                             case BLACK:
-                                diagonalBlack2++;
+                                if (upLeft < i) break loop;
+                                upLeft++;
                                 break;
                             case RED:
-                                diagonalRed2++;
+                                if (upLeft > -i) break loop;
+                                upLeft--;
                                 break;
-                            case NONE:
-                            case DRAW:
+                            default:
                                 break;
                         }
                     }
-                }
-
-                if (horizontalBlack == this.getWinCondition()
-                    || verticalBlack == this.getWinCondition()
-                    || diagonalBlack1 == this.getWinCondition()
-                    || diagonalBlack2 == this.getWinCondition()) {
-                    return Piece.BLACK;
-                }
-                if (horizontalRed == this.getWinCondition()
-                    || verticalRed == this.getWinCondition()
-                    || diagonalRed1 == this.getWinCondition()
-                    || diagonalRed2 == this.getWinCondition()) {
-                    return Piece.RED;
+                    if (upLeft == this.getWinCondition()) {
+                        return Piece.BLACK;
+                    }
+                    else if (upLeft == -this.getWinCondition()) {
+                        return Piece.RED;
+                    }
                 }
             }
         }
