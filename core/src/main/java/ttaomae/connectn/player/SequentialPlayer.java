@@ -1,8 +1,10 @@
-package ttaomae.connectn;
+package ttaomae.connectn.player;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Optional;
+
+import ttaomae.connectn.ImmutableBoard;
 
 /**
  * A sequential Player. Always selects the leftmost valid move.

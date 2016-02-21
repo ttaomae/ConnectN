@@ -6,6 +6,11 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import ttaomae.connectn.player.InvalidPlayer;
+import ttaomae.connectn.player.Player;
+import ttaomae.connectn.player.RandomPlayer;
+import ttaomae.connectn.player.SequentialPlayer;
+
 public class GameManagerTest
 {
     @Test

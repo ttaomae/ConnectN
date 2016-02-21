@@ -5,6 +5,9 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
+import ttaomae.connectn.player.Player;
+import ttaomae.connectn.player.SequentialPlayer;
+
 public class SequentialPlayerTest
 {
     @Test

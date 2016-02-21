@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.allOf;
+
 import static org.hamcrest.core.StringContains.containsString;
 
 import static org.junit.Assert.assertEquals;

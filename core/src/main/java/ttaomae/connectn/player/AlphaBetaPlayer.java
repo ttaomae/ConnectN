@@ -1,4 +1,7 @@
-package ttaomae.connectn;
+package ttaomae.connectn.player;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,11 +19,12 @@ import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ttaomae.connectn.Board;
+import ttaomae.connectn.ImmutableBoard;
+import ttaomae.connectn.Piece;
+
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * An Player which uses a minimax algorithm with alpha-beta pruning.

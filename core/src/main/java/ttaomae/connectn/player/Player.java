@@ -1,6 +1,8 @@
-package ttaomae.connectn;
+package ttaomae.connectn.player;
 
 import java.util.Optional;
+
+import ttaomae.connectn.ImmutableBoard;
 
 /**
  * An interface of a Connect-N player.

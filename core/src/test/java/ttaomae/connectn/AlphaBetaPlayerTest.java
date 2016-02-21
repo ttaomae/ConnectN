@@ -7,6 +7,9 @@ import java.util.concurrent.Executors;
 import org.junit.Before;
 import org.junit.Test;
 
+import ttaomae.connectn.player.AlphaBetaPlayer;
+import ttaomae.connectn.player.Player;
+
 public class AlphaBetaPlayerTest
 {
     private Board board;

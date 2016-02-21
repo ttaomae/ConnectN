@@ -7,6 +7,9 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import ttaomae.connectn.player.Player;
+import ttaomae.connectn.player.RandomPlayer;
+
 public class RandomPlayerTest
 {
     @Test

@@ -1,22 +1,23 @@
 package ttaomae.connectn.network.client;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.net.SocketException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ttaomae.connectn.Board;
 import ttaomae.connectn.Piece;
-import ttaomae.connectn.Player;
 import ttaomae.connectn.network.LostConnectionException;
 import ttaomae.connectn.network.ProtocolEvent;
 import ttaomae.connectn.network.ProtocolEvent.Message;
 import ttaomae.connectn.network.ProtocolException;
 import ttaomae.connectn.network.ProtocolHandler;
 import ttaomae.connectn.network.ProtocolListener;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.net.SocketException;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import ttaomae.connectn.player.Player;
 
 /**
  * A Connect-N network multiplayer client.

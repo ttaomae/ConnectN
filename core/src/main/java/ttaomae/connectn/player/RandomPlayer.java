@@ -1,4 +1,4 @@
-package ttaomae.connectn;
+package ttaomae.connectn.player;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+
+import ttaomae.connectn.ImmutableBoard;
 
 /**
  * A random Player. Selects a new valid, random move.

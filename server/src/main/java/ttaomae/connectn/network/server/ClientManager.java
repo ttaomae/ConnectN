@@ -1,10 +1,6 @@
 package ttaomae.connectn.network.server;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ttaomae.connectn.network.LostConnectionException;
-import ttaomae.connectn.network.ProtocolEvent.Message;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +13,13 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ttaomae.connectn.network.LostConnectionException;
+import ttaomae.connectn.network.ProtocolEvent.Message;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Keeps track of the clients which are connected to a Connect-N server.

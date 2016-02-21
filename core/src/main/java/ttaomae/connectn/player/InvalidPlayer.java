@@ -1,6 +1,9 @@
-package ttaomae.connectn;
+package ttaomae.connectn.player;
 
 import java.util.Optional;
+
+import ttaomae.connectn.Board;
+import ttaomae.connectn.ImmutableBoard;
 
 /**
  * A Player which always selects an invalid move.

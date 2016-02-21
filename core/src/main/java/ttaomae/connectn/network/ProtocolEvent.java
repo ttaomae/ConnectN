@@ -1,9 +1,9 @@
 package ttaomae.connectn.network;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.EnumSet;
 import java.util.Optional;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * A client-server protocol event.

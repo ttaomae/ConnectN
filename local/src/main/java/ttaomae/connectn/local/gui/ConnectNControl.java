@@ -1,6 +1,10 @@
 package ttaomae.connectn.local.gui;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.io.IOException;
+import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -9,21 +13,18 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
-import ttaomae.connectn.AlphaBetaPlayer;
 import ttaomae.connectn.ArrayBoard;
 import ttaomae.connectn.Board;
 import ttaomae.connectn.BoardListener;
 import ttaomae.connectn.GameManager;
 import ttaomae.connectn.Piece;
-import ttaomae.connectn.Player;
 import ttaomae.connectn.gui.BoardPanel;
 import ttaomae.connectn.gui.MousePlayer;
+import ttaomae.connectn.player.AlphaBetaPlayer;
+import ttaomae.connectn.player.Player;
 import ttaomae.connectn.util.ResourceBundleUtil;
 
-import java.io.IOException;
-import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * A JavaFX component which provides an interface for a Connect-N game. Provides

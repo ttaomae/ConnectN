@@ -2,7 +2,7 @@ package ttaomae.connectn;
 
 /**
  * Thrown to indicate that an illegal move has been attempted.
- * 
+ *
  * @author Todd Taomae
  */
 public class IllegalMoveException extends RuntimeException

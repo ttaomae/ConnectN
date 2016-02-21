@@ -1,14 +1,6 @@
 package ttaomae.connectn.network.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ttaomae.connectn.ArrayBoard;
-import ttaomae.connectn.Board;
-import ttaomae.connectn.IllegalMoveException;
-import ttaomae.connectn.Piece;
-import ttaomae.connectn.network.LostConnectionException;
-import ttaomae.connectn.network.ProtocolEvent.Message;
-import ttaomae.connectn.network.ProtocolException;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -20,7 +12,16 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ttaomae.connectn.ArrayBoard;
+import ttaomae.connectn.Board;
+import ttaomae.connectn.IllegalMoveException;
+import ttaomae.connectn.Piece;
+import ttaomae.connectn.network.LostConnectionException;
+import ttaomae.connectn.network.ProtocolEvent.Message;
+import ttaomae.connectn.network.ProtocolException;
 
 /**
  * Manages a game between two {@linkplain ClientHandler clients}.

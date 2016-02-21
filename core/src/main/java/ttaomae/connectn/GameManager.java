@@ -1,6 +1,7 @@
 package ttaomae.connectn;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -8,8 +9,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import ttaomae.connectn.player.Player;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * A Connect-N game manager. Manages a single game between two Players. Can be

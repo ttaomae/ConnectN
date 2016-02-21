@@ -10,7 +10,7 @@ import java.net.Socket;
 import org.junit.Test;
 
 import ttaomae.connectn.Board;
-import ttaomae.connectn.Player;
+import ttaomae.connectn.player.Player;
 
 public class ServerHandlerTest
 {

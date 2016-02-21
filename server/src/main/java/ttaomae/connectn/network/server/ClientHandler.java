@@ -8,12 +8,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 import ttaomae.connectn.ImmutableBoard;
-import ttaomae.connectn.Player;
 import ttaomae.connectn.network.LostConnectionException;
 import ttaomae.connectn.network.ProtocolEvent;
 import ttaomae.connectn.network.ProtocolEvent.Message;
 import ttaomae.connectn.network.ProtocolException;
 import ttaomae.connectn.network.ProtocolHandler;
+import ttaomae.connectn.player.Player;
 
 public class ClientHandler implements Player
 {

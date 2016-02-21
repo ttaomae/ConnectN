@@ -7,6 +7,10 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import ttaomae.connectn.player.InvalidPlayer;
+import ttaomae.connectn.player.Player;
+import ttaomae.connectn.player.RandomPlayer;
+
 public class InvalidPlayerTest
 {
     @Test
