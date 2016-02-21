@@ -88,8 +88,11 @@ public class AlphaBetaPlayer implements Player
             Collections.shuffle(bestMoves);
             return Optional.of(bestMoves.get(0));
         }
-        catch (ExecutionException | InterruptedException e) {
+        catch (ExecutionException e) {
             logger.warn("Error occurred while getting move.", e);
+            return Optional.empty();
+        }
+        catch (InterruptedException e) {
             return Optional.empty();
         }
     }
