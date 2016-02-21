@@ -133,7 +133,7 @@ public class ArrayBoard implements Board, ImmutableBoard
                 int upRight = 0;
 
                 boolean rightPossible = col <= this.getWidth() - this.getWinCondition();
-                boolean leftPossible = col >= this.getWidth() - this.getWinCondition();
+                boolean leftPossible = col >= this.getWinCondition() - 1;
                 boolean vertcalPossible = row <= this.getHeight() - this.getWinCondition();
                 if (rightPossible) {
                     loop:

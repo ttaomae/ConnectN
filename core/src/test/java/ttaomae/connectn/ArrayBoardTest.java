@@ -561,7 +561,7 @@ public class ArrayBoardTest
         board.play(2); // red
         board.play(3);
         board.play(3); // red
-        assertEquals("failure - red diagonal winner, top right", Piece.RED, board.getWinner());
+        assertEquals("failure - red diagonal winner, top left", Piece.RED, board.getWinner());
 
         board = new ArrayBoard();
         for (int i = 0; i < 5; i++) {
