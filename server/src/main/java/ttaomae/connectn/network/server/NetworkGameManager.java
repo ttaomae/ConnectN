@@ -184,13 +184,17 @@ public class NetworkGameManager implements Callable<Void>
     {
         assert managerOwnsPlayer(player) : "player does not belong to this game manager";
 
-        Optional<Integer> move = player.getMove(null);
-
-        if (move == null) {
-            throw new LostConnectionException();
+        try {
+            return player.getMove(null);
         }
-
-        return move;
+        catch (RuntimeException e) {
+            if (e.getCause().getClass() == LostConnectionException.class) {
+                throw (LostConnectionException)(e.getCause());
+            }
+            else {
+                throw e;
+            }
+        }
     }
 
     private boolean handleRematchRequest(ClientHandler player) throws LostConnectionException

@@ -14,7 +14,6 @@ import ttaomae.connectn.network.ProtocolEvent;
 import ttaomae.connectn.network.ProtocolEvent.Message;
 import ttaomae.connectn.network.ProtocolException;
 import ttaomae.connectn.network.ProtocolHandler;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class ClientHandler implements Player
 {
@@ -29,9 +28,11 @@ public class ClientHandler implements Player
 
     /**
      * {@inheritDoc}
-     * <p>
-     * This method may return {@code null} indicating that the connection with
-     * the client has been lost.
+     * @throws RuntimeException if a {@link LostConnectionException} is
+     *          encountered, it will be wrapped in a RuntimeException; callers
+     *          of this method should catch RuntimeExceptions and check if the
+     *          {@linkplain Throwable#getCause() cause} was a
+     *          LostConnectionException
      */
     @Override
     public Optional<Integer> getMove(ImmutableBoard board)
@@ -42,10 +43,7 @@ public class ClientHandler implements Player
             event = this.protocolHandler.receiveEvent();
         }
         catch (LostConnectionException e) {
-            @SuppressFBWarnings(value="NP_OPTIONAL_RETURN_NULL",
-                    justification="null return value has special meaning; documented in Javadoc.")
-            Optional<Integer> result = null;
-            return result;
+            throw new RuntimeException(e);
         }
 
         if (event.getMessage() != Message.PLAYER_MOVE) {

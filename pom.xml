@@ -108,12 +108,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Required for @SuppressFBWarnings -->
-    <dependency>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>findbugs-maven-plugin</artifactId>
-      <version>${findbugs-maven-plugin.version}</version>
-    </dependency>
   </dependencies>
 
   <modules>
