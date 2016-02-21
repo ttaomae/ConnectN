@@ -21,6 +21,7 @@ import java.util.stream.IntStream;
  */
 public class AlphaBetaPlayer implements Player
 {
+    private static final double WIN_VALUE = 10000.0;
     private static final int DEFAULT_DEPTH = 5;
     private final int depth;
 
@@ -123,12 +124,11 @@ public class AlphaBetaPlayer implements Player
      */
     private double alphaBeta(Board board, int depth, double alpha, double beta, Piece maxPlayer)
     {
-        //
         if (Thread.currentThread().isInterrupted()) {
             return 0;
         }
         if (depth == 0 || board.getWinner() != Piece.NONE ) {
-            return getHeuristic(board, maxPlayer);
+            return getHeuristic(board, maxPlayer, depth);
         }
 
         // max player
@@ -189,13 +189,13 @@ public class AlphaBetaPlayer implements Player
      * @param maxPlayer maximizing player
      * @return the heuristic value of the specified board
      */
-    private double getHeuristic(Board board, Piece maxPlayer)
+    private double getHeuristic(Board board, Piece maxPlayer, int depth)
     {
         if (board.getWinner() == maxPlayer) {
-            return Double.POSITIVE_INFINITY;
+            return depth * WIN_VALUE;
         }
         if (board.getWinner() == maxPlayer.opposite()) {
-            return Double.NEGATIVE_INFINITY;
+            return depth * -WIN_VALUE;
         }
         if (board.getWinner() == Piece.DRAW) {
             // slightly worse than neutral
@@ -271,6 +271,6 @@ public class AlphaBetaPlayer implements Player
             }
         }
 
-        return (maxPlayerNInARow - minPlayerNInARow) * 10;
+        return (maxPlayerNInARow - minPlayerNInARow) * (WIN_VALUE / 100.0) * depth;
     }
 }
