@@ -202,6 +202,7 @@ public class ClientControl extends BorderPane implements ProtocolListener
                 break;
             default:
                 // ignore other cases
+                break;
         }
     }
 
