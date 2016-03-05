@@ -53,6 +53,7 @@ This will create a `target` directory in each of the modules.
 If you wish to build only a specific module, you must first install the core module into your local Maven repository by navigating into the `core` directory and using the following command:
 ```
 > mvn install
+```
 
 # Running
 The `jar-with-dependencies` files found in the `<module-name>/target` directories should include everything they need to run on their own. For the `local` and `client` modules simply double-click their respective JAR files. You can copy or distribute these as-is.
