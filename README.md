@@ -8,7 +8,7 @@ The GUI is built using JavaFX.
 ## Versions
 Currently, there are two versions of this game. One is a stand-alone version and another is a network multiplayer version.
 
-### Stand-alone
+### Local / Stand-alone
 The stand-alone version allows you to select whether each player will be a human or computer. A human player selects a move by clicking on the desired column on the board. The computer uses a minimax algorithm with alpha-beta pruning. The difficulty (search depth) can be selected using the slider below the player select buttons.
 
 The height, width, and win condition can be adjusted using the sliders to the left, bottom, and top of the board, respectively. Be aware that increasing any of the parameters, especially the computer difficulty, can greatly increase the time (and CPU cycles) that the computer will need to select a move.
@@ -21,34 +21,45 @@ When launching the server you must specify a port number. The server will contin
 The client must connect to the server by specifying a host and port. The client will be notified when a game is starting. The player can select moves by clicking on the desired column. After a game has finished the player will be asked if they want a rematch. If both players agree, they will start another game. Otherwise they will be added back to the player pool and, when possible, will be matched up with another player that is not the one that they have most recently played.
 
 # Building
-This project consists of three modules: core, client, and server.
+This project consists of four modules: core, local, client, and server.
 
-The core module contains all the core components necessary for running the stand-alone version as well as components that may be shared by other modules. This included components such as the board and players, as well as GUI components. It also contains the network protocol used by the client and server.
-The client and server modules both depend on the core module and contain only their respective code.
+The core module contains components that may be shared by other modules. This includes components such as the board and players, as well as certain GUI components. It also contains the network protocol used by the client and server.
+
+The local module contains the code for the stand-alone version.
+
+The client and server modules contain code for the network multiplayer version.
 
 This project is built using [Maven](http://maven.apache.org/).
 
-## Testing
-To run the tests, navigate to the `core` directory and run the following command:
+## Testing & Verification
+To run the tests, navigate to the root directory and run the following command:
 ```
-mvn test
+> mvn test
+```
+
+To perform static analysis with [PMD](https://pmd.github.io/) and [FindBugs](http://findbugs.sourceforge.net/), you can use the following command:
+```
+> mvn verify
 ```
 
 ## Packaging
 To compile and package the project, navigate to the root directory of the project and type the following command:
 ```
-mvn clean package
+> mvn package
 ```
 
-This will create several `target` directories (one for each module and one the in the root directory).
+This will create a `target` directory in each of the modules.
+
+If you wish to build only a specific module, you must first install the core module into your local Maven repository by navigating into the `core` directory and using the following command:
+```
+> mvn install
 
 # Running
-The stand-alone and client JARs should include everything they need to run on their own. To launch them simply double-click their respective JAR files. You can copy or distribute these as-is.
+The `jar-with-dependencies` files found in the `<module-name>/target` directories should include everything they need to run on their own. For the `local` and `client` modules simply double-click their respective JAR files. You can copy or distribute these as-is.
 
-The server on the other hand will output two files. One with and one without dependencies. In order to use the one without dependencies, you must include the `lib` directory which should include the `ConnectN-core-XX.jar` file. The file with dependencies can, as with the stand-alone and client JARs, be copied or distributed as-is.
-To run the server, navigate to the directory with the JAR file and type the following command:
+The `server` module on the other hand will need to be run from the command line in order to specify a port number. To run the server, navigate to the directory with the JAR file and type the following command:
 ```
-java -jar ConnectN-server-XX[-jar-with-dependencies].jar <port_number>
+> java -jar connectn-server-<version>-jar-with-dependencies <port_number>
 ```
 
 Once you have started the server you can launch a client and connect to the server. If you are running the client and server from your own machine, you can use `localhost` or `127.0.0.1` as the host and whatever port number you used to launch the server.
