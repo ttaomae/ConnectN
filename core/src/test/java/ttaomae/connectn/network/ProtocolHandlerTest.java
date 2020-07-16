@@ -107,7 +107,7 @@ public class ProtocolHandlerTest
             client.sendPlayerMove(i);
             ProtocolEvent event = server.receiveEvent();
             assertEquals(Message.PLAYER_MOVE, event.getMessage());
-            assertEquals(new Integer(i), event.getMove().get());
+            assertEquals(Integer.valueOf(i), event.getMove().get());
         }
     }
 
@@ -118,7 +118,7 @@ public class ProtocolHandlerTest
             server.sendOpponentMove(i);
             ProtocolEvent event = client.receiveEvent();
             assertEquals(Message.OPPONENT_MOVE, event.getMessage());
-            assertEquals(new Integer(i), event.getMove().get());
+            assertEquals(Integer.valueOf(i), event.getMove().get());
         }
     }
 

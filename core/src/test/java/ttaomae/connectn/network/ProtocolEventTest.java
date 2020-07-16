@@ -40,13 +40,13 @@ public class ProtocolEventTest
         for (int i = 0; i < 10; i++) {
             ProtocolEvent event = ProtocolEvent.createProtocolMoveEvent(Message.PLAYER_MOVE, i);
             assertEquals(Message.PLAYER_MOVE, event.getMessage());
-            assertEquals(new Integer(i), event.getMove().get());
+            assertEquals(Integer.valueOf(i), event.getMove().get());
         }
 
         for (int i = 0; i < 10; i++) {
             ProtocolEvent event = ProtocolEvent.createProtocolMoveEvent(Message.OPPONENT_MOVE, i);
             assertEquals(Message.OPPONENT_MOVE, event.getMessage());
-            assertEquals(new Integer(i), event.getMove().get());
+            assertEquals(Integer.valueOf(i), event.getMove().get());
         }
     }
 

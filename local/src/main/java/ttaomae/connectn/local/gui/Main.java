@@ -1,31 +1,12 @@
 package ttaomae.connectn.local.gui;
 
-import java.util.ResourceBundle;
-
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import ttaomae.connectn.util.ResourceBundleUtil;
-
 /**
  * Launches the ConnectN application.
  *
  * @author Todd Taomae
  */
-public class Main extends Application
+public class Main
 {
-    @Override
-    public void start(Stage stage) throws Exception
-    {
-        ResourceBundle guiStrings = ResourceBundleUtil.getResourceBundle(
-                "gui", "locale.properties");
-        stage.setTitle(guiStrings.getString("window_title"));
-
-        stage.setScene(new Scene(new ConnectNControl()));
-        stage.setResizable(false);
-        stage.show();
-    }
-
     /**
      * Starts the application.
      *
@@ -33,6 +14,6 @@ public class Main extends Application
      */
     public static void main(String[] args)
     {
-        launch(args);
+        ConnectNLocal.main(args);
     }
 }

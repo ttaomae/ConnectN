@@ -23,14 +23,14 @@ public class InvalidPlayerTest
         Optional<Integer> optionalMove = player.getMove(board.getImmutableView());
         assertTrue(optionalMove.isPresent());
         assertEquals("failure - first play invalid",
-                new Integer(Board.INVALID_MOVE), optionalMove.get());
+                Integer.valueOf(Board.INVALID_MOVE), optionalMove.get());
 
         for (int i = 0; i < board.getHeight() * board.getWidth(); i++) {
             board.play(rand.getMove(board.getImmutableView()).get());
             optionalMove = player.getMove(board.getImmutableView());
             assertTrue(optionalMove.isPresent());
             assertEquals("failure - all moves invalid",
-                    new Integer(Board.INVALID_MOVE), optionalMove.get());
+                    Integer.valueOf(Board.INVALID_MOVE), optionalMove.get());
         }
     }
 }

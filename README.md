@@ -21,15 +21,16 @@ When launching the server you must specify a port number. The server will contin
 The client must connect to the server by specifying a host and port. The client will be notified when a game is starting. The player can select moves by clicking on the desired column. After a game has finished the player will be asked if they want a rematch. If both players agree, they will start another game. Otherwise they will be added back to the player pool and, when possible, will be matched up with another player that is not the one that they have most recently played.
 
 # Building
-This project consists of four modules: core, local, client, and server.
+This project requires Java 11+ and [Maven](http://maven.apache.org/) to build.
 
-The core module contains components that may be shared by other modules. This includes components such as the board and players, as well as certain GUI components. It also contains the network protocol used by the client and server.
+## Modules
+This project consists of four modules: `core`, `local`, `client`, and `server`.
 
-The local module contains the code for the stand-alone version.
+The `core` module contains components that may be shared by other modules. This includes components such as the board and players, as well as certain GUI components. It also contains the network protocol used by the client and server.
 
-The client and server modules contain code for the network multiplayer version.
+The `local` module contains the code for the stand-alone version.
 
-This project is built using [Maven](http://maven.apache.org/).
+The `client` and `server` modules contain code for the network multiplayer version.
 
 ## Testing & Verification
 To run the tests, navigate to the root directory and run the following command:
@@ -37,7 +38,7 @@ To run the tests, navigate to the root directory and run the following command:
 > mvn test
 ```
 
-To perform static analysis with [PMD](https://pmd.github.io/) and [FindBugs](http://findbugs.sourceforge.net/), you can use the following command:
+To perform static analysis with [PMD](https://pmd.github.io/) and [FindBugs](https://spotbugs.github.io/), you can use the following command:
 ```
 > mvn verify
 ```
@@ -48,17 +49,21 @@ To compile and package the project, navigate to the root directory of the projec
 > mvn package
 ```
 
-This will create a `target` directory in each of the modules.
+This will create a `target/` directory in each of the modules.
 
-If you wish to build only a specific module, you must first install the core module into your local Maven repository by navigating into the `core` directory and using the following command:
+If you wish to build only a specific module, you must first install the `core` module into your local Maven repository by navigating into the `core/` directory and using the following command:
 ```
 > mvn install
 ```
 
 # Running
-The `jar-with-dependencies` files found in the `<module-name>/target` directories should include everything they need to run on their own. For the `local` and `client` modules simply double-click their respective JAR files. You can copy or distribute these as-is.
+The `*-with-dependencies.jar` files found in the `<module-name>/target/` directories should include everything they need to run on their own. They can be launched using the following command:
 
-The `server` module on the other hand will need to be run from the command line in order to specify a port number. To run the server, navigate to the directory with the JAR file and type the following command:
+```
+> java -jar connectn-<module>-<version>-with-dependencies.jar
+```
+
+The `server` module requires an additional argument specifying the port number.
 ```
 > java -jar connectn-server-<version>-jar-with-dependencies <port_number>
 ```

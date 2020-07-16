@@ -103,7 +103,7 @@ public class ClientControl extends BorderPane implements ProtocolListener
                         GUI_STRINGS.getString("connected_message_prefix") + "%s:%s\n", host, port));
                 this.connected = true;
                 javafx.application.Platform.runLater(() ->
-                    ClientControl.this.connectButton.setDisable(true)
+                    this.connectButton.setDisable(true)
                 );
             }
             catch (NumberFormatException e) {
@@ -163,8 +163,8 @@ public class ClientControl extends BorderPane implements ProtocolListener
     private void yesNoButtonsSetDisable(final boolean disable)
     {
         javafx.application.Platform.runLater(() -> {
-            ClientControl.this.yesButton.setDisable(disable);
-            ClientControl.this.noButton.setDisable(disable);
+            this.yesButton.setDisable(disable);
+            this.noButton.setDisable(disable);
         });
     }
 
@@ -176,7 +176,7 @@ public class ClientControl extends BorderPane implements ProtocolListener
     private void updateMessage(final String message)
     {
         javafx.application.Platform.runLater(() ->
-            ClientControl.this.displayMessage.setText(message)
+            this.displayMessage.setText(message)
         );
     }
 

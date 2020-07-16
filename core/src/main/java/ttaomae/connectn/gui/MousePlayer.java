@@ -27,11 +27,11 @@ public class MousePlayer implements Player
         this.boardPanel = boardPanel;
 
         this.boardPanel.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-            synchronized (MousePlayer.this) {
-                MousePlayer.this.move = MousePlayer.this.boardPanel
+            synchronized (this) {
+                this.move = this.boardPanel
                         .getBoardColumn(mouseEvent.getX());
                 // let this MousePlayer know that the board has been clicked.
-                MousePlayer.this.notifyAll();
+                this.notifyAll();
             }
         });
     }

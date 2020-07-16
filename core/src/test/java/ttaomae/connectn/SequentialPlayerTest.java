@@ -15,7 +15,7 @@ public class SequentialPlayerTest
     {
         Player player = new SequentialPlayer();
         Board board = new ArrayBoard();
-        assertEquals("failure - first move is 0", new Integer(0),
+        assertEquals("failure - first move is 0", Integer.valueOf(0),
                 player.getMove(board.getImmutableView()).get());
 
         for (int col = 0; col < board.getWidth(); col++) {
@@ -26,7 +26,7 @@ public class SequentialPlayerTest
             // do not test after the last column (board is full)
             if (col != board.getWidth() - 1) {
                 assertEquals("failure - " + (col + 1) + " full columns",
-                        new Integer(col + 1), player.getMove(board.getImmutableView()).get());
+                        Integer.valueOf(col + 1), player.getMove(board.getImmutableView()).get());
             }
         }
 

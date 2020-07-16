@@ -32,7 +32,7 @@ public class AlphaBetaPlayerTest
         board.play(2); // black
         board.play(2);
         assertEquals("failure - black selects horizontal winning move",
-                new Integer(3), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(3), player.getMove(board.getImmutableView()).get());
 
         board = new ArrayBoard();
         board.play(0); // black
@@ -42,7 +42,7 @@ public class AlphaBetaPlayerTest
         board.play(0); // black
         board.play(1);
         assertEquals("failure - black selects vertical winning move",
-                new Integer(0), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(0), player.getMove(board.getImmutableView()).get());
 
 
         board = new ArrayBoard();
@@ -57,7 +57,7 @@ public class AlphaBetaPlayerTest
         board.play(4);
         board.play(3);
         assertEquals("failure - black selects diagonal winning move",
-                new Integer(3), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(3), player.getMove(board.getImmutableView()).get());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class AlphaBetaPlayerTest
         board.play(2); // red
         board.play(5);
         assertEquals("failure - red selects horizontal winning move",
-                new Integer(3), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(3), player.getMove(board.getImmutableView()).get());
 
         board = new ArrayBoard();
         board.play(1);
@@ -82,7 +82,7 @@ public class AlphaBetaPlayerTest
         board.play(0); // red
         board.play(2);
         assertEquals("failure - red selects vertical winning move",
-                new Integer(0), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(0), player.getMove(board.getImmutableView()).get());
 
         board = new ArrayBoard();
         board.play(1);
@@ -95,7 +95,7 @@ public class AlphaBetaPlayerTest
         board.play(3);
         board.play(3);
         assertEquals("failure - red selects diagonal winning move",
-                new Integer(3), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(3), player.getMove(board.getImmutableView()).get());
     }
 
     @Test
@@ -109,7 +109,7 @@ public class AlphaBetaPlayerTest
         board.play(6);
         board.play(6); // black
         assertEquals("failure - red blocks black",
-                new Integer(0), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(0), player.getMove(board.getImmutableView()).get());
 
         board = new ArrayBoard();
         board.play(1);
@@ -119,7 +119,7 @@ public class AlphaBetaPlayerTest
         board.play(2);
         board.play(0); // red
         assertEquals("failure - black blocks red",
-                new Integer(0), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(0), player.getMove(board.getImmutableView()).get());
     }
 
     @Test
@@ -132,7 +132,7 @@ public class AlphaBetaPlayerTest
         board.play(0); // black
         board.play(1);
         assertEquals("failure - black wins instead of blocking",
-                new Integer(0), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(0), player.getMove(board.getImmutableView()).get());
 
         board = new ArrayBoard();
         board.play(0);
@@ -143,7 +143,7 @@ public class AlphaBetaPlayerTest
         board.play(1); // red
         board.play(6);
         assertEquals("failure - red wins instead of blocking",
-                new Integer(1), player.getMove(board.getImmutableView()).get());
+                Integer.valueOf(1), player.getMove(board.getImmutableView()).get());
 
 
     }

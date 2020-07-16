@@ -66,7 +66,7 @@ public class BoardPanel extends Canvas implements BoardListener
             for (int col = 0; col < this.board.getWidth(); col++) {
                 int invertedRow = this.board.getHeight() - row - 1;
                 // set color
-                switch (BoardPanel.this.board.getPieceAt(col, row)) {
+                switch (this.board.getPieceAt(col, row)) {
                     case BLACK:
                         graphics.setFill(Color.BLACK);
                         break;

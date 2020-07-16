@@ -141,7 +141,7 @@ public class ConnectNControl extends GridPane implements BoardListener
 
         final int maxWinCondition = Math.max(height, width);
         if (winCondition > maxWinCondition) {
-            ConnectNControl.this.winConditionSlider.setValue(maxWinCondition);
+            this.winConditionSlider.setValue(maxWinCondition);
         }
     }
 
@@ -190,8 +190,8 @@ public class ConnectNControl extends GridPane implements BoardListener
     private void resetBoard()
     {
         javafx.application.Platform.runLater(() -> {
-            int winCond = (int) ConnectNControl.this.winConditionSlider.getValue();
-            ConnectNControl.this.title.setText(GUI_STRINGS.getString("title_prefix") + winCond);
+            int winCond = (int) this.winConditionSlider.getValue();
+            this.title.setText(GUI_STRINGS.getString("title_prefix") + winCond);
         });
         this.board = new ArrayBoard((int) this.heightSlider.getValue(),
                                (int) this.widthSlider.getValue(),
@@ -236,7 +236,7 @@ public class ConnectNControl extends GridPane implements BoardListener
     private void updateStartButtonText(final String text)
     {
         javafx.application.Platform.runLater(() ->
-            ConnectNControl.this.startButton.setText(text)
+            this.startButton.setText(text)
         );
     }
 
@@ -248,7 +248,7 @@ public class ConnectNControl extends GridPane implements BoardListener
     private void updateMessage(final String message)
     {
         javafx.application.Platform.runLater(() ->
-            ConnectNControl.this.displayMessage.setText(message)
+            this.displayMessage.setText(message)
         );
     }
 }

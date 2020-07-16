@@ -12,4 +12,12 @@
   <packaging>jar</packaging>
 
   <name>ConnectN Core</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+  </dependencies>
 </project>
